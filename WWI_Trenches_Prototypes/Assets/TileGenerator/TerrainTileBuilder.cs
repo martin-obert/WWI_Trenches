@@ -17,19 +17,73 @@ namespace Assets.TileGenerator
         public GameObject Spawn;
 
         [SerializeField] private int _distanceUnit = 11;
-        [SerializeField, Range(0,1)] private float _overlap = 1f;
+        [SerializeField, Range(0, 1)] private float _overlap = 1f;
 
         public TiledTerrain CreateTiledTerrain(int sizeX, int sizeY)
         {
-            if(!Spawn)
+            if (!Spawn)
                 Spawn = new GameObject("Tile_Terrain_Spawn");
 
             var tiledTerrain = Spawn.GetComponent<TiledTerrain>() ?? Spawn.AddComponent<TiledTerrain>();
 
             tiledTerrain.SizeX = sizeX;
             tiledTerrain.SizeY = sizeY;
-            tiledTerrain.transform.Rotate(Quaternion.Euler(0,10,0).eulerAngles, Space.World);
+            tiledTerrain.transform.Rotate(Quaternion.Euler(0, 10, 0).eulerAngles, Space.World);
             return tiledTerrain;
+        }
+
+        private TerrainTile ChooseTile(IEnumerable<TerrainTile> currentTiles, int row, int col, int terrainWidth)
+        {
+            if (!currentTiles.Any())
+                return TerrainTiles[Random.Range(0, TerrainTiles.Length)];
+
+            var rect = new Rect(col, row, TerrainTiles.Max(x => x.SizeX), TerrainTiles.Max(x => x.SizeY));
+
+            var iteration = 100;
+            while (iteration > 0)
+            {
+                bool overlaps = false;
+
+                foreach (var tiles in currentTiles.Where(x => x.Metadata.PositionY >= col - terrainWidth))
+                {
+                    var rect2 = new Rect(tiles.Metadata.PositionX, tiles.Metadata.PositionY, tiles.SizeX, tiles.SizeY);
+
+                    if (rect2.Overlaps(rect))
+                    {
+                        overlaps = true;
+                        break;
+                    }
+                }
+                if (!overlaps)
+                {
+                    Debug.Log("Search for w" + rect.width + " - h" + rect.height);
+                    var candidates = TerrainTiles.Where(x => x.SizeX <= rect.width && col + x.SizeX <= terrainWidth).ToArray();
+                    if (candidates.Any())
+                    {
+                        return candidates[Random.Range(0, candidates.Length)];
+                    }
+
+                }
+
+                if (rect.xMax > 0)
+                {
+                    rect.xMax--;
+                }
+                else if (rect.yMax > 0)
+                {
+                    rect.yMax--;
+                }
+                else
+                {
+                    return null;
+                }
+
+
+
+                iteration--;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -55,7 +109,7 @@ namespace Assets.TileGenerator
             {
                 for (int col = 0; col < terrain.SizeX; col++)
                 {
-                    var tile = col == 0 ? TerrainTiles[Random.Range(0, TerrainTiles.Length)] : TerrainTiles.FirstOrDefault(x => x.SizeX <= terrain.SizeX - col);
+                    var tile = ChooseTile(tiles, row, col, terrain.SizeX);
 
                     if (!tile)
                         continue;
@@ -66,13 +120,13 @@ namespace Assets.TileGenerator
 
                     tileInstance.Metadata = new TerrainTileMetadata
                     {
-                        PositionX = row,
-                        PositionY = col
+                        PositionX = col,
+                        PositionY = row
                     };
 
                     tileInstance.name = tileName;
 
-                    tileInstance.transform.Translate(row * _distanceUnit - _overlap, 0, col * _distanceUnit - _overlap, Space.Self);
+                    tileInstance.transform.localPosition = new Vector3(col * _distanceUnit - _overlap, 0, row * _distanceUnit - _overlap);
 
                     tiles.Add(tileInstance);
 
@@ -96,6 +150,8 @@ namespace Assets.TileGenerator
             _target = target as TerrainTileBuilder;
         }
 
+        private int terrainWidth = 3;
+        private int terrainHeight = 10;
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox("Use bootstrapper for generating tiles dynamically, these tiles should be used only for prototyping/testing purpouses!", MessageType.Info);
@@ -134,10 +190,15 @@ namespace Assets.TileGenerator
                     _target.TerrainTiles[i] = EditorGUILayout.ObjectField(_target.TerrainTiles[i], typeof(TerrainTile), false) as TerrainTile;
                 }
             }
-           
+
+            EditorGUILayout.BeginHorizontal();
+            terrainWidth = EditorGUILayout.IntField("Width", terrainWidth);
+            terrainHeight = EditorGUILayout.IntField("Height", terrainHeight);
+            EditorGUILayout.EndHorizontal();
+
             if (GUILayout.Button("Generate terrain"))
             {
-                var terrain = _target.CreateTiledTerrain(3, 10);
+                var terrain = _target.CreateTiledTerrain(terrainWidth, terrainHeight);
                 _target.GenerateTerrainTiles(terrain);
             }
 
