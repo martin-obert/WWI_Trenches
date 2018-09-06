@@ -12,16 +12,23 @@ namespace Assets.TileGenerator
         /// <summary>
         /// Usable prefabs of terrain tiles
         /// </summary>
-        public TerrainTile[] TerrainTiles { get; set; }
+        public TerrainTile[] TerrainTiles { get; set; } = new TerrainTile[0];
 
-        
+        public GameObject Spawn;
+
+        [SerializeField] private int _distanceUnit = 11;
+        [SerializeField, Range(0,1)] private float _overlap = 1f;
 
         public TiledTerrain CreateTiledTerrain(int sizeX, int sizeY)
         {
-            var go = new GameObject("Tiled_Terrain");
+            if(!Spawn)
+                Spawn = new GameObject("Tile_Terrain_Spawn");
 
-            var tiledTerrain = go.AddComponent<TiledTerrain>();
+            var tiledTerrain = Spawn.GetComponent<TiledTerrain>() ?? Spawn.AddComponent<TiledTerrain>();
 
+            tiledTerrain.SizeX = sizeX;
+            tiledTerrain.SizeY = sizeY;
+            tiledTerrain.transform.Rotate(Quaternion.Euler(0,10,0).eulerAngles, Space.World);
             return tiledTerrain;
         }
 
@@ -42,7 +49,7 @@ namespace Assets.TileGenerator
             var rowLen = new string('0', terrain.SizeY.ToString().Length);
 
             var colLen = new string('0', terrain.SizeX.ToString().Length);
-            
+
 
             for (int row = 0; row < terrain.SizeY; row++)
             {
@@ -55,7 +62,7 @@ namespace Assets.TileGenerator
 
                     var tileName = $"row_{row.ToString(rowLen)}_col_{col.ToString(colLen)}_{tile.name}";
 
-                    var tileInstance = Instantiate(tile);
+                    var tileInstance = Instantiate(tile, terrain.transform);
 
                     tileInstance.Metadata = new TerrainTileMetadata
                     {
@@ -65,12 +72,12 @@ namespace Assets.TileGenerator
 
                     tileInstance.name = tileName;
 
-                    tileInstance.transform.Translate(row, col, 0);
+                    tileInstance.transform.Translate(row * _distanceUnit - _overlap, 0, col * _distanceUnit - _overlap, Space.Self);
 
                     tiles.Add(tileInstance);
 
                     // Update col value to sync with current tile size
-                    col = tile.SizeX;
+                    col += tile.SizeX - 1;
                 }
             }
 
@@ -89,7 +96,6 @@ namespace Assets.TileGenerator
             _target = target as TerrainTileBuilder;
         }
 
-
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox("Use bootstrapper for generating tiles dynamically, these tiles should be used only for prototyping/testing purpouses!", MessageType.Info);
@@ -97,7 +103,7 @@ namespace Assets.TileGenerator
             EditorGUILayout.BeginHorizontal();
 
             EditorGUILayout.LabelField("Terrain tiles");
-            
+
             if (GUILayout.Button("Add"))
             {
                 var temp = _target.TerrainTiles;
@@ -109,11 +115,14 @@ namespace Assets.TileGenerator
 
             if (GUILayout.Button("Remove"))
             {
-                var temp = _target.TerrainTiles;
+                if (_target.TerrainTiles.Length > 0)
+                {
+                    var temp = _target.TerrainTiles;
 
-                _target.TerrainTiles = new TerrainTile[_target.TerrainTiles.Length - 1];
+                    _target.TerrainTiles = new TerrainTile[_target.TerrainTiles.Length - 1];
 
-                Array.Copy(temp, _target.TerrainTiles, _target.TerrainTiles.Length);
+                    Array.Copy(temp, _target.TerrainTiles, _target.TerrainTiles.Length);
+                }
             }
 
             EditorGUILayout.EndHorizontal();
@@ -125,12 +134,12 @@ namespace Assets.TileGenerator
                     _target.TerrainTiles[i] = EditorGUILayout.ObjectField(_target.TerrainTiles[i], typeof(TerrainTile), false) as TerrainTile;
                 }
             }
-
+           
             if (GUILayout.Button("Generate terrain"))
             {
-                Debug.Log("Generating terrain");
+                var terrain = _target.CreateTiledTerrain(3, 10);
+                _target.GenerateTerrainTiles(terrain);
             }
-
 
             base.OnInspectorGUI();
         }
