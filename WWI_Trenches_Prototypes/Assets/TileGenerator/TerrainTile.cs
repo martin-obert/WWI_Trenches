@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Assets.TileGenerator
 {
+    [Serializable]
     public class TerrainTile : MonoBehaviour
     {
         [SerializeField] private int _sizeX;

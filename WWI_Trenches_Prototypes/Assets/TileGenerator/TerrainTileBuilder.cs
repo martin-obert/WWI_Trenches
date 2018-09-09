@@ -12,10 +12,11 @@ namespace Assets.TileGenerator
         /// <summary>
         /// Usable prefabs of terrain tiles
         /// </summary>
-        public TerrainTile[] TerrainTiles { get; set; } = new TerrainTile[0];
+        public TerrainTile[] TerrainTiles = new TerrainTile[0];
 
         public GameObject Spawn;
-
+        [SerializeField] private int terrainWidth = 3;
+        [SerializeField] private int terrainHeight = 10;
         [SerializeField] private int _distanceUnit = 11;
         [SerializeField, Range(0, 1)] private float _overlap = 1f;
 
@@ -144,14 +145,14 @@ namespace Assets.TileGenerator
     public class TerrainTileBuilderEditor : Editor
     {
         private TerrainTileBuilder _target;
-
         void OnEnable()
         {
             _target = target as TerrainTileBuilder;
         }
 
-        private int terrainWidth = 3;
-        private int terrainHeight = 10;
+        private const string _distanceUnitProp = "_distanceUnit";
+
+
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox("Use bootstrapper for generating tiles dynamically, these tiles should be used only for prototyping/testing purpouses!", MessageType.Info);
@@ -167,6 +168,7 @@ namespace Assets.TileGenerator
                 _target.TerrainTiles = new TerrainTile[_target.TerrainTiles.Length + 1];
 
                 temp.CopyTo(_target.TerrainTiles, 0);
+                UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
             }
 
             if (GUILayout.Button("Remove"))
@@ -178,28 +180,23 @@ namespace Assets.TileGenerator
                     _target.TerrainTiles = new TerrainTile[_target.TerrainTiles.Length - 1];
 
                     Array.Copy(temp, _target.TerrainTiles, _target.TerrainTiles.Length);
+                    UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
                 }
             }
 
-            EditorGUILayout.EndHorizontal();
-
-            if (_target.TerrainTiles != null)
-            {
-                for (int i = 0; i < _target.TerrainTiles.Length; i++)
-                {
-                    _target.TerrainTiles[i] = EditorGUILayout.ObjectField(_target.TerrainTiles[i], typeof(TerrainTile), false) as TerrainTile;
-                }
-            }
-
-            EditorGUILayout.BeginHorizontal();
-            terrainWidth = EditorGUILayout.IntField("Width", terrainWidth);
-            terrainHeight = EditorGUILayout.IntField("Height", terrainHeight);
             EditorGUILayout.EndHorizontal();
 
             if (GUILayout.Button("Generate terrain"))
             {
+                var terrainWidthProp = serializedObject.FindProperty("terrainWidth");
+                var terrainHeightProp = serializedObject.FindProperty("terrainHeight");
+
+
+                var terrainWidth = EditorGUILayout.IntField("Width", terrainWidthProp.intValue);
+                var terrainHeight = EditorGUILayout.IntField("Height", terrainHeightProp.intValue);
                 var terrain = _target.CreateTiledTerrain(terrainWidth, terrainHeight);
                 _target.GenerateTerrainTiles(terrain);
+                UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
             }
 
             base.OnInspectorGUI();
