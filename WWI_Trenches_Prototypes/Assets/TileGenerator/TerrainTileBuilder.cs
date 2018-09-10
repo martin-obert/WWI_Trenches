@@ -15,7 +15,6 @@ namespace Assets.TileGenerator
         /// </summary>
         public TerrainTile[] TerrainTiles = new TerrainTile[0];
 
-        public GameObject Spawn;
 
         [SerializeField] private int _terrainWidth = 3;
 
@@ -25,19 +24,44 @@ namespace Assets.TileGenerator
 
         [SerializeField, Range(0, 1)] private float _overlap = 1f;
 
+        #region Events
+        public delegate void TerrainBuilderEventHandler(TerrainTileBuilder sender, TerrainBuilderEventArgs args);
+
+        public class TerrainBuilderEventArgs
+        {
+            public TiledTerrain BuildedTerrain { get; set; }
+            public float Percentage { get; set; }
+            public string Message { get; set; }
+        }
+
+        public event TerrainBuilderEventHandler TerrainProgress;
+        #endregion
+
+
         public TiledTerrain CreateTiledTerrain(int sizeX, int sizeY)
         {
-            if (!Spawn)
-                Spawn = new GameObject("Tile_Terrain_Spawn");
 
-            foreach (Transform go in Spawn.transform)
+            var terrain = new GameObject("Tile_Terrain_Spawn");
+
+            var currentTerrain = FindObjectOfType(typeof(TiledTerrain)) as TiledTerrain;
+            if (currentTerrain)
             {
-                DestroyImmediate(go.gameObject);
+                foreach (Transform go in currentTerrain.transform)
+                {
+                    DestroyImmediate(go.gameObject);
+                }
+                DestroyImmediate(currentTerrain);
             }
 
-            var tiledTerrain = Spawn.GetComponent<TiledTerrain>() ?? Spawn.AddComponent<TiledTerrain>();
 
-            var boxCollider = Spawn.GetComponent<BoxCollider>() ?? Spawn.AddComponent<BoxCollider>();
+
+            var tiledTerrain = terrain.GetComponent<TiledTerrain>();
+            if (!tiledTerrain)
+                tiledTerrain = terrain.AddComponent<TiledTerrain>();
+
+            var boxCollider = terrain.GetComponent<BoxCollider>();
+            if (!boxCollider)
+                boxCollider = terrain.AddComponent<BoxCollider>();
 
             var realSize = new Vector3(sizeX, 1, sizeY) * _distanceUnit;
 
@@ -50,12 +74,18 @@ namespace Assets.TileGenerator
             tiledTerrain.SizeY = sizeY;
 
 
-            var navMesh = Spawn.GetComponent<NavMeshSurface>();
+            var navMesh = terrain.GetComponent<NavMeshSurface>();
 
-            if (navMesh)
-            {
-                navMesh.BuildNavMesh();
-            }
+            if (!navMesh)
+                terrain.AddComponent<NavMeshSurface>();
+
+            var endPoint = new GameObject("End_Point");
+
+            endPoint.transform.position = new Vector3(tiledTerrain.SizeX * _distanceUnit / 2f, terrain.transform.position.y, tiledTerrain.SizeY * _distanceUnit);
+
+            endPoint.transform.SetParent(tiledTerrain.transform, true);
+
+            tiledTerrain.EndPoint = endPoint.transform;
 
             return tiledTerrain;
         }
@@ -98,6 +128,12 @@ namespace Assets.TileGenerator
                 return;
             }
 
+            OnTerrainProgress(new TerrainBuilderEventArgs
+            {
+                BuildedTerrain = terrain,
+                Percentage = 0
+            });
+
             var tiles = new List<TerrainTile>();
 
             var rowLen = new string('0', terrain.SizeY.ToString().Length);
@@ -132,10 +168,27 @@ namespace Assets.TileGenerator
 
                     // Update col value to sync with current tile size
                     col += tile.SizeX - 1;
+
+                    OnTerrainProgress(new TerrainBuilderEventArgs
+                    {
+                        BuildedTerrain = terrain,
+                        Percentage = (float)(row * col + col) / (terrain.SizeX * terrain.SizeY)
+                    });
                 }
             }
 
             terrain.TerrainTiles = tiles.ToArray();
+
+            OnTerrainProgress(new TerrainBuilderEventArgs
+            {
+                BuildedTerrain = terrain,
+                Percentage = 1
+            });
+        }
+
+        protected virtual void OnTerrainProgress(TerrainBuilderEventArgs args)
+        {
+            TerrainProgress?.Invoke(this, args);
         }
     }
 
@@ -184,8 +237,8 @@ namespace Assets.TileGenerator
 
             if (GUILayout.Button("Generate terrain"))
             {
-                var terrainWidthProp = serializedObject.FindProperty("terrainWidth");
-                var terrainHeightProp = serializedObject.FindProperty("terrainHeight");
+                var terrainWidthProp = serializedObject.FindProperty("_terrainWidth");
+                var terrainHeightProp = serializedObject.FindProperty("_terrainHeight");
 
 
                 var terrainWidth = EditorGUILayout.IntField("Width", terrainWidthProp.intValue);
