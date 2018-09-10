@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Gameplay;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -16,9 +17,6 @@ namespace Assets.TileGenerator
         public TerrainTile[] TerrainTiles = new TerrainTile[0];
 
 
-        [SerializeField] private int _terrainWidth = 3;
-
-        [SerializeField] private int _terrainHeight = 10;
 
         [SerializeField] private int _distanceUnit = 11;
 
@@ -30,13 +28,17 @@ namespace Assets.TileGenerator
         public class TerrainBuilderEventArgs
         {
             public TiledTerrain BuildedTerrain { get; set; }
-            public float Percentage { get; set; }
+            public float Progress { get; set; }
             public string Message { get; set; }
         }
 
         public event TerrainBuilderEventHandler TerrainProgress;
         #endregion
 
+        void Start()
+        {
+            GameManager.Instance.RegisterTerrainBuilder(this);
+        }
 
         public TiledTerrain CreateTiledTerrain(int sizeX, int sizeY)
         {
@@ -65,6 +67,7 @@ namespace Assets.TileGenerator
 
             var realSize = new Vector3(sizeX, 1, sizeY) * _distanceUnit;
 
+            //Setup collider for NavMesh Surface
             boxCollider.center = realSize / 2f;
 
             boxCollider.size = realSize;
@@ -73,12 +76,22 @@ namespace Assets.TileGenerator
 
             tiledTerrain.SizeY = sizeY;
 
-
+            //Setup NavMesh Surface
             var navMesh = terrain.GetComponent<NavMeshSurface>();
 
             if (!navMesh)
                 terrain.AddComponent<NavMeshSurface>();
 
+            //Setup starting point
+            var startPoint = new GameObject("Start_Point");
+
+            startPoint.transform.position = new Vector3(tiledTerrain.SizeX * _distanceUnit / 2f, terrain.transform.position.y, tiledTerrain.transform.position.z);
+
+            startPoint.transform.SetParent(tiledTerrain.transform, true);
+
+            tiledTerrain.StartPoint = startPoint.transform;
+
+            //Setup ending point
             var endPoint = new GameObject("End_Point");
 
             endPoint.transform.position = new Vector3(tiledTerrain.SizeX * _distanceUnit / 2f, terrain.transform.position.y, tiledTerrain.SizeY * _distanceUnit);
@@ -131,7 +144,7 @@ namespace Assets.TileGenerator
             OnTerrainProgress(new TerrainBuilderEventArgs
             {
                 BuildedTerrain = terrain,
-                Percentage = 0
+                Progress = 0
             });
 
             var tiles = new List<TerrainTile>();
@@ -172,7 +185,7 @@ namespace Assets.TileGenerator
                     OnTerrainProgress(new TerrainBuilderEventArgs
                     {
                         BuildedTerrain = terrain,
-                        Percentage = (float)(row * col + col) / (terrain.SizeX * terrain.SizeY)
+                        Progress = (float)(row * col + col) / (terrain.SizeX * terrain.SizeY)
                     });
                 }
             }
@@ -182,7 +195,7 @@ namespace Assets.TileGenerator
             OnTerrainProgress(new TerrainBuilderEventArgs
             {
                 BuildedTerrain = terrain,
-                Percentage = 1
+                Progress = 1
             });
         }
 
@@ -235,18 +248,7 @@ namespace Assets.TileGenerator
 
             EditorGUILayout.EndHorizontal();
 
-            if (GUILayout.Button("Generate terrain"))
-            {
-                var terrainWidthProp = serializedObject.FindProperty("_terrainWidth");
-                var terrainHeightProp = serializedObject.FindProperty("_terrainHeight");
-
-
-                var terrainWidth = EditorGUILayout.IntField("Width", terrainWidthProp.intValue);
-                var terrainHeight = EditorGUILayout.IntField("Height", terrainHeightProp.intValue);
-                var terrain = _target.CreateTiledTerrain(terrainWidth, terrainHeight);
-                _target.GenerateTerrainTiles(terrain);
-                UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
-            }
+          
 
             base.OnInspectorGUI();
         }
