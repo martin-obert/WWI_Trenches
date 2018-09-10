@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
 namespace Assets.TileGenerator
@@ -24,11 +25,33 @@ namespace Assets.TileGenerator
             if (!Spawn)
                 Spawn = new GameObject("Tile_Terrain_Spawn");
 
+            foreach (Transform go in Spawn.transform)
+            {
+                DestroyImmediate(go.gameObject);
+            }
+
             var tiledTerrain = Spawn.GetComponent<TiledTerrain>() ?? Spawn.AddComponent<TiledTerrain>();
 
+            var boxCollider = Spawn.GetComponent<BoxCollider>() ?? Spawn.AddComponent<BoxCollider>();
+
+            var realSize = new Vector3(sizeX, 1, sizeY) * _distanceUnit;
+
+            boxCollider.center = realSize / 2f;
+
+            boxCollider.size = realSize;
+
             tiledTerrain.SizeX = sizeX;
+
             tiledTerrain.SizeY = sizeY;
-            tiledTerrain.transform.Rotate(Quaternion.Euler(0, 10, 0).eulerAngles, Space.World);
+
+
+            var navMesh = Spawn.GetComponent<NavMeshSurface>();
+
+            if (navMesh)
+            {
+                navMesh.BuildNavMesh();
+            }
+
             return tiledTerrain;
         }
 
