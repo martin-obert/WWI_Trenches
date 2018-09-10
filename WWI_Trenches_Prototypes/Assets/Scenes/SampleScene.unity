@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -122,6 +122,7 @@ GameObject:
   m_Component:
   - component: {fileID: 58046972}
   - component: {fileID: 58046973}
+  - component: {fileID: 58046974}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -135,7 +136,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 58046971}
-  m_LocalRotation: {x: 0, y: 0.9848078, z: 0, w: -0.173648}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -153,6 +154,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d317bb6defecb741a6fe7c1f5b01038, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &58046974
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 58046971}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: -20, y: -2, z: -60}
+  m_Center: {x: -10, y: -1, z: -30}
 --- !u!1 &170076733
 GameObject:
   m_ObjectHideFlags: 0
@@ -252,8 +265,8 @@ MonoBehaviour:
   - {fileID: 114477534809836244, guid: 440c4d759b34a764ebda402f5d1f86ba, type: 2}
   - {fileID: 114550105784015988, guid: 7550f8b9cd2f61247bfaf812771b2139, type: 2}
   Spawn: {fileID: 58046971}
-  terrainWidth: 20
-  terrainHeight: 100
+  terrainWidth: 10
+  terrainHeight: 30
   _distanceUnit: -2
   _overlap: 0
 --- !u!4 &295343013

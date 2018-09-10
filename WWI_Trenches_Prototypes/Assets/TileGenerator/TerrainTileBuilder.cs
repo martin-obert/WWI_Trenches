@@ -16,9 +16,13 @@ namespace Assets.TileGenerator
         public TerrainTile[] TerrainTiles = new TerrainTile[0];
 
         public GameObject Spawn;
-        [SerializeField] private int terrainWidth = 3;
-        [SerializeField] private int terrainHeight = 10;
+
+        [SerializeField] private int _terrainWidth = 3;
+
+        [SerializeField] private int _terrainHeight = 10;
+
         [SerializeField] private int _distanceUnit = 11;
+
         [SerializeField, Range(0, 1)] private float _overlap = 1f;
 
         public TiledTerrain CreateTiledTerrain(int sizeX, int sizeY)
@@ -56,62 +60,34 @@ namespace Assets.TileGenerator
             return tiledTerrain;
         }
 
-        private TerrainTile ChooseTile(IEnumerable<TerrainTile> currentTiles, int row, int col, int terrainWidth)
+        private TerrainTile RandomTile(int width, int height)
         {
-            if (!currentTiles.Any())
-                return TerrainTiles[Random.Range(0, TerrainTiles.Length)];
+            var tiles = TerrainTiles.Where(x => x.SizeX <= width && x.SizeY <= height).ToArray();
+            return tiles[Random.Range(0, tiles.Length)];
+        }
 
-            var rect = new Rect(col, row, TerrainTiles.Max(x => x.SizeX), TerrainTiles.Max(x => x.SizeY));
+        private TerrainTile ChooseTile(IEnumerable<TerrainTile> currentTiles, int row, int col, int currentTerrainWidth, int currentTerrainHeight)
+        {
+            var colliding = currentTiles.Where(x => x.CornerY > row).ToArray();
 
-            var iteration = 100;
-            while (iteration > 0)
-            {
-                bool overlaps = false;
+            if (!colliding.Any())
+                return RandomTile(currentTerrainWidth - col, currentTerrainHeight - row);
 
-                foreach (var tiles in currentTiles.Where(x => x.Metadata.PositionY >= col - terrainWidth))
-                {
-                    var rect2 = new Rect(tiles.Metadata.PositionX, tiles.Metadata.PositionY, tiles.SizeX, tiles.SizeY);
+            if (colliding.Any(x => col >= x.Metadata.PositionX && x.CornerX > col))
+                return null;
 
-                    if (rect2.Overlaps(rect))
-                    {
-                        overlaps = true;
-                        break;
-                    }
-                }
-                if (!overlaps)
-                {
-                    Debug.Log("Search for w" + rect.width + " - h" + rect.height);
-                    var candidates = TerrainTiles.Where(x => x.SizeX <= rect.width && col + x.SizeX <= terrainWidth).ToArray();
-                    if (candidates.Any())
-                    {
-                        return candidates[Random.Range(0, candidates.Length)];
-                    }
+            var sufficientTiles = colliding.Where(x => x.Metadata.PositionX > col).ToArray();
 
-                }
-
-                if (rect.xMax > 0)
-                {
-                    rect.xMax--;
-                }
-                else if (rect.yMax > 0)
-                {
-                    rect.yMax--;
-                }
-                else
-                {
-                    return null;
-                }
+            if (!sufficientTiles.Any())
+                return RandomTile(currentTerrainWidth - col, currentTerrainHeight - row);
 
 
 
-                iteration--;
-            }
-
-            return null;
+            return RandomTile(sufficientTiles.Min(x => x.Metadata.PositionX) - col, currentTerrainHeight - row);
         }
 
         /// <summary>
-        /// Currently limited for tiles with size y = 1
+        /// 
         /// </summary>
         /// <param name="terrain"></param>
         public void GenerateTerrainTiles(TiledTerrain terrain)
@@ -133,7 +109,7 @@ namespace Assets.TileGenerator
             {
                 for (int col = 0; col < terrain.SizeX; col++)
                 {
-                    var tile = ChooseTile(tiles, row, col, terrain.SizeX);
+                    var tile = ChooseTile(tiles, row, col, terrain.SizeX, terrain.SizeY);
 
                     if (!tile)
                         continue;
@@ -150,7 +126,7 @@ namespace Assets.TileGenerator
 
                     tileInstance.name = tileName;
 
-                    tileInstance.transform.localPosition = new Vector3(col * _distanceUnit - _overlap, 0, row * _distanceUnit - _overlap);
+                    tileInstance.transform.position = new Vector3(col * _distanceUnit - _overlap, 0, row * _distanceUnit - _overlap);
 
                     tiles.Add(tileInstance);
 
@@ -172,9 +148,6 @@ namespace Assets.TileGenerator
         {
             _target = target as TerrainTileBuilder;
         }
-
-        private const string _distanceUnitProp = "_distanceUnit";
-
 
         public override void OnInspectorGUI()
         {
