@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Assets.IoC
 {
@@ -11,15 +13,35 @@ namespace Assets.IoC
 
         private InjectContainer Container { get; } = new InjectContainer();
 
-        public void Observe<T>(Action<T>) where T : UnityEngine.Object
-        {
+        private IDictionary<Type, List<Action<UnityEngine.Object>>> _callbackDictionary = new Dictionary<Type, List<Action<Object>>>();
 
+        public void Observe<T>(Action<Object> callback)
+        {
+            List<Action<Object>> list;
+            if (!_callbackDictionary.TryGetValue(typeof(T), out list))
+            {
+                list = new List<Action<Object>>();
+                _callbackDictionary.Add(typeof(T), list);
+            }
+
+            list.Add(callback);
         }
 
         public void Register<T>(T instance) where T : UnityEngine.Object
         {
             if (instance)
                 Container.Register<T>(instance);
+
+            List<Action<Object>> list;
+            if (_callbackDictionary.TryGetValue(typeof(T), out list))
+            {
+                foreach (var action in list)
+                {
+                    action(instance);
+                }
+
+                _callbackDictionary.Remove(typeof(T));
+            }
         }
 
         public void UnRegister<T>() where T : UnityEngine.Object
@@ -34,19 +56,7 @@ namespace Assets.IoC
                 throw new NullReferenceException("No Container has been set");
             }
 
-            InstanceLifetime result;
-            if (!Container.InstanceLifetimes.TryGetValue(typeof(T), out result))
-            {
-                return default(T);
-            }
-
-            if (result == InstanceLifetime.PerRequest)
-                return FindObjectOfType<T>();
-
-            if (result == InstanceLifetime.Singleton)
-                return Container.Singletons[typeof(T)]() as T;
-
-            return default(T);
+            return Container.Singletons[typeof(T)] as T;
         }
 
         void Awake()

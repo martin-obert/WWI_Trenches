@@ -17,7 +17,7 @@ namespace Assets.Gameplay.Abstract
 
                 Instance = insntace;
 
-            InjectService.Instance.Container.Register<T>(() => this);
+            InjectService.Instance.Register(this);
         }
 
         protected void GCSingleton(T instance)
@@ -28,7 +28,7 @@ namespace Assets.Gameplay.Abstract
 
         public void Dispose()
         {
-            InjectService.Instance.Container.UnRegister<T>();
+            InjectService.Instance.UnRegister<T>();
             Instance = null;
         }
     }
