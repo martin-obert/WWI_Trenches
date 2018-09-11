@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Gameplay;
+using Assets.Gameplay.Abstract;
+using Assets.IoC;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -9,7 +11,7 @@ using Random = UnityEngine.Random;
 
 namespace Assets.TileGenerator
 {
-    public class TerrainTileBuilder : MonoBehaviour
+    public class TerrainTileBuilder : Singleton<TerrainTileBuilder>
     {
         [Tooltip("Usable prefabs of terrain tiles")]
         public TerrainTile[] TerrainTiles = new TerrainTile[0];
@@ -46,7 +48,7 @@ namespace Assets.TileGenerator
 
         void Start()
         {
-            GameManager.Instance.RegisterTerrainBuilder(this);
+            CreateSingleton(this);
         }
 
         public TiledTerrain CreateTiledTerrain(int sizeX, int sizeY)

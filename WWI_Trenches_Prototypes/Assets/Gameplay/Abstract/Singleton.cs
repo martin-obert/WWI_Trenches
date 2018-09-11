@@ -8,6 +8,11 @@ namespace Assets.Gameplay.Abstract
     {
         public static T Instance { get; protected set; }
 
+        protected void Dependency<TDependency>(Action<TDependency> function) where TDependency : UnityEngine.Object
+        {
+            InjectService.Instance.Observe<TDependency>(o => function(o as TDependency));
+        }
+
         protected void CreateSingleton(T insntace)
         {
             if (Instance && !insntace.Equals(Instance))
@@ -15,7 +20,7 @@ namespace Assets.Gameplay.Abstract
                 Destroy(Instance);
             }
 
-                Instance = insntace;
+            Instance = insntace;
 
             InjectService.Instance.Register(this);
         }

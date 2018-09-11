@@ -1,4 +1,5 @@
-﻿using Assets.Gameplay.Abstract;
+﻿using System;
+using Assets.Gameplay.Abstract;
 using Assets.IoC;
 using Assets.TileGenerator;
 using UnityEditor;
@@ -21,6 +22,9 @@ namespace Assets.Gameplay
 
         void Awake()
         {
+            Dependency<Bootstrapper>(bootstrapper => { _bootstrapper = bootstrapper; });
+            Dependency<TerrainTileBuilder>(RegisterTerrainBuilder);
+
             CreateSingleton(this);
         }
 
@@ -29,11 +33,7 @@ namespace Assets.Gameplay
             GCSingleton(this);
         }
 
-        void Start()
-        {
-        }
-
-        public void RegisterTerrainBuilder(TerrainTileBuilder builder)
+        private void RegisterTerrainBuilder(TerrainTileBuilder builder)
         {
             if (_terrainTileBuilder && builder != _terrainTileBuilder)
             {

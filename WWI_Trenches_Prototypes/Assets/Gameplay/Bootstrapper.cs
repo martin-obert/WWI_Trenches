@@ -1,4 +1,5 @@
 ﻿using Assets.Gameplay.Units;
+using Assets.IoC;
 using Assets.TileGenerator;
 using UnityEngine;
 
@@ -21,7 +22,7 @@ namespace Assets.Gameplay
 
         void Start()
         {
-            GameManager.Instance.RegisterBootstrapper(this);
+            InjectService.Instance.Register(this);
         }
 
 

@@ -15,16 +15,24 @@ namespace Assets.IoC
 
         private IDictionary<Type, List<Action<UnityEngine.Object>>> _callbackDictionary = new Dictionary<Type, List<Action<Object>>>();
 
-        public void Observe<T>(Action<Object> callback)
+        public void Observe<T>(Action<Object> callback) where T : Object
         {
-            List<Action<Object>> list;
-            if (!_callbackDictionary.TryGetValue(typeof(T), out list))
+            var current = Container.Singletons[typeof(T)];
+            if (current!= null)
             {
-                list = new List<Action<Object>>();
-                _callbackDictionary.Add(typeof(T), list);
+                callback(current as T);
             }
+            else
+            {
+                List<Action<Object>> list;
+                if (!_callbackDictionary.TryGetValue(typeof(T), out list))
+                {
+                    list = new List<Action<Object>>();
+                    _callbackDictionary.Add(typeof(T), list);
+                }
 
-            list.Add(callback);
+                list.Add(callback);
+            }
         }
 
         public void Register<T>(T instance) where T : UnityEngine.Object
@@ -72,6 +80,8 @@ namespace Assets.IoC
 
         void OnDestroy()
         {
+            _callbackDictionary.Clear();
+            _callbackDictionary = null;
             _instance = null;
         }
     }
