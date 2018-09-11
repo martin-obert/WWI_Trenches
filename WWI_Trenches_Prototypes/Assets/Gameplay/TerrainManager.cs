@@ -32,7 +32,7 @@ namespace Assets.Gameplay
 
         void OnDestroy()
         {
-            CGSingleton(this);
+            GCSingleton(this);
         }
 
     }
