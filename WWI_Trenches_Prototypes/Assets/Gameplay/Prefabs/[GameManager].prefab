@@ -11,6 +11,22 @@ Prefab:
   m_SourcePrefab: {fileID: 0}
   m_RootGameObject: {fileID: 1191053576870350}
   m_IsPrefabAsset: 1
+--- !u!1 &1022338785527604
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4800436986929828}
+  - component: {fileID: 114906349285785732}
+  m_Layer: 0
+  m_Name: '[Bootstrapper]'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1191053576870350
 GameObject:
   m_ObjectHideFlags: 0
@@ -67,8 +83,22 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4031714587275030}
+  - {fileID: 4800436986929828}
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4800436986929828
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1022338785527604}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4769508962675706}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &114552285803927508
 MonoBehaviour:
@@ -86,6 +116,9 @@ MonoBehaviour:
   - {fileID: 114213595275108420, guid: fa7327b884e70364bbf66ebe2ef0f52b, type: 2}
   - {fileID: 114477534809836244, guid: 440c4d759b34a764ebda402f5d1f86ba, type: 2}
   - {fileID: 114550105784015988, guid: 7550f8b9cd2f61247bfaf812771b2139, type: 2}
+  Spawn: {fileID: 0}
+  _terrainWidth: 3
+  _terrainHeight: 10
   _distanceUnit: -2
   _overlap: 0
 --- !u!114 &114754783518060934
@@ -99,12 +132,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e80204865181014283964b91bc413ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _camera: {fileID: 0}
-  _minDistance: 3
-  _maxDistance: 10
-  _distance: 3
   _terrainWidth: 3
   _terrainHeight: 10
   _terrainTileBuilder: {fileID: 114552285803927508}
-  _playerPrefab: {fileID: 114444184882261588, guid: 876f28d076fcbfe428f1b603acf034a9,
+--- !u!114 &114906349285785732
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1022338785527604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8011710e871a14a47bf653887140afe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerPrefabPlayer: {fileID: 114722643482871320, guid: 0b3ee2c3e4d84fc48b327c618f05014e,
     type: 2}
+  _terrainTilesPrefabs:
+  - {fileID: 114325543122065814, guid: 4030045afb1187a4eb593c0de3169c76, type: 2}
+  - {fileID: 114213595275108420, guid: fa7327b884e70364bbf66ebe2ef0f52b, type: 2}
+  - {fileID: 114477534809836244, guid: 440c4d759b34a764ebda402f5d1f86ba, type: 2}
+  - {fileID: 114550105784015988, guid: 7550f8b9cd2f61247bfaf812771b2139, type: 2}

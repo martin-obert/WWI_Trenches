@@ -55,7 +55,7 @@ namespace Assets.Gameplay
             var y = playerPosition.y + _distance;
             var x = playerPosition.x - _distance;
 
-            _target.Set(_camera.transform.position.x + x, _camera.transform.position.y + y, _camera.transform.position.z + z);
+            _target.Set(x, y, z);
 
             _camera.transform.position = Vector3.Lerp(_camera.transform.position, _target, Time.deltaTime * 2f);
         }
@@ -85,7 +85,7 @@ namespace Assets.Gameplay
 
             if (cachedVal != distanceProp.floatValue)
             {
-                Camera.main.transform.position = Vector3.forward * -1 * cachedVal;
+                Camera.main.transform.position = (Vector3.forward * -1 + Vector3.up) * cachedVal;
                 serializedObject.ApplyModifiedProperties();
             }
         }

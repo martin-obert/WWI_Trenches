@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.IoC;
 using UnityEngine;
 
 namespace Assets.Gameplay.Abstract
@@ -14,7 +15,9 @@ namespace Assets.Gameplay.Abstract
                 Destroy(Instance);
             }
 
-            Instance = insntace;
+                Instance = insntace;
+
+            InjectService.Instance.Container.Register<T>(() => this);
         }
 
         protected void GCSingleton(T instance)
@@ -25,7 +28,7 @@ namespace Assets.Gameplay.Abstract
 
         public void Dispose()
         {
-
+            InjectService.Instance.Container.UnRegister<T>();
             Instance = null;
         }
     }

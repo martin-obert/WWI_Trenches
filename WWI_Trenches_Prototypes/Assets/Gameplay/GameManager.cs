@@ -1,4 +1,5 @@
 ﻿using Assets.Gameplay.Abstract;
+using Assets.IoC;
 using Assets.TileGenerator;
 using UnityEditor;
 using UnityEngine;
@@ -11,34 +12,25 @@ namespace Assets.Gameplay
 
         [SerializeField] private int _terrainHeight = 10;
 
-
-        [SerializeField] private TerrainTileBuilder _terrainTileBuilder;
-
-        public TerrainTileBuilder TerrainTileBuilder => _terrainTileBuilder;
-
         [SerializeField] private IBootstrapper _bootstrapper;
 
-        void Start()
+        [SerializeField] private TerrainTileBuilder _terrainTileBuilder;
+        
+        public TerrainTileBuilder TerrainTileBuilder => _terrainTileBuilder;
+
+
+        void Awake()
         {
-            var instance = FindObjectOfType<GameManager>();
-
-            if (instance && instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
+            CreateSingleton(this);
         }
 
         void OnDestroy()
         {
-            Instance = null;
+            GCSingleton(this);
         }
 
-        void Update()
+        void Start()
         {
-
         }
 
         public void RegisterTerrainBuilder(TerrainTileBuilder builder)
