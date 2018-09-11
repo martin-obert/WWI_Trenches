@@ -16,6 +16,8 @@ namespace Assets.Gameplay
 
         public TerrainTileBuilder TerrainTileBuilder => _terrainTileBuilder;
 
+        [SerializeField] private IBootstrapper _bootstrapper;
+
         void Start()
         {
             var instance = FindObjectOfType<GameManager>();
@@ -36,13 +38,16 @@ namespace Assets.Gameplay
 
         void Update()
         {
-            
+
         }
 
         public void RegisterTerrainBuilder(TerrainTileBuilder builder)
         {
             if (_terrainTileBuilder && builder != _terrainTileBuilder)
+            {
+                _terrainTileBuilder.TerrainProgress -= TerrainTileBuilderOnTerrainProgress;
                 Destroy(_terrainTileBuilder);
+            }
 
             _terrainTileBuilder = builder;
 
@@ -53,15 +58,33 @@ namespace Assets.Gameplay
         {
             if (args.Progress < 1)
                 return;
+
+            var player = Instantiate(_bootstrapper.PlayerPrefab);
+
+            player.Spawn(args.BuildedTerrain.StartPoint.position, args.BuildedTerrain.EndPoint.position);
+
         }
 
         public void StartLevel()
         {
+            if (_bootstrapper == null)
+            {
+                Debug.LogError("No bootstrapper detected.");
+                return;
+            }
+
+            _terrainTileBuilder.TerrainTiles = _bootstrapper.TerrainTilesPrefabs;
+
             var currentTerrain = _terrainTileBuilder.CreateTiledTerrain(_terrainWidth, _terrainHeight);
 
             _terrainTileBuilder.GenerateTerrainTiles(currentTerrain);
 
             TerrainManager.Instance.CurrentTerrain = currentTerrain;
+        }
+
+        public void RegisterBootstrapper(IBootstrapper bootstrapper)
+        {
+            _bootstrapper = bootstrapper;
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿using Assets.Gameplay.Abstract;
+using Assets.Gameplay.Units;
 using UnityEditor;
 using UnityEngine;
 
@@ -23,7 +24,6 @@ namespace Assets.Gameplay
             if (!_camera)
             {
                 _camera = Camera.main ?? Camera.current;
-
             }
 
             if (!_camera)
