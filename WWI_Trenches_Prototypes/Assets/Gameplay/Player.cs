@@ -1,18 +1,29 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 
-namespace Assets.Player
+namespace Assets.Gameplay
 {
     [RequireComponent(typeof(NavMeshAgent))]
     public class Player : MonoBehaviour
     {
-        private NavMeshAgent _navAgent;
+        public static Player Instance { get; private set; }
 
+        private NavMeshAgent _navAgent;
 
 
         void Awake()
         {
             _navAgent = GetComponent<NavMeshAgent>();
+        }
+
+        void Start()
+        {
+            if (Instance && Instance != this)
+            {
+                Destroy(Instance);
+            }
+
+            Instance = this;
         }
 
         void Update()

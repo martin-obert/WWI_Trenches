@@ -14,7 +14,7 @@ namespace Assets.TileGenerator
         [Tooltip("Usable prefabs of terrain tiles")]
         public TerrainTile[] TerrainTiles = new TerrainTile[0];
 
-<<<<<<< HEAD
+
         [Tooltip("Position of origin")]
         public GameObject Spawn;
 
@@ -23,9 +23,7 @@ namespace Assets.TileGenerator
 
         [Tooltip("Height of terrain in \"ttu\"")]
         [SerializeField] private int _terrainHeight = 10;
-=======
 
->>>>>>> 039c78274b8802babacfb3fbf3afa29b293249b8
 
         [Tooltip("Length of single \"ttu\"")]
         [SerializeField] private int _distanceUnit = 11;
