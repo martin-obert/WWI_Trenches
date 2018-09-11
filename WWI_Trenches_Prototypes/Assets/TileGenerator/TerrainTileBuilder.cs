@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Gameplay;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -13,6 +14,7 @@ namespace Assets.TileGenerator
         [Tooltip("Usable prefabs of terrain tiles")]
         public TerrainTile[] TerrainTiles = new TerrainTile[0];
 
+<<<<<<< HEAD
         [Tooltip("Position of origin")]
         public GameObject Spawn;
 
@@ -21,6 +23,9 @@ namespace Assets.TileGenerator
 
         [Tooltip("Height of terrain in \"ttu\"")]
         [SerializeField] private int _terrainHeight = 10;
+=======
+
+>>>>>>> 039c78274b8802babacfb3fbf3afa29b293249b8
 
         [Tooltip("Length of single \"ttu\"")]
         [SerializeField] private int _distanceUnit = 11;
@@ -28,22 +33,52 @@ namespace Assets.TileGenerator
         [Tooltip("Overlap in %")]
         [SerializeField, Range(0, 1)] private float _overlap = 1f;
 
+        #region Events
+        public delegate void TerrainBuilderEventHandler(TerrainTileBuilder sender, TerrainBuilderEventArgs args);
+
+        public class TerrainBuilderEventArgs
+        {
+            public TiledTerrain BuildedTerrain { get; set; }
+            public float Progress { get; set; }
+            public string Message { get; set; }
+        }
+
+        public event TerrainBuilderEventHandler TerrainProgress;
+        #endregion
+
+        void Start()
+        {
+            GameManager.Instance.RegisterTerrainBuilder(this);
+        }
+
         public TiledTerrain CreateTiledTerrain(int sizeX, int sizeY)
         {
-            if (!Spawn)
-                Spawn = new GameObject("Tile_Terrain_Spawn");
 
-            foreach (Transform go in Spawn.transform)
+            var terrain = new GameObject("Tile_Terrain_Spawn");
+
+            var currentTerrain = FindObjectOfType(typeof(TiledTerrain)) as TiledTerrain;
+            if (currentTerrain)
             {
-                DestroyImmediate(go.gameObject);
+                foreach (Transform go in currentTerrain.transform)
+                {
+                    DestroyImmediate(go.gameObject);
+                }
+                DestroyImmediate(currentTerrain);
             }
 
-            var tiledTerrain = Spawn.GetComponent<TiledTerrain>() ?? Spawn.AddComponent<TiledTerrain>();
 
-            var boxCollider = Spawn.GetComponent<BoxCollider>() ?? Spawn.AddComponent<BoxCollider>();
+
+            var tiledTerrain = terrain.GetComponent<TiledTerrain>();
+            if (!tiledTerrain)
+                tiledTerrain = terrain.AddComponent<TiledTerrain>();
+
+            var boxCollider = terrain.GetComponent<BoxCollider>();
+            if (!boxCollider)
+                boxCollider = terrain.AddComponent<BoxCollider>();
 
             var realSize = new Vector3(sizeX, 1, sizeY) * _distanceUnit;
 
+            //Setup collider for NavMesh Surface
             boxCollider.center = realSize / 2f;
 
             boxCollider.size = realSize;
@@ -52,13 +87,29 @@ namespace Assets.TileGenerator
 
             tiledTerrain.SizeY = sizeY;
 
+            //Setup NavMesh Surface
+            var navMesh = terrain.GetComponent<NavMeshSurface>();
 
-            var navMesh = Spawn.GetComponent<NavMeshSurface>();
+            if (!navMesh)
+                terrain.AddComponent<NavMeshSurface>();
 
-            if (navMesh)
-            {
-                navMesh.BuildNavMesh();
-            }
+            //Setup starting point
+            var startPoint = new GameObject("Start_Point");
+
+            startPoint.transform.position = new Vector3(tiledTerrain.SizeX * _distanceUnit / 2f, terrain.transform.position.y, tiledTerrain.transform.position.z);
+
+            startPoint.transform.SetParent(tiledTerrain.transform, true);
+
+            tiledTerrain.StartPoint = startPoint.transform;
+
+            //Setup ending point
+            var endPoint = new GameObject("End_Point");
+
+            endPoint.transform.position = new Vector3(tiledTerrain.SizeX * _distanceUnit / 2f, terrain.transform.position.y, tiledTerrain.SizeY * _distanceUnit);
+
+            endPoint.transform.SetParent(tiledTerrain.transform, true);
+
+            tiledTerrain.EndPoint = endPoint.transform;
 
             return tiledTerrain;
         }
@@ -99,6 +150,12 @@ namespace Assets.TileGenerator
                 return;
             }
 
+            OnTerrainProgress(new TerrainBuilderEventArgs
+            {
+                BuildedTerrain = terrain,
+                Progress = 0
+            });
+
             var tiles = new List<TerrainTile>();
 
             var rowLen = new string('0', terrain.SizeY.ToString().Length);
@@ -133,10 +190,27 @@ namespace Assets.TileGenerator
 
                     // Update col value to sync with current tile size
                     col += tile.SizeX - 1;
+
+                    OnTerrainProgress(new TerrainBuilderEventArgs
+                    {
+                        BuildedTerrain = terrain,
+                        Progress = (float)(row * col + col) / (terrain.SizeX * terrain.SizeY)
+                    });
                 }
             }
 
             terrain.TerrainTiles = tiles.ToArray();
+
+            OnTerrainProgress(new TerrainBuilderEventArgs
+            {
+                BuildedTerrain = terrain,
+                Progress = 1
+            });
+        }
+
+        protected virtual void OnTerrainProgress(TerrainBuilderEventArgs args)
+        {
+            TerrainProgress?.Invoke(this, args);
         }
     }
 
@@ -183,18 +257,7 @@ namespace Assets.TileGenerator
 
             EditorGUILayout.EndHorizontal();
 
-            if (GUILayout.Button("Generate terrain"))
-            {
-                var terrainWidthProp = serializedObject.FindProperty("terrainWidth");
-                var terrainHeightProp = serializedObject.FindProperty("terrainHeight");
-
-
-                var terrainWidth = EditorGUILayout.IntField("Width", terrainWidthProp.intValue);
-                var terrainHeight = EditorGUILayout.IntField("Height", terrainHeightProp.intValue);
-                var terrain = _target.CreateTiledTerrain(terrainWidth, terrainHeight);
-                _target.GenerateTerrainTiles(terrain);
-                UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
-            }
+          
 
             base.OnInspectorGUI();
         }
