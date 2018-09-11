@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Assets.Gameplay;
 using Assets.Gameplay.Abstract;
-using Assets.IoC;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -16,9 +14,6 @@ namespace Assets.TileGenerator
         [Tooltip("Usable prefabs of terrain tiles")]
         public TerrainTile[] TerrainTiles = new TerrainTile[0];
 
-
-        [Tooltip("Position of origin")]
-        public GameObject Spawn;
 
         [Tooltip("Width of terrain in \"ttu\"")]
         [SerializeField] private int _terrainWidth = 3;
@@ -76,7 +71,7 @@ namespace Assets.TileGenerator
             if (!boxCollider)
                 boxCollider = terrain.AddComponent<BoxCollider>();
 
-            var realSize = new Vector3(sizeX, 1, sizeY) * _distanceUnit;
+            var realSize = new Vector3(sizeX, -1, sizeY) * _distanceUnit;
 
             //Setup collider for NavMesh Surface
             boxCollider.center = realSize / 2f;

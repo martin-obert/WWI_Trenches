@@ -1,4 +1,5 @@
-﻿using Assets.Gameplay.Abstract;
+﻿using System.Collections;
+using Assets.Gameplay.Abstract;
 using UnityEngine;
 
 namespace Assets.Gameplay.Units
@@ -7,6 +8,7 @@ namespace Assets.Gameplay.Units
     public class Player : Singleton<Player>
     {
         private PlayerController _controller;
+
 
         public bool IsAlive { get; private set; }
 
@@ -57,9 +59,15 @@ namespace Assets.Gameplay.Units
             if (destination.HasValue)
             {
                 transform.rotation = Quaternion.FromToRotation(new Vector3(position.x, 0, position.z), new Vector3(destination.Value.x, 0, destination.Value.z));
-
-                _controller.Target = destination.Value;
+                StartCoroutine(DelayedMove(destination.Value));
             }
+        }
+
+        private IEnumerator DelayedMove(Vector3 destination)
+        {
+            yield return new WaitForSecondsRealtime(1);
+
+            Move(destination);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Assets.Gameplay.Units
             get { return _target; }
             set
             {
-                if(value.z <= transform.position.z) return;
+                if (value.z <= transform.position.z) return;
 
                 _target = value;
 
@@ -29,13 +29,14 @@ namespace Assets.Gameplay.Units
 
         void OnEnable()
         {
-            //Todo: tohle checknout at se nezacne jen tak hybat
-            _navAgent.isStopped = false;
+            if (_navAgent.isOnNavMesh)
+                _navAgent.isStopped = false;
         }
 
         void OnDisable()
         {
-            _navAgent.isStopped = true;
+            if (_navAgent.isOnNavMesh)
+                _navAgent.isStopped = true;
         }
     }
 }

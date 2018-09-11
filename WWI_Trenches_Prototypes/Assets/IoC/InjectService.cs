@@ -5,6 +5,12 @@ using Object = UnityEngine.Object;
 
 namespace Assets.IoC
 {
+    public enum Instancing
+    {
+        None,
+        Singleton
+    }
+
     public class InjectService : ScriptableObject
     {
         private static InjectService _instance;
@@ -17,17 +23,21 @@ namespace Assets.IoC
 
         public void Observe<T>(Action<Object> callback) where T : Object
         {
-            var current = Container.Singletons[typeof(T)];
-            if (current!= null)
+            
+
+            object current;
+            if (Container.Singletons.TryGetValue(typeof(T), out current))
             {
                 callback(current as T);
             }
             else
             {
                 List<Action<Object>> list;
+
                 if (!_callbackDictionary.TryGetValue(typeof(T), out list))
                 {
                     list = new List<Action<Object>>();
+
                     _callbackDictionary.Add(typeof(T), list);
                 }
 
@@ -35,8 +45,11 @@ namespace Assets.IoC
             }
         }
 
-        public void Register<T>(T instance) where T : UnityEngine.Object
+        public void Register<T>(T instance, Instancing instancing = Instancing.Singleton) where T : UnityEngine.Object
         {
+            if (instancing == Instancing.Singleton && Container.Singletons.ContainsKey(typeof(T)))
+                return;
+
             if (instance)
                 Container.Register<T>(instance);
 
@@ -47,8 +60,8 @@ namespace Assets.IoC
                 {
                     action(instance);
                 }
-
-                _callbackDictionary.Remove(typeof(T));
+                if (instancing == Instancing.Singleton)
+                    _callbackDictionary.Remove(typeof(T));
             }
         }
 

@@ -51,9 +51,9 @@ namespace Assets.Gameplay
 
         public void UpdateCameraPosition(Vector3 playerPosition, Vector3 startPoint)
         {
-            var z = startPoint.z;
+            var z = playerPosition.z - _distance;
             var y = playerPosition.y + _distance;
-            var x = playerPosition.x - _distance;
+            var x = startPoint.x;
 
             _target.Set(x, y, z);
 

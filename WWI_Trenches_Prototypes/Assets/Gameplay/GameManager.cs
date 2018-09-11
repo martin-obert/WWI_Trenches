@@ -16,9 +16,6 @@ namespace Assets.Gameplay
         [SerializeField] private IBootstrapper _bootstrapper;
 
         [SerializeField] private TerrainTileBuilder _terrainTileBuilder;
-        
-        public TerrainTileBuilder TerrainTileBuilder => _terrainTileBuilder;
-
 
         void Awake()
         {
@@ -64,19 +61,14 @@ namespace Assets.Gameplay
                 Debug.LogError("No bootstrapper detected.");
                 return;
             }
-
-            _terrainTileBuilder.TerrainTiles = _bootstrapper.TerrainTilesPrefabs;
+            if (_bootstrapper != null && _bootstrapper.TerrainTilesPrefabs.Length > 0)
+                _terrainTileBuilder.TerrainTiles = _bootstrapper.TerrainTilesPrefabs;
 
             var currentTerrain = _terrainTileBuilder.CreateTiledTerrain(_terrainWidth, _terrainHeight);
 
             _terrainTileBuilder.GenerateTerrainTiles(currentTerrain);
 
             TerrainManager.Instance.CurrentTerrain = currentTerrain;
-        }
-
-        public void RegisterBootstrapper(IBootstrapper bootstrapper)
-        {
-            _bootstrapper = bootstrapper;
         }
     }
 
@@ -98,14 +90,7 @@ namespace Assets.Gameplay
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Simulate start"))
             {
-                if (_gameManager.TerrainTileBuilder)
-                {
-                    _gameManager.StartLevel();
-                }
-                else
-                {
-                    Debug.LogError("No terrain builder was registered");
-                }
+                _gameManager.StartLevel();
             }
             GUILayout.EndHorizontal();
         }

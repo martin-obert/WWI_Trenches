@@ -22,7 +22,7 @@ namespace Assets.Gameplay.Abstract
 
             Instance = insntace;
 
-            InjectService.Instance.Register(this);
+            InjectService.Instance.Register(insntace);
         }
 
         protected void GCSingleton(T instance)
