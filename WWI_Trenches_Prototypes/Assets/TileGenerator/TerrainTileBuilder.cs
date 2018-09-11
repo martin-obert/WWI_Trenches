@@ -10,19 +10,22 @@ namespace Assets.TileGenerator
 {
     public class TerrainTileBuilder : MonoBehaviour
     {
-        /// <summary>
-        /// Usable prefabs of terrain tiles
-        /// </summary>
+        [Tooltip("Usable prefabs of terrain tiles")]
         public TerrainTile[] TerrainTiles = new TerrainTile[0];
 
+        [Tooltip("Position of origin")]
         public GameObject Spawn;
 
+        [Tooltip("Width of terrain in \"ttu\"")]
         [SerializeField] private int _terrainWidth = 3;
 
+        [Tooltip("Height of terrain in \"ttu\"")]
         [SerializeField] private int _terrainHeight = 10;
 
+        [Tooltip("Length of single \"ttu\"")]
         [SerializeField] private int _distanceUnit = 11;
 
+        [Tooltip("Overlap in %")]
         [SerializeField, Range(0, 1)] private float _overlap = 1f;
 
         public TiledTerrain CreateTiledTerrain(int sizeX, int sizeY)
@@ -81,13 +84,11 @@ namespace Assets.TileGenerator
             if (!sufficientTiles.Any())
                 return RandomTile(currentTerrainWidth - col, currentTerrainHeight - row);
 
-
-
             return RandomTile(sufficientTiles.Min(x => x.Metadata.PositionX) - col, currentTerrainHeight - row);
         }
 
         /// <summary>
-        /// 
+        /// Generates randomly terrain tiles according to bounds set in inputed terrain
         /// </summary>
         /// <param name="terrain"></param>
         public void GenerateTerrainTiles(TiledTerrain terrain)
