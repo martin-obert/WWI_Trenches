@@ -14,6 +14,8 @@ namespace Assets.TileGenerator
         [Tooltip("Usable prefabs of terrain tiles")]
         public TerrainTile[] TerrainTiles = new TerrainTile[0];
 
+        [Tooltip("Use to build navmesh")]
+        public LayerMask LayerMask;
 
         [Tooltip("Width of terrain in \"ttu\"")]
         [SerializeField] private int _terrainWidth = 3;
@@ -87,6 +89,10 @@ namespace Assets.TileGenerator
 
             if (!navMesh)
                 terrain.AddComponent<NavMeshSurface>();
+
+            navMesh.layerMask = LayerMask;
+
+            navMesh.BuildNavMesh();
 
             //Setup starting point
             var startPoint = new GameObject("Start_Point");

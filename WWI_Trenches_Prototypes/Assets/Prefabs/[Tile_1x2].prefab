@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4866440967605240}
   - component: {fileID: 114981707294399448}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: '[Tile_1x2]'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38,7 +38,7 @@ GameObject:
   - component: {fileID: 33144276785578480}
   - component: {fileID: 23012083992624080}
   - component: {fileID: 114787292200100788}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Tile_1x2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
