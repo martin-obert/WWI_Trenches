@@ -34,7 +34,7 @@ namespace Assets.Gameplay.Units
                 Debug.LogError("Cannot move with dead player");
                 return;
             }
-
+            
             _controller.Target = target;
         }
 

@@ -581,6 +581,11 @@ Prefab:
       propertyPath: _distanceUnit
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 114552285803927508, guid: 055ec85df1032c245ac7b0d835d030c3,
+        type: 2}
+      propertyPath: LayerMask.m_Bits
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 055ec85df1032c245ac7b0d835d030c3, type: 2}
   m_IsPrefabAsset: 0
