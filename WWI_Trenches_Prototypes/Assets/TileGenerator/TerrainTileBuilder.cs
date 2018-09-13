@@ -97,7 +97,7 @@ namespace Assets.TileGenerator
             //Setup starting point
             var startPoint = new GameObject("Start_Point");
 
-            startPoint.transform.position = new Vector3(tiledTerrain.SizeX * _distanceUnit / 2f, terrain.transform.position.y, tiledTerrain.transform.position.z);
+            startPoint.transform.position = new Vector3(tiledTerrain.SizeX * _distanceUnit / 2f, terrain.transform.position.y, tiledTerrain.transform.position.z+1);
 
             startPoint.transform.SetParent(tiledTerrain.transform, true);
 

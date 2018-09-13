@@ -38,7 +38,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4740540562543200}
   - component: {fileID: 195262769236351708}
-  - component: {fileID: 114444184882261588}
+  - component: {fileID: 54273948879729440}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -115,17 +115,21 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1678798006850778}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &114444184882261588
-MonoBehaviour:
+--- !u!54 &54273948879729440
+Rigidbody:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1693727730890966}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78145b025a029cb4ea44ed555455976c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!136 &136624488804062688
 CapsuleCollider:
   m_ObjectHideFlags: 1

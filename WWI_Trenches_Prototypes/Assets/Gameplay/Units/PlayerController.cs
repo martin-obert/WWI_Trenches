@@ -8,7 +8,7 @@ namespace Assets.Gameplay.Units
     {
         private NavMeshAgent _navAgent;
         private Vector3 _target;
-
+        public NavMeshAgent NavMeshAgent => _navAgent;
         public Vector3 Target
         {
             get { return _target; }
@@ -17,7 +17,6 @@ namespace Assets.Gameplay.Units
                 if (value.z <= transform.position.z) return;
 
                 _target = value;
-
                 _navAgent.SetDestination(_target);
             }
         }
@@ -29,14 +28,12 @@ namespace Assets.Gameplay.Units
 
         void OnEnable()
         {
-            if (_navAgent.isOnNavMesh)
-                _navAgent.isStopped = false;
+            _navAgent.enabled = true;
         }
 
         void OnDisable()
         {
-            if (_navAgent.isOnNavMesh)
-                _navAgent.isStopped = true;
+            _navAgent.enabled = false;
         }
     }
 }
