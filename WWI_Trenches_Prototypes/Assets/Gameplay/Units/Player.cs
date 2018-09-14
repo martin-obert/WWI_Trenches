@@ -21,7 +21,7 @@ namespace Assets.Gameplay.Units
     {
         private Cover targetedCover;
         private PlayerController _controller;
-        private CustomStateBehavior _behavior;
+        
         public bool IsInCover { get; private set; }
         public bool IsJumping { get; private set; }
         public bool IsAlive { get; private set; }
@@ -34,8 +34,16 @@ namespace Assets.Gameplay.Units
 
         void Start()
         {
-            _behavior = GetComponent<Animator>().GetBehaviour<CustomStateBehavior>();
-                Debug.Log("Has behavior" + _behavior);
+            var behaviors = GetComponent<Animator>().GetBehaviours<CustomStateBehavior>();
+            if (behaviors.Length > 0)
+            {
+                foreach (var customStateBehavior in behaviors)
+                {
+                    customStateBehavior.Player = this;
+                }
+            }
+                
+                
             CreateSingleton(this);
         }
 
@@ -119,22 +127,18 @@ namespace Assets.Gameplay.Units
 
         void Update()
         {
-            if (IsInCover && Input.GetKeyDown(KeyCode.Space))
+            if ( Input.GetKeyDown(KeyCode.Space))
             {
-                JumpOver();
+                IsJumping = true;
+                GetComponent<Animator>().SetBool("IsJumping", IsJumping);
             }
+        }
 
-            if (IsJumping)
-            {
-                transform.position = Vector3.Lerp(transform.position, transform.position+Vector3.forward, Time.deltaTime  * _jumpSpeed);
-                if (_jumpPoint.z <= transform.position.z)
-                {
-                    IsJumping = false;
-                    _controller.NavMeshAgent.Warp(transform.position);
-                    _controller.enabled = true;
-                    Move(new Vector3(transform.position.x, transform.position.y, _destination.z));
-                }
-            }
+        public void JumpAnimationEnded()
+        {
+            IsJumping = false;
+            GetComponent<Animator>().SetBool("IsJumping", IsJumping);
+            
         }
 
         private Vector3 _jumpPoint;
