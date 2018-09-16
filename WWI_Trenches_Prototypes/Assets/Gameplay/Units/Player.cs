@@ -13,7 +13,7 @@ namespace Assets.Gameplay.Units
         {
             return new Vector3(player.transform.position.x, terrain.EndPoint.position.y, terrain.EndPoint.position.z);
         }
-            
+
     }
 
     [RequireComponent(typeof(PlayerController))]
@@ -26,16 +26,23 @@ namespace Assets.Gameplay.Units
         public bool IsJumping { get; private set; }
         public bool IsAlive { get; private set; }
         private Vector3 _destination;
+        private Rigidbody[] _rigidbodies;
+        [SerializeField] private Animator _animator;
         void Awake()
         {
             _controller = GetComponent<PlayerController>();
-         
+            _rigidbodies = GetComponentsInChildren<Rigidbody>();
+
+            foreach (var rBody in _rigidbodies)
+            {
+                rBody.isKinematic = true;
+                rBody.useGravity = false;
+
+            }
         }
 
         void Start()
         {
-            _behavior = GetComponent<Animator>().GetBehaviour<CustomStateBehavior>();
-                Debug.Log("Has behavior" + _behavior);
             CreateSingleton(this);
         }
 
@@ -57,7 +64,7 @@ namespace Assets.Gameplay.Units
                 Debug.LogError("Cannot move with dead player");
                 return;
             }
-            
+
             _controller.Target = target;
         }
 
@@ -87,13 +94,13 @@ namespace Assets.Gameplay.Units
             }
         }
 
-        private IEnumerator DelayedMove(Vector3 position,Vector3 destination)
+        private IEnumerator DelayedMove(Vector3 position, Vector3 destination)
         {
             Debug.Log("Warping");
             _controller.NavMeshAgent.Warp(position);
             yield return new WaitForSecondsRealtime(1);
-            
-            
+
+
             _controller.Target = destination;
         }
 
@@ -124,29 +131,23 @@ namespace Assets.Gameplay.Units
                 JumpOver();
             }
 
-            if (IsJumping)
-            {
-                transform.position = Vector3.Lerp(transform.position, transform.position+Vector3.forward, Time.deltaTime  * _jumpSpeed);
-                if (_jumpPoint.z <= transform.position.z)
-                {
-                    IsJumping = false;
-                    _controller.NavMeshAgent.Warp(transform.position);
-                    _controller.enabled = true;
-                    Move(new Vector3(transform.position.x, transform.position.y, _destination.z));
-                }
-            }
+
         }
 
-        private Vector3 _jumpPoint;
-        private float _jumpSpeed = 1f;
-        private float _jumpTreshold = 0.0f;
+        void LateUpdate()
+        {
+            if (_animator)
+            {
+                _animator.SetBool("IsInCover", IsInCover);
+                _animator.SetBool("IsJumping", IsJumping);
+            }
+        }
 
         public void JumpOver()
         {
             if (IsInCover)
             {
                 _controller.enabled = false;
-                _jumpPoint = targetedCover.JumpDestination.position;
                 IsInCover = false;
                 IsJumping = true;
             }
@@ -155,20 +156,21 @@ namespace Assets.Gameplay.Units
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag.Equals("cover", StringComparison.CurrentCultureIgnoreCase))
+            if (other.gameObject.tag.Equals("Cover", StringComparison.CurrentCultureIgnoreCase))
             {
                 var coverComponent = other.GetComponent<Cover>();
                 if (!coverComponent)
                 {
                     Debug.LogWarning("Trigger has no cover componenet");
                 }
-                else if(coverComponent == targetedCover)
+                else if (coverComponent == targetedCover)
                 {
                     Debug.Log("Is in cover");
                     IsInCover = true;
                     _controller.enabled = false;
+                    IsInCover = true;
                 }
-                
+
             }
         }
 
