@@ -17,7 +17,7 @@ namespace Assets.Gameplay.Units
 
         public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            if (Player && Player.IsJumping && stateInfo.IsName("Armature|Jump"))
+            if (Player &&  stateInfo.IsName("Armature|Jump"))
             {
                 Debug.Log("State changed to non Jump");
                 Player.SendMessage("JumpAnimationExited", this, SendMessageOptions.DontRequireReceiver);

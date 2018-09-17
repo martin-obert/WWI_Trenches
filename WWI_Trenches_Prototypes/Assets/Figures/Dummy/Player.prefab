@@ -1021,6 +1021,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cc3e3de8bc74fe4a9ed3ae2eb462f8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetedCover: {fileID: 0}
   _animator: {fileID: 95299552939299968}
 --- !u!114 &114887533577929592
 MonoBehaviour:
@@ -1033,32 +1034,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9da840ad0489800478b4d09974dd5763, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveCurve:
+  _jumpEndpoint: {fileID: 0}
+  _positionAdvanceCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 2.2821102
-      outSlope: 2.2821102
+      inSlope: 2.5278878
+      outSlope: 2.5278878
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.4192307
-      value: 0.95673066
-      inSlope: -0.033386443
-      outSlope: -0.033386443
+      time: 0.32179493
+      value: 0.8134615
+      inSlope: Infinity
+      outSlope: Infinity
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.27431318
+      outWeight: 0
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0.07450348
-      outSlope: 0.07450348
+      inSlope: 0.27504736
+      outSlope: 0.27504736
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -1069,8 +1071,8 @@ MonoBehaviour:
   Playing: 0
   JumpSpeed: 1
   SpeedMultiploer: 2
-  _jumpEndPoint: {fileID: 0}
   JumpDuration: 1.667
+  _currentTime: 0
   _isLooped: 0
 --- !u!135 &135017217450153776
 SphereCollider:

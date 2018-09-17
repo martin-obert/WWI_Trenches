@@ -13,11 +13,11 @@ namespace Assets.Gameplay.Abstract
             InjectService.Instance.Observe<TDependency>(o => function(o as TDependency));
         }
 
-        protected void CreateSingleton(T insntace)
+        protected void CreateSingleton(T insntace, Instancing lifetime = Instancing.Singleton)
         {
             if (Instance && !insntace.Equals(Instance))
             {
-                Destroy(Instance);
+                Destroy(Instance.gameObject);
             }
 
             Instance = insntace;

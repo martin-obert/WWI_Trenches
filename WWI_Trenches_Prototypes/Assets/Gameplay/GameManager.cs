@@ -1,5 +1,6 @@
 ﻿using System;
 using Assets.Gameplay.Abstract;
+using Assets.Gameplay.Units;
 using Assets.IoC;
 using Assets.TileGenerator;
 using UnityEditor;
@@ -23,14 +24,11 @@ namespace Assets.Gameplay
         {
             Dependency<Bootstrapper>(bootstrapper => { _bootstrapper = bootstrapper; });
             Dependency<TerrainTileBuilder>(RegisterTerrainBuilder);
-            
-            CreateSingleton(this);
         }
 
         void Start()
         {
-           
-            
+            CreateSingleton(this);
         }
 
         void OnDestroy()
@@ -59,9 +57,12 @@ namespace Assets.Gameplay
             if (args.Progress < 1)
                 return;
 
+
+
+
             var player = Instantiate(_bootstrapper.PlayerPrefab);
 
-            player.Spawn(args.BuildedTerrain.StartPoint.position, args.BuildedTerrain.EndPoint.position);
+            player.Spawn(args.BuildedTerrain.StartPoint.position, PlayerHelpers.GetEndPoint(player, args.BuildedTerrain));
 
         }
 
@@ -72,6 +73,7 @@ namespace Assets.Gameplay
                 Debug.LogError("No bootstrapper detected.");
                 return;
             }
+
             if (_bootstrapper != null && _bootstrapper.TerrainTilesPrefabs.Length > 0)
                 _terrainTileBuilder.TerrainTiles = _bootstrapper.TerrainTilesPrefabs;
 

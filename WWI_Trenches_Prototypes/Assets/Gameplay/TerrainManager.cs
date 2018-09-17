@@ -13,7 +13,7 @@ namespace Assets.Gameplay
             {
                 if (_currentTerrain)
                 {
-                    Destroy(_currentTerrain);
+                    Destroy(_currentTerrain.gameObject);
                 }
 
                 _currentTerrain = value; 

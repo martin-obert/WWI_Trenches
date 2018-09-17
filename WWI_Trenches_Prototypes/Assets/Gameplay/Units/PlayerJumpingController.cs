@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Assets.Figures.Dummy
+namespace Assets.Gameplay.Units
 {
     public class PlayerJumpingController : MonoBehaviour
     {
@@ -21,7 +21,7 @@ namespace Assets.Figures.Dummy
 
         [Tooltip("In sec"), SerializeField] public float JumpDuration = 1.667f;
 
-        private float _currentTime = 0;
+        [SerializeField] private float _currentTime = 0;
 
         private Vector3 _initPosition;
 
@@ -46,10 +46,11 @@ namespace Assets.Figures.Dummy
                 var moveAmount = _direction * (JumpSpeed / 100 * SpeedMultiploer) * _positionAdvanceCurve.Evaluate(x);
 
                 transform.Translate(moveAmount, Space.Self);
-            
-                if (x >= 1 && _isLooped)
+
+                if (x >= 1)
                 {
-                    transform.position = _initPosition;
+                    if (_isLooped)
+                        transform.position = _initPosition;
 
                     Stop();
                 }
@@ -61,8 +62,8 @@ namespace Assets.Figures.Dummy
             Playing = false;
 
             _currentTime = 0;
-
-            _jumpEndpoint = null;
+            if (!_isLooped)
+                _jumpEndpoint = null;
         }
 
         public void Jump(Transform jumpEndpoint)
@@ -80,17 +81,31 @@ namespace Assets.Figures.Dummy
     }
 
 #if UNITY_EDITOR
+    [CustomEditor(typeof(PlayerJumpingController))]
     public class PlayerJumpingControllerEditor : Editor
     {
         private int _currentKey = 0;
 
         private Vector2 _shift = new Vector2(0.1f, 0.1f);
+        private PlayerJumpingController _controller;
+
+        void OnEnable()
+        {
+            _controller = target as PlayerJumpingController;
+
+        }
 
         public override void OnInspectorGUI()
         {
             var modified = false;
 
             var animationCurve = serializedObject.FindProperty("_positionAdvanceCurve").animationCurveValue;
+            if (serializedObject.FindProperty("_jumpEndpoint").objectReferenceValue != null && GUILayout.Button("Jump"))
+            {
+                _controller.Stop();
+                _controller.Jump((Transform)serializedObject.FindProperty("_jumpEndpoint").objectReferenceValue);
+
+            }
 
             if (animationCurve != null)
             {
@@ -106,12 +121,12 @@ namespace Assets.Figures.Dummy
                 {
                     var len = keys.Length;
 
-                    var newKey = new Keyframe(currentTime, 1)
+                    var newKey = new Keyframe(currentTime, 0)
                     {
                         weightedMode = WeightedMode.None
                     };
 
-                    animationCurve.AddKey(newKey);
+                    serializedObject.FindProperty("_positionAdvanceCurve").animationCurveValue.AddKey(newKey);
 
                     _currentKey = len;
 
@@ -121,7 +136,7 @@ namespace Assets.Figures.Dummy
                 {
                     if (keys.Length > 0 && _currentKey >= 0)
                     {
-                        animationCurve.RemoveKey(_currentKey);
+                        serializedObject.FindProperty("_positionAdvanceCurve").animationCurveValue.RemoveKey(_currentKey);
                         modified = true;
                     }
                 }

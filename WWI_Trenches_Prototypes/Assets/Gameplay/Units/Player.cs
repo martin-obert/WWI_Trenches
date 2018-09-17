@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
-using Assets.Figures.Dummy;
 using Assets.Gameplay.Abstract;
+using Assets.IoC;
 using Assets.TileGenerator;
 using UnityEngine;
 using UnityEngine.AI;
@@ -54,7 +54,7 @@ namespace Assets.Gameplay.Units
 
             ToggleRigid(false);
 
-            CreateSingleton(this);
+            CreateSingleton(this, Instancing.None);
         }
 
         void OnDestroy()
@@ -64,13 +64,36 @@ namespace Assets.Gameplay.Units
 
         public void TakeCover(Cover cover)
         {
-            targetedCover = cover;
+            if (cover == _currentCover)
+                return;
 
-            Move(cover.transform.position);
+            if (IsInCover || IsJumping)
+                SwapCover(cover);
+            else
+            {
+                targetedCover = cover;
+                Move(cover.transform.position);
+            }
+        }
+
+        public void SwapCover(Cover cover)
+        {
+            if (!IsInCover || !cover || !(cover.transform.position.z > targetedCover.transform.position.z)) return;
+
+            Debug.Log("Swaping cover");
+
+            JumpOver();
+
+            targetedCover = cover;
         }
 
         private void Move(Vector3 target)
         {
+            if (IsInCover)
+            {
+                Debug.LogError("Cannot move while in cover!");
+                return;
+            }
             if (IsJumping)
             {
                 Debug.LogError("Cannot move in jumping sequence!");
@@ -84,17 +107,13 @@ namespace Assets.Gameplay.Units
             }
 
             _navigationController.Target = target;
-
-            if (IsInCover)
-            {
-                JumpOver();
-            }
         }
 
         public void Revive()
         {
             if (_navigationController)
                 _navigationController.enabled = true;
+
             IsAlive = true;
         }
 
@@ -128,10 +147,11 @@ namespace Assets.Gameplay.Units
             if (destination.HasValue)
             {
                 _destination = destination.Value;
+
                 transform.rotation = Quaternion.FromToRotation(new Vector3(position.x, 0, position.z), new Vector3(destination.Value.x, 0, destination.Value.z));
+
                 StartCoroutine(DelayedMove(position, destination.Value));
             }
-
         }
 
         private IEnumerator DelayedMove(Vector3 position, Vector3 destination)
@@ -163,12 +183,19 @@ namespace Assets.Gameplay.Units
 
             _jumpingController.Stop();
 
+
             _navigationController.NavMeshAgent.Warp(transform.position);
 
             _navigationController.enabled = true;
 
-            _navigationController.Target = _destination;
-
+            if (targetedCover && targetedCover.transform.position.z >= transform.position.z)
+            {
+                TakeCover(targetedCover);
+            }
+            else
+            {
+                Move(_destination);
+            }
         }
 
 

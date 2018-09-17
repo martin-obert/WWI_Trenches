@@ -60,7 +60,7 @@ namespace Assets.TileGenerator
                 {
                     DestroyImmediate(go.gameObject);
                 }
-                DestroyImmediate(currentTerrain);
+                DestroyImmediate(currentTerrain.gameObject);
             }
 
 
