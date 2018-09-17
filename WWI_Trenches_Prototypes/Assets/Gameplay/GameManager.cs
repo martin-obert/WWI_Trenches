@@ -19,11 +19,13 @@ namespace Assets.Gameplay
         [SerializeField] private TerrainTileBuilder _terrainTileBuilder;
 
         [SerializeField] private bool _autoStart = false;
-
+        private TerrainManager _terrainManager;
         void Awake()
         {
             Dependency<Bootstrapper>(bootstrapper => { _bootstrapper = bootstrapper; });
             Dependency<TerrainTileBuilder>(RegisterTerrainBuilder);
+            Dependency<TerrainManager>(terrainManager => _terrainManager = terrainManager);
+
         }
 
         void Start()
@@ -34,6 +36,14 @@ namespace Assets.Gameplay
         void OnDestroy()
         {
             GCSingleton(this);
+        }
+
+        protected override void DependenciesResolved()
+        {
+            if(_autoStart)
+                StartLevel();
+
+            base.DependenciesResolved();
         }
 
         private void RegisterTerrainBuilder(TerrainTileBuilder builder)
@@ -47,9 +57,6 @@ namespace Assets.Gameplay
             _terrainTileBuilder = builder;
 
             _terrainTileBuilder.TerrainProgress += TerrainTileBuilderOnTerrainProgress;
-
-            if (_autoStart)
-                StartLevel();
         }
 
         private void TerrainTileBuilderOnTerrainProgress(TerrainTileBuilder sender, TerrainTileBuilder.TerrainBuilderEventArgs args)
@@ -57,13 +64,9 @@ namespace Assets.Gameplay
             if (args.Progress < 1)
                 return;
 
-
-
-
             var player = Instantiate(_bootstrapper.PlayerPrefab);
 
             player.Spawn(args.BuildedTerrain.StartPoint.position, PlayerHelpers.GetEndPoint(player, args.BuildedTerrain));
-
         }
 
         public void StartLevel()
@@ -79,9 +82,9 @@ namespace Assets.Gameplay
 
             var currentTerrain = _terrainTileBuilder.CreateTiledTerrain(_terrainWidth, _terrainHeight);
 
-            _terrainTileBuilder.GenerateTerrainTiles(currentTerrain);
-
             TerrainManager.Instance.CurrentTerrain = currentTerrain;
+
+            _terrainTileBuilder.GenerateTerrainTiles(currentTerrain);
         }
     }
 

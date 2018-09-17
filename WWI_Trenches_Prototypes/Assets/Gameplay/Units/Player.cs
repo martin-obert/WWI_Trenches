@@ -35,12 +35,19 @@ namespace Assets.Gameplay.Units
         [SerializeField] private Animator _animator;
         private Cover _currentCover;
 
+        void Awake()
+        {
+            rigidbodies = GetComponentsInChildren<Rigidbody>();
+            ToggleRigid(false);
+        }
+
         void Start()
         {
             _jumpingController = GetComponent<PlayerJumpingController>();
+
             _navigationController = GetComponent<PlayerNavigationController>();
 
-            rigidbodies = GetComponentsInChildren<Rigidbody>();
+            
 
             var behaviors = _animator.GetBehaviours<CoverStateBehavior>();
 
@@ -52,9 +59,9 @@ namespace Assets.Gameplay.Units
                 }
             }
 
-            ToggleRigid(false);
+            
 
-            CreateSingleton(this, Instancing.None);
+            CreateSingleton(this);
         }
 
         void OnDestroy()
@@ -133,6 +140,7 @@ namespace Assets.Gameplay.Units
 
         private void ToggleRigid(bool value)
         {
+            Debug.Log("Toggling off rigids");
             foreach (var rigid in rigidbodies)
             {
                 rigid.useGravity = value;

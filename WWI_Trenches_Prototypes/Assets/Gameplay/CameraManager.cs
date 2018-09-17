@@ -1,5 +1,6 @@
 ﻿using Assets.Gameplay.Abstract;
 using Assets.Gameplay.Units;
+using Assets.IoC;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,16 +21,6 @@ namespace Assets.Gameplay
         void Start()
         {
             CreateSingleton(this);
-
-            if (!_camera)
-            {
-                _camera = Camera.main ?? Camera.current;
-            }
-
-            if (!_camera)
-            {
-                Debug.LogError("No camera is detected or assigned!");
-            }
         }
 
         void OnDestroy()
@@ -39,9 +30,16 @@ namespace Assets.Gameplay
 
         void Update()
         {
-            var player = Player.Instance;
+            if (!_camera)
+            {
+                _camera = Camera.main ?? Camera.current;
+            }
 
-            var terrain = TerrainManager.Instance?.CurrentTerrain;
+            var player = Player.Instance;
+            if(!player)Debug.LogWarning("No player for camera");
+
+            var terrain = TerrainManager.Instance.CurrentTerrain;
+            if (!terrain) Debug.LogWarning("No terrain detected");
 
             if (player && _camera && terrain)
             {

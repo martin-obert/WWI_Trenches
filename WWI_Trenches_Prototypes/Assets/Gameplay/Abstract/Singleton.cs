@@ -8,9 +8,25 @@ namespace Assets.Gameplay.Abstract
     {
         public static T Instance { get; protected set; }
 
+        public bool AreDependenciesResolved { get; protected set; }
+
+        private int _dependencies = 0;
+
         protected void Dependency<TDependency>(Action<TDependency> function) where TDependency : UnityEngine.Object
         {
-            InjectService.Instance.Observe<TDependency>(o => function(o as TDependency));
+            _dependencies++;
+            InjectService.Instance.Observe<TDependency>(o =>
+            {
+                function(o as TDependency);
+                _dependencies--;
+                if(_dependencies <= 0)
+                    DependenciesResolved();
+            });
+        }
+
+        protected virtual void DependenciesResolved()
+        {
+            AreDependenciesResolved = true;
         }
 
         protected void CreateSingleton(T insntace, Instancing lifetime = Instancing.Singleton)
