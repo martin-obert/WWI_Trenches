@@ -77,7 +77,11 @@ namespace Assets.IoC
                 throw new NullReferenceException("No Container has been set");
             }
 
-            return Container.Singletons[typeof(T)] as T;
+            object result;
+            if (Container.Singletons.TryGetValue(typeof(T), out result))
+                return result as T;
+
+            return default(T);
         }
 
         void Awake()

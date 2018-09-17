@@ -8,7 +8,11 @@ namespace Assets.Gameplay.Units
     {
         public Transform JumpDestination;
 
+        [Tooltip("Use this curve to set jumping position advance")]
+        public AnimationCurve PositionAdvanceCurve;
+
         private Color _color;
+
         void Start()
         {
             _color = GetComponent<Renderer>().material.color;
@@ -24,11 +28,11 @@ namespace Assets.Gameplay.Units
         public void SelectedHandler(BaseEventData data)
         {
             var player = InjectService.Instance.GetInstance<Player>();
-            Debug.Log("Clicked");
             if (player)
             {
                 player.TakeCover(this);
             }
+
         }
 
         public void PointerExitHandler(BaseEventData data)

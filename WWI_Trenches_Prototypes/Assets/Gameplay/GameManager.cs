@@ -17,12 +17,20 @@ namespace Assets.Gameplay
 
         [SerializeField] private TerrainTileBuilder _terrainTileBuilder;
 
+        [SerializeField] private bool _autoStart = false;
+
         void Awake()
         {
             Dependency<Bootstrapper>(bootstrapper => { _bootstrapper = bootstrapper; });
             Dependency<TerrainTileBuilder>(RegisterTerrainBuilder);
-
+            
             CreateSingleton(this);
+        }
+
+        void Start()
+        {
+           
+            
         }
 
         void OnDestroy()
@@ -41,6 +49,9 @@ namespace Assets.Gameplay
             _terrainTileBuilder = builder;
 
             _terrainTileBuilder.TerrainProgress += TerrainTileBuilderOnTerrainProgress;
+
+            if (_autoStart)
+                StartLevel();
         }
 
         private void TerrainTileBuilderOnTerrainProgress(TerrainTileBuilder sender, TerrainTileBuilder.TerrainBuilderEventArgs args)
