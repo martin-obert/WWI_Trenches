@@ -4,7 +4,7 @@ using UnityEngine.AI;
 namespace Assets.Gameplay.Units
 {
     [RequireComponent(typeof(NavMeshAgent))]
-    public class PlayerController : MonoBehaviour
+    public class PlayerNavigationController : MonoBehaviour
     {
         private NavMeshAgent _navAgent;
         private Vector3 _target;

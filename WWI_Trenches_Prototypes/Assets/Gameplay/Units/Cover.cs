@@ -8,8 +8,7 @@ namespace Assets.Gameplay.Units
     {
         public Transform JumpDestination;
 
-        [Tooltip("Use this curve to set jumping position advance")]
-        public AnimationCurve PositionAdvanceCurve;
+
 
         private Color _color;
 

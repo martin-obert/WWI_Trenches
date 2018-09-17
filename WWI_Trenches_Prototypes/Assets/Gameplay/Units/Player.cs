@@ -16,47 +16,42 @@ namespace Assets.Gameplay.Units
 
     }
 
-    [RequireComponent(typeof(PlayerController), typeof(PlayerJumping))]
+    [RequireComponent(typeof(PlayerNavigationController), typeof(PlayerJumpingController))]
     public class Player : Singleton<Player>
     {
         [SerializeField] private Cover targetedCover;
         private Rigidbody[] rigidbodies;
-        private PlayerController _controller;
+        private PlayerNavigationController _navigationController;
 
-        private PlayerJumping _jumping;
+        private PlayerJumpingController _jumpingController;
 
         public bool IsInCover { get; private set; }
-        public bool IsJumping => _jumping.Playing;
+        public bool IsJumping => _jumpingController.Playing;
         public bool IsAlive { get; private set; }
 
         private Vector3 _destination;
 
         [SerializeField] private Animator _animator;
+        private Cover _currentCover;
 
         void Start()
         {
-            //Todo: Presunout do jumping controlleru?
+            _jumpingController = GetComponent<PlayerJumpingController>();
+            _navigationController = GetComponent<PlayerNavigationController>();
+
+            rigidbodies = GetComponentsInChildren<Rigidbody>();
+
             var behaviors = _animator.GetBehaviours<CoverStateBehavior>();
 
             if (behaviors.Length > 0)
             {
-                Debug.Log("Behaviors " + behaviors.Length);
                 foreach (var customStateBehavior in behaviors)
                 {
                     customStateBehavior.Player = this;
                 }
             }
 
-            rigidbodies = GetComponentsInChildren<Rigidbody>();
-
             ToggleRigid(false);
-
-            _controller = GetComponent<PlayerController>();
-
-            if (!_controller)
-                Debug.LogError("No player controller component detected");
-
-            _jumping = GetComponent<PlayerJumping>();
 
             CreateSingleton(this);
         }
@@ -69,32 +64,44 @@ namespace Assets.Gameplay.Units
         public void TakeCover(Cover cover)
         {
             targetedCover = cover;
+
             Move(cover.transform.position);
         }
 
         private void Move(Vector3 target)
         {
+            if (IsJumping)
+            {
+                Debug.LogError("Cannot move in jumping sequence!");
+                return;
+            }
+
             if (!IsAlive)
             {
                 Debug.LogError("Cannot move with dead player");
                 return;
             }
 
-            _controller.Target = target;
+            _navigationController.Target = target;
+
+            if (IsInCover)
+            {
+                JumpOver();
+            }
         }
 
         public void Revive()
         {
-            if (_controller)
-                _controller.enabled = true;
+            if (_navigationController)
+                _navigationController.enabled = true;
             IsAlive = true;
         }
 
         public void Kill()
         {
-            _controller.enabled = false;
+            _navigationController.enabled = false;
 
-            _jumping.Stop();
+            _jumpingController.Stop();
 
             IsInCover = false;
 
@@ -103,7 +110,7 @@ namespace Assets.Gameplay.Units
             ToggleRigid(true);
         }
 
-        
+
         private void ToggleRigid(bool value)
         {
             foreach (var rigid in rigidbodies)
@@ -132,19 +139,20 @@ namespace Assets.Gameplay.Units
 
             Revive();
 
-            _controller.NavMeshAgent.Warp(position);
+            _navigationController.NavMeshAgent.Warp(position);
 
-            _controller.Target = destination;
+            _navigationController.Target = destination;
         }
+
         public void JumpOver()
         {
-            if (!IsJumping)
+            if (!IsJumping && _currentCover)
             {
-                _controller.enabled = false;
+                _navigationController.enabled = false;
 
                 IsInCover = false;
 
-                _jumping.Jump(targetedCover.JumpDestination.position, targetedCover.JumpDestination, targetedCover.PositionAdvanceCurve);
+                _jumpingController.Jump(targetedCover.JumpDestination);
             }
         }
 
@@ -152,13 +160,13 @@ namespace Assets.Gameplay.Units
         {
             IsInCover = false;
 
-            _jumping.Stop();
+            _jumpingController.Stop();
 
-            _controller.NavMeshAgent.Warp(transform.position);
+            _navigationController.NavMeshAgent.Warp(transform.position);
 
-            _controller.enabled = true;
+            _navigationController.enabled = true;
 
-            _controller.Target = _destination;
+            _navigationController.Target = _destination;
 
         }
 
@@ -184,48 +192,41 @@ namespace Assets.Gameplay.Units
             }
         }
 
-     
-
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag.Equals("Cover", StringComparison.CurrentCultureIgnoreCase))
-            {
-                var coverComponent = other.GetComponent<Cover>();
-                if (!coverComponent)
-                {
-                    Debug.LogWarning("Trigger has no cover componenet");
-                }
-                else if (coverComponent == targetedCover)
-                {
-                    Debug.Log("Is in cover");
+            if (!other.gameObject.tag.Equals("Cover", StringComparison.CurrentCultureIgnoreCase)) return;
 
-                    IsInCover = true;
+            var coverComponent = other.GetComponent<Cover>();
 
-                    _controller.NavMeshAgent.Warp(coverComponent.transform.position);
+            if (coverComponent != targetedCover) return;
 
-                    _controller.enabled = false;
+            Debug.Log("Is in cover");
 
-                    transform.rotation = Quaternion.identity;
-                    
-                }
+            IsInCover = true;
 
-            }
+            _currentCover = coverComponent;
+
+            _navigationController.NavMeshAgent.Warp(coverComponent.transform.position);
+
+            _navigationController.enabled = false;
+
+            transform.rotation = Quaternion.identity;
         }
 
         private void OnTriggerExit(Collider other)
         {
-            if (other.gameObject.tag.Equals("cover", StringComparison.CurrentCultureIgnoreCase))
-            {
-                var coverComponent = other.GetComponent<Cover>();
-                if (coverComponent && coverComponent == targetedCover)
-                {
-                    Debug.Log("Is out of cover");
+            if (!other.gameObject.tag.Equals("cover", StringComparison.CurrentCultureIgnoreCase)) return;
 
-                    targetedCover = null;
-                    IsInCover = false;
-                }
-            }
+            var coverComponent = other.GetComponent<Cover>();
+
+            if (coverComponent != _currentCover) return;
+
+            Debug.Log("Is out of cover");
+
+            _currentCover = null;
+
+            IsInCover = false;
         }
     }
 }
