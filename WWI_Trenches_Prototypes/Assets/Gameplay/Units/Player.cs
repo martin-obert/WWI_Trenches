@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Assets.Figures.Dummy;
 using Assets.Gameplay.Abstract;
 using Assets.TileGenerator;
 using UnityEngine;
