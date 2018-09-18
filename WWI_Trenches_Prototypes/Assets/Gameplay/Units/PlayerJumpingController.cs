@@ -88,18 +88,18 @@ namespace Assets.Gameplay.Units
 
         private Vector2 _shift = new Vector2(0.1f, 0.1f);
         private PlayerJumpingController _controller;
-
+        private AnimationCurve animationCurve;
         void OnEnable()
         {
             _controller = target as PlayerJumpingController;
-
+            animationCurve = serializedObject.FindProperty("_positionAdvanceCurve").animationCurveValue;
         }
 
         public override void OnInspectorGUI()
         {
             var modified = false;
 
-            var animationCurve = serializedObject.FindProperty("_positionAdvanceCurve").animationCurveValue;
+
             if (serializedObject.FindProperty("_jumpEndpoint").objectReferenceValue != null && GUILayout.Button("Jump"))
             {
                 _controller.Stop();
@@ -109,93 +109,83 @@ namespace Assets.Gameplay.Units
 
             if (animationCurve != null)
             {
-                var keys = animationCurve.keys;
+                
 
                 var currentTime = serializedObject.FindProperty("_currentTime").floatValue;
 
-                EditorGUILayout.LabelField("Keys");
+                EditorGUILayout.LabelField("Curve Keys: " + animationCurve.keys.Length);
 
-                EditorGUILayout.BeginHorizontal();
-
-                if (GUILayout.Button("+1"))
+                if (animationCurve.keys.Length > 0 && _currentKey >= 0 && _currentKey < animationCurve.keys.Length)
                 {
-                    var len = keys.Length;
-
-                    var newKey = new Keyframe(currentTime, 0)
-                    {
-                        weightedMode = WeightedMode.None
-                    };
-
-                    serializedObject.FindProperty("_positionAdvanceCurve").animationCurveValue.AddKey(newKey);
-
-                    _currentKey = len;
-
-                    modified = true;
-                }
-                if (GUILayout.Button("-1"))
-                {
-                    if (keys.Length > 0 && _currentKey >= 0)
-                    {
-                        serializedObject.FindProperty("_positionAdvanceCurve").animationCurveValue.RemoveKey(_currentKey);
-                        modified = true;
-                    }
-                }
-
-                EditorGUILayout.EndHorizontal();
-
-
-                EditorGUILayout.LabelField("Curve Keys: " + keys.Length);
-
-                if (keys.Length > 0 && _currentKey >= 0 && _currentKey < keys.Length)
-                {
-                    var key = keys[_currentKey];
+                    var key = animationCurve.keys[_currentKey];
 
                     EditorGUILayout.LabelField("Current key: " + string.Format("[{0} | {1}]", key.time, key.value));
+                    EditorGUILayout.BeginHorizontal();
 
+                    if (GUILayout.Button("<-"))
+                    {
+                        _currentKey = Mathf.Clamp(_currentKey - 1, 0, animationCurve.keys.Length - 1);
+                    }
                     if (GUILayout.Button("Closest to current time " + currentTime))
                     {
-                        key = ClosestTo(keys, currentTime);
+                        key = ClosestTo(animationCurve.keys, currentTime);
                     }
+                    if (GUILayout.Button("->"))
+                    {
+                        _currentKey = Mathf.Clamp(_currentKey + 1, 0, animationCurve.keys.Length - 1);
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+                  
 
                     _shift = EditorGUILayout.Vector2Field("Shift", _shift);
 
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.BeginHorizontal();
 
-                    if (GUILayout.Button("►"))
-                    {
-                        key.time += _shift.x;
-                        modified = true;
-                    }
+                   
                     if (GUILayout.Button("◄"))
                     {
                         key.time -= _shift.x;
                         modified = true;
                     }
 
+                    if (GUILayout.Button("►"))
+                    {
+                        key.time += _shift.x;
+                        modified = true;
+                    }
                     EditorGUILayout.EndHorizontal();
 
+                    
 
                     EditorGUILayout.BeginHorizontal();
 
                     if (GUILayout.Button("▲"))
                     {
-                        key.time += _shift.y;
+                        key.value += _shift.y;
                         modified = true;
                     }
                     if (GUILayout.Button("▼"))
                     {
-                        key.time -= _shift.y;
+                        key.value -= _shift.y;
                         modified = true;
                     }
 
+                    if (modified)
+                    {
+                        Debug.Log(key.time);
+
+                        Debug.Log(key.value);
+
+                        animationCurve.MoveKey(_currentKey, key);
+
+                        serializedObject.FindProperty("_positionAdvanceCurve").animationCurveValue = animationCurve;
+                        serializedObject.ApplyModifiedProperties();
+                    }
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndHorizontal();
                 }
-
-                if (modified)
-                    serializedObject.ApplyModifiedProperties();
-
             }
 
             base.OnInspectorGUI();
