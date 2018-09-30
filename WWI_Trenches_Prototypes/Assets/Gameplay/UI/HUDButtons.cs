@@ -6,6 +6,5 @@ public class HUDButtons : MonoBehaviour {
 
     public void Jump()
     {
-        InjectService.Instance.GetInstance<Player>().JumpOver();
     }
 }

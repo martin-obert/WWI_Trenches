@@ -17,49 +17,45 @@ namespace Assets.Gameplay.Units
 
     }
 
-    [RequireComponent(typeof(PlayerNavigationController), typeof(PlayerJumpingController))]
+    [RequireComponent(typeof(PlayerNavigationController))]
     public class Player : Singleton<Player>
     {
-        [SerializeField] private Cover targetedCover;
-        private Rigidbody[] rigidbodies;
+
+        [SerializeField] private Cover _targetedCover;
+
         private PlayerNavigationController _navigationController;
 
-        private PlayerJumpingController _jumpingController;
+        public bool IsInCover { get; set; }
 
-        public bool IsInCover { get; private set; }
-        public bool IsJumping => _jumpingController.Playing;
         public bool IsAlive { get; private set; }
+
+        public bool IsCrawling { get; set; }
+
+
+
+        public bool IsRunning { get; private set; }
 
         private Vector3 _destination;
 
-        [SerializeField] private Animator _animator;
-        private Cover _currentCover;
+        private Animator _animator;
 
-        void Awake()
-        {
-            rigidbodies = GetComponentsInChildren<Rigidbody>();
-            ToggleRigid(false);
-        }
+        private Cover _currentCover;
 
         void Start()
         {
-            _jumpingController = GetComponent<PlayerJumpingController>();
-
             _navigationController = GetComponent<PlayerNavigationController>();
 
-            
+            _animator = GetComponent<Animator>();
 
-            var behaviors = _animator.GetBehaviours<CoverStateBehavior>();
+            if (!_animator)
+                _animator = GetComponentInChildren<Animator>();
 
-            if (behaviors.Length > 0)
+            var behaviors = _animator.GetBehaviours<MovementBehavior>();
+
+            foreach (var movementBehavior in behaviors)
             {
-                foreach (var customStateBehavior in behaviors)
-                {
-                    customStateBehavior.Player = this;
-                }
+                movementBehavior.PlayerInstance = this;
             }
-
-            
 
             CreateSingleton(this);
         }
@@ -74,24 +70,29 @@ namespace Assets.Gameplay.Units
             if (cover == _currentCover)
                 return;
 
-            if (IsInCover || IsJumping)
+            if (IsInCover)
                 SwapCover(cover);
             else
             {
-                targetedCover = cover;
+                _targetedCover = cover;
                 Move(cover.transform.position);
             }
+            Crawl();
         }
 
         public void SwapCover(Cover cover)
         {
-            if (!IsInCover || !cover || !(cover.transform.position.z > targetedCover.transform.position.z)) return;
+            if (!cover || !(cover.transform.position.z > _targetedCover.transform.position.z)) return;
+
+            IsInCover = false;
 
             Debug.Log("Swaping cover");
 
-            JumpOver();
-
-            targetedCover = cover;
+            _targetedCover = cover;
+           
+            _navigationController.enabled = true;
+            Move(cover.transform.position);
+            Run();
         }
 
         private void Move(Vector3 target)
@@ -99,11 +100,6 @@ namespace Assets.Gameplay.Units
             if (IsInCover)
             {
                 Debug.LogError("Cannot move while in cover!");
-                return;
-            }
-            if (IsJumping)
-            {
-                Debug.LogError("Cannot move in jumping sequence!");
                 return;
             }
 
@@ -128,30 +124,15 @@ namespace Assets.Gameplay.Units
         {
             _navigationController.enabled = false;
 
-            _jumpingController.Stop();
-
             IsInCover = false;
 
             IsAlive = false;
-
-            ToggleRigid(true);
-        }
-
-
-        private void ToggleRigid(bool value)
-        {
-            Debug.Log("Toggling off rigids");
-            foreach (var rigid in rigidbodies)
-            {
-                rigid.useGravity = value;
-                rigid.isKinematic = !value;
-            }
         }
 
         public void Spawn(Vector3 position, Vector3? destination)
         {
             transform.position = position;
-
+            
             if (destination.HasValue)
             {
                 _destination = destination.Value;
@@ -167,75 +148,40 @@ namespace Assets.Gameplay.Units
             yield return new WaitForSecondsRealtime(1);
 
             Revive();
-
+            Run();
             _navigationController.NavMeshAgent.Warp(position);
-
+            _navigationController.NavMeshAgent.speed = 3f;
             _navigationController.Target = destination;
         }
 
-        public void JumpOver()
-        {
-            if (!IsJumping && _currentCover)
-            {
-                _navigationController.enabled = false;
-
-                IsInCover = false;
-
-                _jumpingController.Jump(targetedCover.JumpDestination);
-            }
-        }
-
-        private void JumpAnimationExited(CoverStateBehavior behavior)
-        {
-            IsInCover = false;
-
-            _jumpingController.Stop();
-
-
-            _navigationController.NavMeshAgent.Warp(transform.position);
-
-            _navigationController.enabled = true;
-
-            if (targetedCover && targetedCover.transform.position.z >= transform.position.z)
-            {
-                TakeCover(targetedCover);
-            }
-            else
-            {
-                Move(_destination);
-            }
-        }
-
-
+     
+        public bool Stopped = false;
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                JumpOver();
-            }
+
             if (Input.GetKeyDown(KeyCode.Q))
             {
                 Kill();
             }
-        }
-
-        void LateUpdate()
-        {
-            if (_animator)
+            if (Input.GetKeyDown(KeyCode.R))
             {
-                _animator.SetBool("IsInCover", IsInCover);
-                _animator.SetBool("IsJumping", IsJumping);
+                IsRunning = !IsRunning;
+            }
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                Stopped = true;
+
             }
         }
 
-
+     
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.gameObject.tag.Equals("Cover", StringComparison.CurrentCultureIgnoreCase)) return;
+            if (!other.gameObject.tag.Equals("Cover", StringComparison.CurrentCultureIgnoreCase) || _targetedCover && other.gameObject != _targetedCover.gameObject) return;
 
             var coverComponent = other.GetComponent<Cover>();
 
-            if (coverComponent != targetedCover) return;
+            if (coverComponent != _targetedCover) return;
 
             Debug.Log("Is in cover");
 
@@ -246,13 +192,13 @@ namespace Assets.Gameplay.Units
             _navigationController.NavMeshAgent.Warp(coverComponent.transform.position);
 
             _navigationController.enabled = false;
-
-            transform.rotation = Quaternion.identity;
+            Stop();
+            transform.rotation = Quaternion.Euler(0,180,0);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            if (!other.gameObject.tag.Equals("cover", StringComparison.CurrentCultureIgnoreCase)) return;
+            if (!other.gameObject.tag.Equals("cover", StringComparison.CurrentCultureIgnoreCase) || _targetedCover && other.gameObject != _targetedCover.gameObject) return;
 
             var coverComponent = other.GetComponent<Cover>();
 
@@ -263,6 +209,26 @@ namespace Assets.Gameplay.Units
             _currentCover = null;
 
             IsInCover = false;
+        }
+
+        public void Run()
+        {
+            IsRunning = true;
+            IsCrawling = false;
+        }
+
+        public void Crawl()
+        {
+            _navigationController.NavMeshAgent.speed = 0.7f;
+            IsRunning = false;
+            IsCrawling = true;
+        }
+
+        public void Stop()
+        {
+            _navigationController.NavMeshAgent.speed = 1f;
+            IsRunning = false;
+            IsCrawling = false;
         }
     }
 }

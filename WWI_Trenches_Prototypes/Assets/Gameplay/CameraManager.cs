@@ -38,7 +38,7 @@ namespace Assets.Gameplay
             var player = Player.Instance;
             if(!player)Debug.LogWarning("No player for camera");
 
-            var terrain = TerrainManager.Instance.CurrentTerrain;
+            var terrain = TerrainManager.Instance?.CurrentTerrain;
             if (!terrain) Debug.LogWarning("No terrain detected");
 
             if (player && _camera && terrain)

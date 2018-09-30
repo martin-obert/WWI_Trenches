@@ -157,10 +157,12 @@ MonoBehaviour:
   - {fileID: 114981707294399448, guid: 8e018e8e8918ebf4c8f8cd8bd580223c, type: 2}
   - {fileID: 114644125742958638, guid: cf75e8119f805574bb46defeeab00ed5, type: 2}
   - {fileID: 114226579496589508, guid: 10414d4a18619e246ab1a80f1d59a876, type: 2}
-  Spawn: {fileID: 0}
+  LayerMask:
+    serializedVersion: 2
+    m_Bits: 1
   _terrainWidth: 3
   _terrainHeight: 10
-  _distanceUnit: -2
+  _distanceUnit: 2
   _overlap: 0
 --- !u!114 &114754783518060934
 MonoBehaviour:
@@ -176,6 +178,7 @@ MonoBehaviour:
   _terrainWidth: 3
   _terrainHeight: 10
   _terrainTileBuilder: {fileID: 114552285803927508}
+  _autoStart: 1
 --- !u!114 &114906349285785732
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -187,7 +190,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8011710e871a14a47bf653887140afe4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerPrefabPlayer: {fileID: 114722643482871320, guid: 0b3ee2c3e4d84fc48b327c618f05014e,
+  _playerPrefabPlayer: {fileID: 114096291993853854, guid: b3c49de117d1d2e48a32b26b3a7dac1e,
     type: 2}
   _terrainTilesPrefabs:
   - {fileID: 114771077304328876, guid: 563c2a2188726c348ae19e8d524553d1, type: 2}
