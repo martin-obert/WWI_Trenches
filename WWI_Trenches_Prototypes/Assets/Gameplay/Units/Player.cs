@@ -217,8 +217,10 @@ namespace Assets.Gameplay.Units
             IsCrawling = false;
         }
 
+        private float _backSpeed;
         public void Crawl()
         {
+            _backSpeed = _navigationController.NavMeshAgent.speed;
             _navigationController.NavMeshAgent.speed = 0.7f;
             IsRunning = false;
             IsCrawling = true;
@@ -226,7 +228,7 @@ namespace Assets.Gameplay.Units
 
         public void Stop()
         {
-            _navigationController.NavMeshAgent.speed = 1f;
+            _navigationController.NavMeshAgent.speed = 5;
             IsRunning = false;
             IsCrawling = false;
         }

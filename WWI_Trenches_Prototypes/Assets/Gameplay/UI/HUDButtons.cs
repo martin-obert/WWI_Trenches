@@ -4,7 +4,18 @@ using UnityEngine;
 
 public class HUDButtons : MonoBehaviour {
 
-    public void Jump()
+
+    public void CrawlToggle()
     {
+        var player = InjectService.Instance.GetInstance<Player>();
+        if (player)
+        {
+            if(player.IsRunning)
+                player.Crawl();
+            else
+            {
+                player.Run();
+            }
+        }
     }
 }

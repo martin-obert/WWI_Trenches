@@ -6,68 +6,63 @@ using UnityEngine;
 
 namespace Assets.Gameplay.Units
 {
+
+
     public class ProxyZone : MonoBehaviour
     {
         public class ProxyZoneEvent : EventArgs
         {
-            public Player ZonedPlayer { get; set; }
-            public bool IsPlayerInZone { get; set; }
+            public GameObject ZonedObject { get; set; }
         }
 
-        public event EventHandler PlayerInZone;
-        public event EventHandler PlayerOutZone;
-
+        public event EventHandler ObjectInZone;
+        public event EventHandler ObjectOutZone;
         public Color HandleColor = Color.red;
         public float RangeRadius = 1f;
+        public string CheckTag = "Player";
 
-        public Player ZonedPlayer { get; private set; }
-
-        public bool IsPlayerInZone => ZonedPlayer;
-        public float ScanInterval = 1;
-        void Start()
+        private void Start()
         {
-            InvokeRepeating("ScanForPlayer", 1, ScanInterval);
+            var sphereCollider = gameObject.AddComponent<SphereCollider>();
+            sphereCollider.isTrigger = true;
+            sphereCollider.center = Vector3.zero;
+            sphereCollider.radius = RangeRadius;
+
+            var riggid = gameObject.AddComponent<Rigidbody>();
+            riggid.isKinematic = true;
+            riggid.useGravity = false;
         }
 
-        void OnDestroy()
+        private void OnTriggerEnter(Collider other)
         {
-            CancelInvoke("ScanForPlayer");
-        }
-
-        private void ScanForPlayer()
-        {
-            var player = InjectService.Instance.GetInstance<Player>();
-            if (!player) return;
-            if (Mathf.Abs((player.transform.position - transform.position).magnitude) < RangeRadius)
+            if (other.CompareTag(CheckTag))
             {
-                if (!ZonedPlayer)
-                {
-                    ZonedPlayer = player;
-                    Debug.Log("Player in zone " + this.gameObject);
-                    OnPlayerInZone();
-                }
-            }
-            else
-            {
-                if (ZonedPlayer)
-                    OnPlayerOutZone();
-                ZonedPlayer = null;
+                OnObjectInZone(other.gameObject);
             }
 
         }
 
-        protected virtual void OnPlayerInZone()
+        private void OnTriggerExit(Collider other)
         {
-            PlayerInZone?.Invoke(this, new ProxyZoneEvent
+            if (other.CompareTag(CheckTag))
             {
-                ZonedPlayer = ZonedPlayer,
-                IsPlayerInZone = IsPlayerInZone
+                OnObjectOutZone(other.gameObject);
+            }
+        }
+
+
+        protected virtual void OnObjectInZone(GameObject zonedObject)
+        {
+            ObjectInZone?.Invoke(this, new ProxyZoneEvent
+            {
+                ZonedObject = zonedObject
             });
         }
 
-        protected virtual void OnPlayerOutZone()
+        protected virtual void OnObjectOutZone(GameObject zonedObject)
         {
             PlayerOutZone?.Invoke(this, EventArgs.Empty);
+            {
         }
     }
 #if UNITY_EDITOR
@@ -79,18 +74,19 @@ namespace Assets.Gameplay.Units
 
 
             base.OnInspectorGUI();
+            DrawZone(zone);
         }
 
-        public void OnSceneGUI()
+        public static void DrawZone(ProxyZone zone)
         {
-            var zone = target as ProxyZone;
+
             if (zone == null)
                 return;
             Handles.color = zone.HandleColor;
 
             Handles.DrawWireDisc(zone.transform.position, Vector3.up, zone.RangeRadius);
+            Handles.Label(zone.transform.position + zone.transform.forward * zone.RangeRadius, $"Check tag: {zone.CheckTag}", new GUIStyle { normal = new GUIStyleState { textColor = zone.HandleColor } });
         }
     }
-
 #endif
 }

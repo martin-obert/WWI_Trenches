@@ -9,14 +9,13 @@ namespace Assets.Gameplay.Units.Enemy
         public LookAtConstraint LookAtConstraint;
 
         public ProxyZone ProxyZone;
-
-        public GameObject ProjectilePrefab;
+        public BasicProjectile BasicProjectilePrefab;
         public Transform ProjectileSpawn;
         public Player CurrentTarget { get; private set; }
         public Animator Animator;
         public AnimationClip FireAnimationClip;
         public float FireSpeed = 0.833f;
-
+        public bool IsLocked;
         private void Awake()
         {
             LookAtConstraint = GetComponent<LookAtConstraint>();
@@ -25,8 +24,8 @@ namespace Assets.Gameplay.Units.Enemy
 
             if (ProxyZone)
             {
-                ProxyZone.PlayerInZone += ProxyZonePlayerInZone;
-                ProxyZone.PlayerOutZone += ProxyZonePlayerOutZone;
+                ProxyZone.ObjectInZone += ProxyZoneObjectInZone;
+                ProxyZone.ObjectOutZone += ProxyZoneObjectOutZone;
             }
 
             Animator = GetComponentInChildren<Animator>();
@@ -34,38 +33,52 @@ namespace Assets.Gameplay.Units.Enemy
 
         }
 
-        private void ProxyZonePlayerOutZone(object sender, EventArgs e)
+        private void ProxyZoneObjectOutZone(object sender, EventArgs e)
         {
             CurrentTarget = null;
             LookAtConstraint.RemoveSource(0);
             LookAtConstraint.constraintActive = false;
-            CancelInvoke(nameof(FireAnimation));
+            CancelInvoke(nameof(Fire));
         }
 
-        private void ProxyZonePlayerInZone(object sender, EventArgs e)
+        private void ProxyZoneObjectInZone(object sender, EventArgs e)
         {
             var zoneargs = e as ProxyZone.ProxyZoneEvent;
 
             if (zoneargs != null)
             {
-                CurrentTarget = zoneargs.ZonedPlayer;
-
-                LookAtConstraint.AddSource(new ConstraintSource
-                {
-                    sourceTransform = CurrentTarget.transform,
-                    weight = 1
-                });
-
-                LookAtConstraint.constraintActive = true;
-
-                InvokeRepeating(nameof(FireAnimation), 1, FireSpeed);
+                CurrentTarget = zoneargs.ZonedObject.GetComponent<Player>();
+                if (!CurrentTarget)
+                    Debug.Log("Player component missing on " + zoneargs.ZonedObject);
             }
         }
 
-        public void FireAnimation()
+        private void Update()
+        {
+            if (CurrentTarget)
+            {
+                if (CurrentTarget.IsRunning && !IsLocked)
+                {
+                    IsLocked = true;
+                    LookAtConstraint.AddSource(new ConstraintSource
+                    {
+                        sourceTransform = CurrentTarget.transform,
+                        weight = 1
+                    });
+
+                    LookAtConstraint.constraintActive = true;
+
+                    InvokeRepeating(nameof(Fire), 1, FireSpeed);
+                }
+            }
+
+        }
+
+        public void Fire()
         {
             Animator.Play(FireAnimationClip.name, -1, 0);
-            Instantiate(ProjectilePrefab, ProjectileSpawn.position, ProjectileSpawn.rotation);
+            Instantiate(BasicProjectilePrefab, ProjectileSpawn.position, ProjectileSpawn.rotation);
+
         }
 
 
@@ -73,10 +86,10 @@ namespace Assets.Gameplay.Units.Enemy
         {
             if (ProxyZone)
             {
-                ProxyZone.PlayerInZone -= ProxyZonePlayerInZone;
-                ProxyZone.PlayerOutZone -= ProxyZonePlayerOutZone;
+                ProxyZone.ObjectInZone -= ProxyZoneObjectInZone;
+                ProxyZone.ObjectOutZone -= ProxyZoneObjectOutZone;
             }
-            CancelInvoke(nameof(FireAnimation));
+            CancelInvoke(nameof(Fire));
 
         }
     }

@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Assets.Gameplay
 {
+
     public interface IBootstrapper
     {
         Player PlayerPrefab { get; }
