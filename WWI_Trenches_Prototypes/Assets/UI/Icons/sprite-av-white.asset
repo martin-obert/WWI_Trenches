@@ -1,0 +1,1186 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84a92b25f83d49b9bc132d206b370281, type: 3}
+  m_Name: sprite-av-white
+  m_EditorClassIdentifier: 
+  hashCode: 679351673
+  material: {fileID: 2100000, guid: 3137311e34bb2de45ad317aa957c1aa5, type: 2}
+  materialHashCode: 0
+  spriteSheet: {fileID: 2800000, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  spriteInfoList:
+  - id: 0
+    x: 164
+    y: 256
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_5
+    hashCode: 1079598515
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300010, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 1
+    x: 4
+    y: 256
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_0
+    hashCode: 1079598518
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300000, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 2
+    x: 36
+    y: 256
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_1
+    hashCode: 1079598519
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300002, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 3
+    x: 68
+    y: 256
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_2
+    hashCode: 1079598516
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300004, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 4
+    x: 100
+    y: 256
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_3
+    hashCode: 1079598517
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300006, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 5
+    x: 132
+    y: 256
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_4
+    hashCode: 1079598514
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300008, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 6
+    x: 196
+    y: 256
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_6
+    hashCode: 1079598512
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300012, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 7
+    x: 228
+    y: 256
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_7
+    hashCode: 1079598513
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300014, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 8
+    x: 260
+    y: 256
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_8
+    hashCode: 1079598526
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300016, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 9
+    x: 4
+    y: 224
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_9
+    hashCode: 1079598527
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300018, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 10
+    x: 36
+    y: 224
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_10
+    hashCode: 1267012775
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300020, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 11
+    x: 68
+    y: 224
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_11
+    hashCode: 1267012774
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300022, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 12
+    x: 100
+    y: 224
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_12
+    hashCode: 1267012773
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300024, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 13
+    x: 132
+    y: 224
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_13
+    hashCode: 1267012772
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300026, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 14
+    x: 164
+    y: 224
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_14
+    hashCode: 1267012771
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300028, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 15
+    x: 196
+    y: 224
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_15
+    hashCode: 1267012770
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300030, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 16
+    x: 228
+    y: 224
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_16
+    hashCode: 1267012769
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300032, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 17
+    x: 260
+    y: 224
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_17
+    hashCode: 1267012768
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300034, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 18
+    x: 4
+    y: 192
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_18
+    hashCode: 1267012783
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300036, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 19
+    x: 36
+    y: 192
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_19
+    hashCode: 1267012782
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300038, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 20
+    x: 68
+    y: 192
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_20
+    hashCode: 1267012612
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300040, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 21
+    x: 100
+    y: 192
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_21
+    hashCode: 1267012613
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300042, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 22
+    x: 132
+    y: 192
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_22
+    hashCode: 1267012614
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300044, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 23
+    x: 164
+    y: 192
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_23
+    hashCode: 1267012615
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300046, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 24
+    x: 196
+    y: 192
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_24
+    hashCode: 1267012608
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300048, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 25
+    x: 228
+    y: 192
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_25
+    hashCode: 1267012609
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300050, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 26
+    x: 260
+    y: 192
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_26
+    hashCode: 1267012610
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300052, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 27
+    x: 4
+    y: 160
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_27
+    hashCode: 1267012611
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300054, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 28
+    x: 36
+    y: 160
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_28
+    hashCode: 1267012620
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300056, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 29
+    x: 68
+    y: 160
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_29
+    hashCode: 1267012621
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300058, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 30
+    x: 100
+    y: 160
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_30
+    hashCode: 1267012709
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300060, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 31
+    x: 132
+    y: 160
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_31
+    hashCode: 1267012708
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300062, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 32
+    x: 164
+    y: 160
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_32
+    hashCode: 1267012711
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300064, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 33
+    x: 196
+    y: 160
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_33
+    hashCode: 1267012710
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300066, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 34
+    x: 228
+    y: 160
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_34
+    hashCode: 1267012705
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300068, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 35
+    x: 260
+    y: 160
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_35
+    hashCode: 1267012704
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300070, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 36
+    x: 4
+    y: 128
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_36
+    hashCode: 1267012707
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300072, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 37
+    x: 36
+    y: 128
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_37
+    hashCode: 1267012706
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300074, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 38
+    x: 68
+    y: 128
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_38
+    hashCode: 1267012717
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300076, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 39
+    x: 100
+    y: 128
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_39
+    hashCode: 1267012716
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300078, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 40
+    x: 132
+    y: 128
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_40
+    hashCode: 1267012546
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300080, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 41
+    x: 164
+    y: 128
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_41
+    hashCode: 1267012547
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300082, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 42
+    x: 196
+    y: 128
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_42
+    hashCode: 1267012544
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300084, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 43
+    x: 228
+    y: 128
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_43
+    hashCode: 1267012545
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300086, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 44
+    x: 260
+    y: 128
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_44
+    hashCode: 1267012550
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300088, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 45
+    x: 4
+    y: 96
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_45
+    hashCode: 1267012551
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300090, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 46
+    x: 36
+    y: 96
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_46
+    hashCode: 1267012548
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300092, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 47
+    x: 68
+    y: 96
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_47
+    hashCode: 1267012549
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300094, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 48
+    x: 100
+    y: 96
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_48
+    hashCode: 1267012554
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300096, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 49
+    x: 132
+    y: 96
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_49
+    hashCode: 1267012555
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300098, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 50
+    x: 164
+    y: 96
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_50
+    hashCode: 1267012643
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300100, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 51
+    x: 196
+    y: 96
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_51
+    hashCode: 1267012642
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300102, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 52
+    x: 228
+    y: 96
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_52
+    hashCode: 1267012641
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300104, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 53
+    x: 260
+    y: 96
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_53
+    hashCode: 1267012640
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300106, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 54
+    x: 4
+    y: 64
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_54
+    hashCode: 1267012647
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300108, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 55
+    x: 36
+    y: 64
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_55
+    hashCode: 1267012646
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300110, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 56
+    x: 68
+    y: 64
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_56
+    hashCode: 1267012645
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300112, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 57
+    x: 100
+    y: 64
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_57
+    hashCode: 1267012644
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300114, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 58
+    x: 132
+    y: 64
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_58
+    hashCode: 1267012651
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300116, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 59
+    x: 164
+    y: 64
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_59
+    hashCode: 1267012650
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300118, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 60
+    x: 196
+    y: 64
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_60
+    hashCode: 1267012480
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300120, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 61
+    x: 228
+    y: 64
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_61
+    hashCode: 1267012481
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300122, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 62
+    x: 260
+    y: 64
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_62
+    hashCode: 1267012482
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300124, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 63
+    x: 4
+    y: 32
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_63
+    hashCode: 1267012483
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300126, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 64
+    x: 36
+    y: 32
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_64
+    hashCode: 1267012484
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300128, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 65
+    x: 68
+    y: 32
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_65
+    hashCode: 1267012485
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300130, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 66
+    x: 100
+    y: 32
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_66
+    hashCode: 1267012486
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300132, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 67
+    x: 132
+    y: 32
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_67
+    hashCode: 1267012487
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300134, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 68
+    x: 164
+    y: 32
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_68
+    hashCode: 1267012488
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300136, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 69
+    x: 196
+    y: 32
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_69
+    hashCode: 1267012489
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300138, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 70
+    x: 228
+    y: 32
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_70
+    hashCode: 1267012577
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300140, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 71
+    x: 260
+    y: 32
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_71
+    hashCode: 1267012576
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300142, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 72
+    x: 4
+    y: 0
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_72
+    hashCode: 1267012579
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300144, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 73
+    x: 36
+    y: 0
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_73
+    hashCode: 1267012578
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300146, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 74
+    x: 68
+    y: 0
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_74
+    hashCode: 1267012581
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300148, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 75
+    x: 100
+    y: 0
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_75
+    hashCode: 1267012580
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300150, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 76
+    x: 132
+    y: 0
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_76
+    hashCode: 1267012583
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300152, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 77
+    x: 164
+    y: 0
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_77
+    hashCode: 1267012582
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300154, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 78
+    x: 196
+    y: 0
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_78
+    hashCode: 1267012585
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300156, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 79
+    x: 228
+    y: 0
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_79
+    hashCode: 1267012584
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300158, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  - id: 80
+    x: 260
+    y: 0
+    width: 24
+    height: 24
+    xOffset: -12
+    yOffset: 12
+    xAdvance: 24
+    scale: 1
+    name: sprite-av-white_80
+    hashCode: 1267012942
+    unicode: 0
+    pivot: {x: -12, y: 12}
+    sprite: {fileID: 21300160, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+  fallbackSpriteAssets: []
+--- !u!21 &21891548606388064
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: TextMeshPro/Sprite
+  m_Shader: {fileID: 4800000, guid: cf81c85f95fe47e1a27f6ae460cf182c, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 2a8801c861557944a9005a445b1a6936, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}

@@ -23,7 +23,7 @@ namespace Assets.IoC
 
         public void Observe<T>(Action<Object> callback) where T : Object
         {
-            
+
 
             object current;
             if (Container.Singletons.TryGetValue(typeof(T), out current))
@@ -70,7 +70,7 @@ namespace Assets.IoC
             Container.UnRegister<T>();
         }
 
-        public T GetInstance<T>() where T : UnityEngine.Object
+        public T GetInstance<T>(Action<T> callback = null) where T : UnityEngine.Object
         {
             if (Container == null)
             {
@@ -78,8 +78,12 @@ namespace Assets.IoC
             }
 
             object result;
+
             if (Container.Singletons.TryGetValue(typeof(T), out result))
                 return result as T;
+
+            if (callback != null)
+                Observe<T>(o => callback(o as T));
 
             return default(T);
         }

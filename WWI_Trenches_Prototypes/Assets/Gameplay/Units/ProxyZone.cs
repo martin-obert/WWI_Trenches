@@ -61,19 +61,19 @@ namespace Assets.Gameplay.Units
 
         protected virtual void OnObjectOutZone(GameObject zonedObject)
         {
-            PlayerOutZone?.Invoke(this, EventArgs.Empty);
+            ObjectOutZone?.Invoke(this, new ProxyZoneEvent
             {
+                ZonedObject = zonedObject
+            });
         }
     }
 #if UNITY_EDITOR
     [CustomEditor(typeof(ProxyZone))]
     public class ProxyZoneEditor : Editor
     {
-        public override void OnInspectorGUI()
+        void OnSceneGUI()
         {
-
-
-            base.OnInspectorGUI();
+            var zone = target as ProxyZone;
             DrawZone(zone);
         }
 
