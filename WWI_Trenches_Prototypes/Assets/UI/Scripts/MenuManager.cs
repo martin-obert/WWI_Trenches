@@ -9,7 +9,8 @@ namespace Assets.UI.Scripts
     public enum MenuType
     {
         Main,
-        Settings
+        Settings,
+        HUD
     }
 
     public class MenuManager : Singleton<MenuManager>

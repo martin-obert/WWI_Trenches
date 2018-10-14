@@ -18,8 +18,12 @@ namespace Assets.Gameplay
 
         private Vector3 _target = Vector3.zero;
 
+        private Player _player;
+
         void Start()
         {
+            _player = IoC.InjectService.Instance.GetInstance<Player>(player => _player = player);
+
             CreateSingleton(this);
         }
 
@@ -35,15 +39,11 @@ namespace Assets.Gameplay
                 _camera = Camera.main ?? Camera.current;
             }
 
-            var player = Player.Instance;
-            if(!player)Debug.LogWarning("No player for camera");
-
             var terrain = TerrainManager.Instance?.CurrentTerrain;
-            if (!terrain) Debug.LogWarning("No terrain detected");
 
-            if (player && _camera && terrain)
+            if (_player && _camera && _player)
             {
-                UpdateCameraPosition(player.transform.position, terrain.StartPoint.position);
+                UpdateCameraPosition(_player.transform.position, terrain.StartPoint.position);
             }
         }
 

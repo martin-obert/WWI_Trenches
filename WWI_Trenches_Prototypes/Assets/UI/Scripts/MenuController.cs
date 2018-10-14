@@ -7,27 +7,21 @@ namespace Assets.UI.Scripts
         [SerializeField]
         private MenuType _menuType;
 
-        private Animator _animator;
 
-        private  int _slideInHandle = Animator.StringToHash("SlideIn");
-        private  int _slideOutHandle = Animator.StringToHash("SlideOut");
 
         public MenuType MenuType => _menuType;
 
         void Start()
         {
-            _animator = GetComponent<Animator>();
         }
 
         public void HideMenu()
         {
-            _animator.SetBool(_slideInHandle, false);
-            _animator.SetBool(_slideOutHandle, true);
+            gameObject.SetActive(false);
         }
         public void ShowMenu()
         {
-            _animator.SetBool(_slideInHandle, true);
-            _animator.SetBool(_slideOutHandle, false);
+            gameObject.SetActive(true);
         }
     }
 }

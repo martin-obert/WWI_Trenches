@@ -2,20 +2,37 @@
 using Assets.IoC;
 using UnityEngine;
 
-public class HUDButtons : MonoBehaviour {
+public class HUDButtons : MonoBehaviour
+{
 
+    private Player _player;
+
+    private void Start()
+    {
+        _player = InjectService.Instance.GetInstance<Player>(player => _player = player);
+    }
 
     public void CrawlToggle()
     {
-        var player = InjectService.Instance.GetInstance<Player>();
-        if (player)
+
+        if (_player)
         {
-            if(player.IsRunning)
-                player.Crawl();
+            if (_player.IsRunning)
+                _player.Crawl();
             else
             {
-                player.Run();
+                _player.Run();
             }
         }
+    }
+
+    public void LeaveCoverToEnd()
+    {
+        _player.RunToEnd();
+    }
+
+    public void Attack()
+    {
+        _player.Attack();
     }
 }

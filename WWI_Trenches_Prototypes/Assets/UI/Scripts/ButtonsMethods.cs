@@ -1,4 +1,5 @@
-﻿using Assets.IoC;
+﻿using Assets.Gameplay;
+using Assets.IoC;
 using UnityEngine;
 
 namespace Assets.UI.Scripts
@@ -24,6 +25,12 @@ namespace Assets.UI.Scripts
         public void SwitchSettingsMenu()
         {
             _manager.CurrentMenu = MenuType.Settings;
+        }
+
+        public void Play()
+        {
+            _manager.CurrentMenu = MenuType.HUD;
+            GameManager.Instance?.StartLevel();
         }
     }
 }

@@ -35,6 +35,17 @@ namespace Assets.Gameplay.Units.Enemy
 
         private void ProxyZoneObjectOutZone(object sender, EventArgs e)
         {
+            var zoneargs = e as ProxyZone.ProxyZoneEvent;
+            if (zoneargs != null)
+            {
+                var player = zoneargs.ZonedObject.GetComponent<Player>();
+                if (player)
+                {
+                    player.ThreatLevel -= 1;
+                    player.CurrentEnemy = null;
+                }
+            }
+
             CurrentTarget = null;
             LookAtConstraint.RemoveSource(0);
             LookAtConstraint.constraintActive = false;
@@ -49,7 +60,14 @@ namespace Assets.Gameplay.Units.Enemy
             {
                 CurrentTarget = zoneargs.ZonedObject.GetComponent<Player>();
                 if (!CurrentTarget)
-                    Debug.Log("Player component missing on " + zoneargs.ZonedObject);
+                {
+                    Debug.LogWarning("Player component missing on " + zoneargs.ZonedObject);
+                }
+                else
+                {
+                    CurrentTarget.ThreatLevel += 1;
+                    CurrentTarget.CurrentEnemy = this;
+                }
             }
         }
 

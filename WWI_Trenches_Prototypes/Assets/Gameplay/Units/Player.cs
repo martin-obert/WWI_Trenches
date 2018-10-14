@@ -5,6 +5,7 @@ using Assets.IoC;
 using Assets.TileGenerator;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Events;
 
 namespace Assets.Gameplay.Units
 {
@@ -17,6 +18,17 @@ namespace Assets.Gameplay.Units
 
     }
 
+    public enum ThreatLevel
+    {
+        None,
+        EnemyIsNear,
+    }
+
+    public class PlayerStateChangedEvent : UnityEvent<Player>
+    {
+
+    }
+
     [RequireComponent(typeof(PlayerNavigationController))]
     public class Player : Singleton<Player>
     {
@@ -25,15 +37,36 @@ namespace Assets.Gameplay.Units
 
         private PlayerNavigationController _navigationController;
 
-        public bool IsInCover { get; set; }
+        public Enemy.Enemy CurrentEnemy { get; set; }
+
+        public bool IsInCover
+        {
+            get { return _isInCover; }
+            set
+            {
+                _isInCover = value;
+                PlayerStateChanged.Invoke(this);
+            }
+        }
+        public bool IsAttacking { get; private set; }
 
         public bool IsAlive { get; private set; }
 
         public bool IsCrawling { get; set; }
 
-
-
         public bool IsRunning { get; private set; }
+
+        public float ThreatLevel
+        {
+            get { return _threatLevel; }
+            set
+            {
+                _threatLevel = value;
+                PlayerStateChanged.Invoke(this);
+            }
+        }
+
+        public PlayerStateChangedEvent PlayerStateChanged { get; } = new PlayerStateChangedEvent();
 
         private Vector3 _destination;
 
@@ -77,22 +110,66 @@ namespace Assets.Gameplay.Units
                 _targetedCover = cover;
                 Move(cover.transform.position);
             }
-            Crawl();
+            //Crawl();
         }
 
         public void SwapCover(Cover cover)
         {
             if (!cover || !(cover.transform.position.z > _targetedCover.transform.position.z)) return;
 
-            IsInCover = false;
 
             Debug.Log("Swaping cover");
 
+            LeaveCover();
+
             _targetedCover = cover;
-           
-            _navigationController.enabled = true;
+
             Move(cover.transform.position);
+
+        }
+
+        public void LeaveCover()
+        {
+            if (!IsInCover) return;
+
+            IsInCover = false;
+
+            _navigationController.enabled = true;
+
             Run();
+        }
+
+        public void RunToEnd()
+        {
+            LeaveCover();
+            Move(PlayerHelpers.GetEndPoint(this, TerrainManager.Instance.CurrentTerrain));
+        }
+
+        public void Attack()
+        {
+            if (IsAttacking || !CurrentEnemy) return;
+
+            IsAttacking = true;
+
+            LeaveCover();
+
+            Move(CurrentEnemy.transform.position);
+
+            StartCoroutine(CheckRange());
+        }
+
+        private IEnumerator CheckRange()
+        {
+            while (CurrentEnemy && (CurrentEnemy.transform.position - transform.position).magnitude > 1)
+            {
+                yield return null;
+            }
+
+            IsAttacking = false;
+
+            Destroy(CurrentEnemy.gameObject);
+
+            RunToEnd();
         }
 
         private void Move(Vector3 target)
@@ -132,7 +209,7 @@ namespace Assets.Gameplay.Units
         public void Spawn(Vector3 position, Vector3? destination)
         {
             transform.position = position;
-            
+
             if (destination.HasValue)
             {
                 _destination = destination.Value;
@@ -154,7 +231,7 @@ namespace Assets.Gameplay.Units
             _navigationController.Target = destination;
         }
 
-     
+
         public bool Stopped = false;
         void Update()
         {
@@ -174,7 +251,7 @@ namespace Assets.Gameplay.Units
             }
         }
 
-     
+
         private void OnTriggerEnter(Collider other)
         {
             if (!other.gameObject.tag.Equals("Cover", StringComparison.CurrentCultureIgnoreCase) || _targetedCover && other.gameObject != _targetedCover.gameObject) return;
@@ -192,8 +269,10 @@ namespace Assets.Gameplay.Units
             _navigationController.NavMeshAgent.Warp(coverComponent.transform.position);
 
             _navigationController.enabled = false;
+
             Stop();
-            transform.rotation = Quaternion.Euler(0,180,0);
+
+            transform.rotation = Quaternion.Euler(0, 180, 0);
         }
 
         private void OnTriggerExit(Collider other)
@@ -218,6 +297,9 @@ namespace Assets.Gameplay.Units
         }
 
         private float _backSpeed;
+        private float _threatLevel;
+        private bool _isInCover;
+
         public void Crawl()
         {
             _backSpeed = _navigationController.NavMeshAgent.speed;
