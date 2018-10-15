@@ -25,15 +25,15 @@ public class HudController : MenuController
 
     private void BindPlayer(Player player)
     {
-        if (!player) return;
+        //if (!player) return;
 
-        _player = player;
-        _player.PlayerStateChanged.AddListener(StateChanged);
+        //_player = player;
+        //_player.PlayerStateChanged.AddListener(StateChanged);
     }
 
     private void StateChanged(Player value)
     {
-        _basicActions.alpha = value.ThreatLevel > 0 ? 1 : 0;
-        _coverActions.alpha = value.IsInCover ? 1 : 0;
+        //_basicActions.alpha = value.ThreatLevel > 0 ? 1 : 0;
+        //_coverActions.alpha = value.IsInCover ? 1 : 0;
     }
 }

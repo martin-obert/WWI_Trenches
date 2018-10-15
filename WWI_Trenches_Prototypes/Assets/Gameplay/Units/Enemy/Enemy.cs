@@ -38,12 +38,12 @@ namespace Assets.Gameplay.Units.Enemy
             var zoneargs = e as ProxyZone.ProxyZoneEvent;
             if (zoneargs != null)
             {
-                var player = zoneargs.ZonedObject.GetComponent<Player>();
-                if (player)
-                {
-                    player.ThreatLevel -= 1;
-                    player.CurrentEnemy = null;
-                }
+                //var player = zoneargs.ZonedObject.GetComponent<Player>();
+                //if (player)
+                //{
+                //    player.ThreatLevel -= 1;
+                //    player.CurrentEnemy = null;
+                //}
             }
 
             CurrentTarget = null;
@@ -65,8 +65,8 @@ namespace Assets.Gameplay.Units.Enemy
                 }
                 else
                 {
-                    CurrentTarget.ThreatLevel += 1;
-                    CurrentTarget.CurrentEnemy = this;
+                    //CurrentTarget.ThreatLevel += 1;
+                    //CurrentTarget.CurrentEnemy = this;
                 }
             }
         }
@@ -75,19 +75,19 @@ namespace Assets.Gameplay.Units.Enemy
         {
             if (CurrentTarget)
             {
-                if (CurrentTarget.IsRunning && !IsLocked)
-                {
-                    IsLocked = true;
-                    LookAtConstraint.AddSource(new ConstraintSource
-                    {
-                        sourceTransform = CurrentTarget.transform,
-                        weight = 1
-                    });
+                //if (CurrentTarget.IsRunning && !IsLocked)
+                //{
+                //    IsLocked = true;
+                //    LookAtConstraint.AddSource(new ConstraintSource
+                //    {
+                //        sourceTransform = CurrentTarget.transform,
+                //        weight = 1
+                //    });
 
-                    LookAtConstraint.constraintActive = true;
+                //    LookAtConstraint.constraintActive = true;
 
-                    InvokeRepeating(nameof(Fire), 1, FireSpeed);
-                }
+                //    InvokeRepeating(nameof(Fire), 1, FireSpeed);
+                //}
             }
 
         }

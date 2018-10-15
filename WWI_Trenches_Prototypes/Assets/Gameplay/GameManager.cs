@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using Assets.Gameplay.Abstract;
 using Assets.Gameplay.Units;
 using Assets.IoC;
@@ -64,9 +65,17 @@ namespace Assets.Gameplay
             if (args.Progress < 1)
                 return;
 
+            StartCoroutine(DelayedStart(args));
+        }
+
+        private IEnumerator DelayedStart(TerrainTileBuilder.TerrainBuilderEventArgs args)
+        {
+            yield return new WaitForSecondsRealtime(1.5f);
             var player = Instantiate(_bootstrapper.PlayerPrefab);
 
-            player.Spawn(args.BuildedTerrain.StartPoint.position, PlayerHelpers.GetEndPoint(player, args.BuildedTerrain));
+            player.Spawn(args.BuildedTerrain.StartPoint.position);
+            player.Destination = PlayerHelpers.GetEndPoint(player, args.BuildedTerrain);
+            player.Run();
         }
 
         public void StartLevel()

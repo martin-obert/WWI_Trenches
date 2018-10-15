@@ -15,20 +15,20 @@ public class HUDButtons : MonoBehaviour
     public void CrawlToggle()
     {
 
-        if (_player)
-        {
-            if (_player.IsRunning)
-                _player.Crawl();
-            else
-            {
-                _player.Run();
-            }
-        }
+        //if (_player)
+        //{
+        //    if (_player.IsRunning)
+        //        _player.Crawl();
+        //    else
+        //    {
+        //        _player.Run();
+        //    }
+        //}
     }
 
     public void LeaveCoverToEnd()
     {
-        _player.RunToEnd();
+        //_player.RunToEnd();
     }
 
     public void Attack()

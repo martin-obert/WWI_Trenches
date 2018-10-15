@@ -25,21 +25,21 @@ namespace Assets.Gameplay.Units
         {
             if (PlayerInstance)
             {
-                if (PlayerInstance.IsRunning)
-                {
-                    _blendYVal = 1;
-                    _blendXVal = 0;
-                }
-                else if (PlayerInstance.IsCrawling)
-                {
-                    _blendYVal = 0;
-                    _blendXVal = -1;
-                }
-                else if (PlayerInstance.IsInCover)
-                {
-                    _blendXVal = 0;
-                    _blendYVal = -1;
-                }
+                //if (PlayerInstance.IsRunning)
+                //{
+                //    _blendYVal = 1;
+                //    _blendXVal = 0;
+                //}
+                //else if (PlayerInstance.IsCrawling)
+                //{
+                //    _blendYVal = 0;
+                //    _blendXVal = -1;
+                //}
+                //else if (PlayerInstance.IsInCover)
+                //{
+                //    _blendXVal = 0;
+                //    _blendYVal = -1;
+                //}
 
                 animator.SetFloat(_blendY, _blendYVal);
                 animator.SetFloat(_blendX, _blendXVal);
