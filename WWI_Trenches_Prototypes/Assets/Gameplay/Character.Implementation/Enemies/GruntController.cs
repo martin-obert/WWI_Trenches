@@ -13,6 +13,7 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
         [SerializeField]
         private ProxyZone _fireProxyZone;
 
+        [SerializeField]
         private GruntBrain _gruntBrain;
 
         private BasicCharacterAttributesContainer _attributes;
@@ -72,6 +73,7 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
             if (Target == null && target != null && Target != target && target.GameObject.CompareTag(TagsHelper.PlayerTag))
             {
                 Target = target;
+                print("Attacking player");
                 _gruntBrain.GiveOrder(this);
             }
         }

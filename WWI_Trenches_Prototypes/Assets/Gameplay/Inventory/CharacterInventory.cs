@@ -6,7 +6,19 @@ namespace Assets.Gameplay.Inventory
     public class CharacterInventory : MonoBehaviour
     {
         [SerializeField]
-        private DedicatedInventorySlot<IWeapon> _mainWeapon;
+        private InventoryTemplate _template;
+
+        void Start()
+        {
+            if (_template)
+            {
+                var instance = Instantiate(_template.MainWeapon);
+                EquipMainWeapon(instance);
+            }
+        }
+
+        [SerializeField]
+        private DedicatedInventorySlot<IWeapon> _mainWeapon = new DedicatedInventorySlot<IWeapon>();
         
         public IWeapon MainWeapon => _mainWeapon?.Item;
 

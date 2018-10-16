@@ -34,6 +34,5 @@ public class HUDButtons : MonoBehaviour
 
     public void Attack()
     {
-        _player.Attack();
     }
 }

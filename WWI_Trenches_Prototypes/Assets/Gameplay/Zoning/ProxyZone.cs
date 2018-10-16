@@ -33,7 +33,7 @@ namespace Assets.Gameplay.Zoning
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag(CheckTag))
+            if (string.IsNullOrEmpty(CheckTag)  || other.CompareTag(CheckTag))
             {
                 OnObjectInZone(other.gameObject);
             }
@@ -42,7 +42,7 @@ namespace Assets.Gameplay.Zoning
 
         private void OnTriggerExit(Collider other)
         {
-            if (other.CompareTag(CheckTag))
+            if (string.IsNullOrEmpty(CheckTag) || other.CompareTag(CheckTag))
             {
                 OnObjectOutZone(other.gameObject);
             }

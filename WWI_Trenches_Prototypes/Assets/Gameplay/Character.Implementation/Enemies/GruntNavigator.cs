@@ -14,17 +14,20 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
         {
             _lookAtConstraint = GetComponent<LookAtConstraint>();
             _lookAtConstraint.AddSource(new ConstraintSource());
+            _lookAtConstraint.constraintActive = false;
         }
 
         public void LookOn(Transform target)
         {
             if (!target)
             {
-                _lookAtConstraint.enabled = false;
+                
+                _lookAtConstraint.constraintActive = false;
             }
             else
             {
-                _lookAtConstraint.enabled = true;
+                print("Looking at " + target);
+                _lookAtConstraint.constraintActive = true;
                 _lookAtConstraint.SetSource(0, new ConstraintSource
                 {
                     sourceTransform = target,
@@ -32,6 +35,11 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
                 });
             }
 
+        }
+
+        public void LookAtDirection(Quaternion roatation)
+        {
+            throw new NotImplementedException();
         }
 
         public void Teleport(Vector3 position)

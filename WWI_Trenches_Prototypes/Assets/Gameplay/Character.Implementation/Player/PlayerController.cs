@@ -3,6 +3,7 @@ using Assets.Gameplay.Abstract;
 using Assets.Gameplay.Character.Implementation.Attributes;
 using Assets.Gameplay.Character.Interfaces;
 using Assets.Gameplay.Inventory;
+using Assets.Gameplay.Units;
 using Assets.Gameplay.Units.Enemy;
 using Assets.Gameplay.Zoning;
 using Assets.TileGenerator;
@@ -28,6 +29,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
     {
         public static readonly string EnemyTag = "Enemy";
         public static readonly string PlayerTag = "Player";
+        public static readonly string CoverTag = "Cover";
     }
 
     public enum ThreatLevel
@@ -67,6 +69,8 @@ namespace Assets.Gameplay.Character.Implementation.Player
         //Todo: Invoke from death method
         public event EventHandler<ITargetable> EliminatedByOtherTarget;
 
+        private Cover _selectedCover;
+
         public void GotKilledBy(ITargetable killer)
         {
             throw new NotImplementedException();
@@ -82,7 +86,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
             _characterInventory = GetComponent<CharacterInventory>();
 
-            Navigator = new PlayerCharacterNavigator(GetComponent<NavMeshAgent>(), AttributesContainer);
+            Navigator = new PlayerCharacterNavigator(GetComponent<NavMeshAgent>(), AttributesContainer, transform);
 
             if (_enemyScanZone)
             {
@@ -104,6 +108,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         private void InZoneEventHandler(object sender, ProxyZone.ProxyZoneEvent eventArgs)
         {
+            print("is " + eventArgs.ZonedObject);
             if (eventArgs != null && eventArgs.ZonedObject && eventArgs.ZonedObject.CompareTag(TagsHelper.EnemyTag))
             {
                 var enemy = eventArgs.ZonedObject.GetComponent<ITargetable>();
@@ -113,6 +118,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
                 }
                 else
                 {
+                    
                     CurrentEnemy = enemy;
                 }
             }
@@ -143,6 +149,11 @@ namespace Assets.Gameplay.Character.Implementation.Player
             {
                 Run();
             }
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                Shoot();
+            }
         }
 
         private void Crawl()
@@ -169,8 +180,26 @@ namespace Assets.Gameplay.Character.Implementation.Player
         {
         }
 
-        public void TakeCover()
+        public void TakeCover(Cover cover)
         {
+            if (_playerCharacterState.CurrentState == PlayerState.Covering && cover == _selectedCover) return;
+
+            print("Cover");
+
+            _selectedCover = cover;
+
+            _playerCharacterState.ChangeState(PlayerState.Running, this);
+
+            Destination = cover.transform.position;
+
+            _playerBrain.GiveOrder(this);
+        }
+
+        public void HideInCover()
+        {
+            _playerCharacterState.ChangeState(PlayerState.Covering, this);
+
+            _playerBrain.GiveOrder(this);
         }
 
         public void LeaveCover()
@@ -182,13 +211,30 @@ namespace Assets.Gameplay.Character.Implementation.Player
             if (_playerCharacterState.CurrentState == PlayerState.Shooting) return;
 
             print("Shooting");
-            
+
             _playerCharacterState.ChangeState(PlayerState.Shooting, this);
 
             _playerBrain.GiveOrder(this);
         }
 
         public void Loot()
+        {
+
+        }
+
+        void OnTriggerEnter(Collider other)
+        {
+
+            if (other.gameObject.CompareTag(TagsHelper.CoverTag))
+            {
+                var cover = other.GetComponent<Cover>();
+                if (cover == _selectedCover)
+                    HideInCover();
+
+            }
+        }
+
+        void OnTriggerExit(Collider other)
         {
 
         }

@@ -10,6 +10,11 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
         [SerializeField]
         private EnemyOrder _attackOrder;
 
+        void OnEnable()
+        {
+            _idleOrder = new EnemyIdleOrder("Idle");
+            _attackOrder = new EnemyShootOrder("Attack");
+        }
 
         private ICharacterOrder<GruntController> _currentOrder;
 
@@ -32,6 +37,7 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
         {
             if (character.Target != null)
             {
+                print("Enemy has attacking order");
                 return _attackOrder;
             }
 

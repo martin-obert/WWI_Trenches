@@ -30,7 +30,7 @@ namespace Assets.Gameplay.Units
             var player = InjectService.Instance.GetInstance<PlayerController>();
             if (player)
             {
-                player.TakeCover();
+                player.TakeCover(this);
             }
 
         }

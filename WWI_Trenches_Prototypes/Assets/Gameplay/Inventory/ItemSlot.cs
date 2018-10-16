@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Assets.Gameplay.Inventory
 {
-    public abstract class ItemSlot : ScriptableObject
+    public abstract class ItemSlot
     {
         protected IItem StoredItem { get; set; }
 

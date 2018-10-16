@@ -2,6 +2,7 @@
 
 namespace Assets.Gameplay.Inventory.Items
 {
+    [CreateAssetMenu(menuName = "Items/Weapons",fileName = "BasicWeapon")]
     public class WeaponData : ScriptableObject
     {
         [SerializeField] private float _range = 1f;

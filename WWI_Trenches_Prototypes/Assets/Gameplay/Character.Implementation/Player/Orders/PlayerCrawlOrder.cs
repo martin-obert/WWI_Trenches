@@ -22,7 +22,7 @@ namespace Assets.Gameplay.Character.Implementation.Player.Orders
 
         public override void Execute(PlayerOrderArguments arguments)
         {
-            arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendXHandle, 0);
+            arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendXHandle, -1);
 
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendYHandle, 0);
 

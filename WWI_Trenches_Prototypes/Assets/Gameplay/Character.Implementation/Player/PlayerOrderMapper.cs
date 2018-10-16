@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Assets.Gameplay.Character.Implementation.Player
 {
 
-    [CreateAssetMenu(fileName = "PlayerBehavior", menuName = "Gameplay/Behaviors/Mappers/Player Behavior mapper", order = 1)]
+    [Obsolete, CreateAssetMenu(fileName = "PlayerBehavior", menuName = "Gameplay/Behaviors/Mappers/Player Behavior mapper", order = 1)]
     public class PlayerOrderMapper : OrderMapper<PlayerController>
     {
         private PlayerOrder _runningOrder;

@@ -1,4 +1,5 @@
-﻿using Assets.Gameplay.Character.Implementation.Attributes;
+﻿using System;
+using Assets.Gameplay.Character.Implementation.Attributes;
 using Assets.Gameplay.Character.Interfaces;
 using UnityEngine;
 using UnityEngine.AI;
@@ -9,10 +10,12 @@ namespace Assets.Gameplay.Character.Implementation.Player
     {
         private readonly NavMeshAgent _navMeshAgent;
 
-        public PlayerCharacterNavigator(NavMeshAgent navMeshAgent, BasicCharacterAttributesContainer attributes)
+        private readonly Transform _transform;
+
+        public PlayerCharacterNavigator(NavMeshAgent navMeshAgent, BasicCharacterAttributesContainer attributes, Transform transform)
         {
             _navMeshAgent = navMeshAgent;
-
+            _transform = transform;
             attributes.Speed.Subscribe(SpeedChanged);
         }
 
@@ -26,7 +29,12 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         public void LookOn(Transform target)
         {
-            throw new System.NotImplementedException();
+            _transform.LookAt(target.position);
+        }
+
+        public void LookAtDirection(Quaternion roatation)
+        {
+            _transform.rotation = roatation;
         }
 
         public void Teleport(Vector3 position)
@@ -48,7 +56,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
                 return;
             }
 
-            _navMeshAgent.destination = position;
+            _navMeshAgent.SetDestination(position);
         }
 
         public void Stop()

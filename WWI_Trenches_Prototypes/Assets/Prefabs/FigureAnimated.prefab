@@ -339,7 +339,8 @@ GameObject:
   - component: {fileID: 195393279315972792}
   - component: {fileID: 136596526503763694}
   - component: {fileID: 54296177707526166}
-  - component: {fileID: 114786593250680082}
+  - component: {fileID: 114831074473545250}
+  - component: {fileID: 114479254381417706}
   m_Layer: 9
   m_Name: FigureAnimated
   m_TagString: Player
@@ -462,6 +463,22 @@ GameObject:
   - component: {fileID: 4072205332764454}
   m_Layer: 9
   m_Name: mixamorig:RightHandPinky4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1473647253439288
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4389205745305300}
+  - component: {fileID: 114910064748878046}
+  m_Layer: 9
+  m_Name: Zone_Aware
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1631,6 +1648,19 @@ Transform:
   m_Father: {fileID: 4180716395921880}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4389205745305300
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1473647253439288}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4563479803873714}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4391135052043090
 Transform:
   m_ObjectHideFlags: 1
@@ -1767,6 +1797,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4323726824685176}
+  - {fileID: 4389205745305300}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2153,7 +2184,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cc3e3de8bc74fe4a9ed3ae2eb462f8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114786593250680082
+  _enemyScanZone: {fileID: 114910064748878046}
+--- !u!114 &114479254381417706
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2161,10 +2193,35 @@ MonoBehaviour:
   m_GameObject: {fileID: 1349393194014558}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: debf47057c30d70468f52395b8df30a7, type: 3}
+  m_Script: {fileID: 11500000, guid: bdd6f15218818e346a5efaf81b20f540, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerBehavMapper: {fileID: 11400000, guid: c483108324fff174c96755f3ef3cee15, type: 2}
+  _template: {fileID: 11400000, guid: 4abdd419b2d881f45b8db1a93b09e397, type: 2}
+--- !u!114 &114831074473545250
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1349393194014558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3eadc93d6a3bee8449605b7cb76bd3c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &114910064748878046
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1473647253439288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 136d50acbf577aa40b5ef413db3be35e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HandleColor: {r: 1, g: 0, b: 0, a: 1}
+  RangeRadius: 11.37
+  CheckTag: Enemy
 --- !u!136 &136596526503763694
 CapsuleCollider:
   m_ObjectHideFlags: 1
@@ -2382,13 +2439,13 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
-  m_Acceleration: 8
+  m_Speed: 1
+  m_Acceleration: 20
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_StoppingDistance: 1
   m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
+  m_AutoBraking: 0
   m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 0

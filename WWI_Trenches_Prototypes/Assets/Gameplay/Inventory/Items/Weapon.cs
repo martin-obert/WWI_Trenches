@@ -1,6 +1,7 @@
 ﻿using System;
 using Assets.Gameplay.Character.Interfaces;
 using Assets.Gameplay.Zoning;
+using UnityEditor;
 using UnityEngine;
 
 namespace Assets.Gameplay.Inventory.Items
@@ -11,6 +12,7 @@ namespace Assets.Gameplay.Inventory.Items
 
         [SerializeField] private string _name;
 
+        [SerializeField]
         private ProxyZone _weaponRangeProxyZone;
 
         public bool IsStackable => false;
@@ -89,4 +91,28 @@ namespace Assets.Gameplay.Inventory.Items
             print("Boom!");
         }
     }
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(Weapon))]
+    public class WeaponEditor : Editor
+    {
+        void OnSceneGUI()
+        {
+            var zone = target as Weapon;
+            DrawZone(zone);
+        }
+
+        public static void DrawZone(Weapon zone)
+        {
+
+            if (zone == null)
+                return;
+            Handles.color = Color.red;
+
+            Handles.DrawWireDisc(zone.transform.position, Vector3.up, zone.Range);
+            Handles.Label(zone.transform.position + zone.transform.forward * zone.Range, $"Check tag: {zone.Name}", new GUIStyle { normal = new GUIStyleState { textColor = Color.red } });
+        }
+    }
+#endif
+
 }
