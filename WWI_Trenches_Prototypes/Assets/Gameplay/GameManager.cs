@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using Assets.Gameplay.Abstract;
+using Assets.Gameplay.Character.Implementation.Player;
 using Assets.Gameplay.Units;
 using Assets.IoC;
 using Assets.TileGenerator;

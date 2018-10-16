@@ -1,4 +1,6 @@
 ﻿using System;
+using Assets.Gameplay.Character.Implementation.Player;
+using Assets.Gameplay.Zoning;
 using UnityEngine;
 using UnityEngine.Animations;
 
@@ -11,7 +13,7 @@ namespace Assets.Gameplay.Units.Enemy
         public ProxyZone ProxyZone;
         public BasicProjectile BasicProjectilePrefab;
         public Transform ProjectileSpawn;
-        public Player CurrentTarget { get; private set; }
+        public PlayerController CurrentTarget { get; private set; }
         public Animator Animator;
         public AnimationClip FireAnimationClip;
         public float FireSpeed = 0.833f;
@@ -58,7 +60,7 @@ namespace Assets.Gameplay.Units.Enemy
 
             if (zoneargs != null)
             {
-                CurrentTarget = zoneargs.ZonedObject.GetComponent<Player>();
+                CurrentTarget = zoneargs.ZonedObject.GetComponent<PlayerController>();
                 if (!CurrentTarget)
                 {
                     Debug.LogWarning("Player component missing on " + zoneargs.ZonedObject);

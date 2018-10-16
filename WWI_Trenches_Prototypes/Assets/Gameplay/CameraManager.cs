@@ -1,4 +1,5 @@
 ﻿using Assets.Gameplay.Abstract;
+using Assets.Gameplay.Character.Implementation.Player;
 using Assets.Gameplay.Units;
 using Assets.IoC;
 using UnityEditor;
@@ -18,11 +19,11 @@ namespace Assets.Gameplay
 
         private Vector3 _target = Vector3.zero;
 
-        private Player _player;
+        private PlayerController _player;
 
         void Start()
         {
-            _player = IoC.InjectService.Instance.GetInstance<Player>(player => _player = player);
+            _player = IoC.InjectService.Instance.GetInstance<PlayerController>(player => _player = player);
 
             CreateSingleton(this);
         }

@@ -1,4 +1,5 @@
-﻿using Assets.IoC;
+﻿using Assets.Gameplay.Character.Implementation.Player;
+using Assets.IoC;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -26,7 +27,7 @@ namespace Assets.Gameplay.Units
 
         public void SelectedHandler(BaseEventData data)
         {
-            var player = InjectService.Instance.GetInstance<Player>();
+            var player = InjectService.Instance.GetInstance<PlayerController>();
             if (player)
             {
                 player.TakeCover();
