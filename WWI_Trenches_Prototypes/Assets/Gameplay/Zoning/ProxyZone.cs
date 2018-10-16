@@ -13,8 +13,8 @@ namespace Assets.Gameplay.Zoning
             public GameObject ZonedObject { get; set; }
         }
 
-        public event EventHandler ObjectInZone;
-        public event EventHandler ObjectOutZone;
+        public event EventHandler<ProxyZoneEvent> ObjectInZone;
+        public event EventHandler<ProxyZoneEvent> ObjectOutZone;
         public Color HandleColor = Color.red;
         public float RangeRadius = 1f;
         public string CheckTag = "Player";
@@ -65,13 +65,13 @@ namespace Assets.Gameplay.Zoning
             });
         }
 
-        public void SubscribeTriggers(EventHandler inzone, EventHandler outzone)
+        public void SubscribeTriggers(EventHandler<ProxyZoneEvent> inzone, EventHandler<ProxyZoneEvent> outzone)
         {
             ObjectInZone += inzone;
             ObjectOutZone += outzone;
         }
 
-        public void UnsubscribeTriggers(EventHandler inzone, EventHandler outzone)
+        public void UnsubscribeTriggers(EventHandler<ProxyZoneEvent> inzone, EventHandler<ProxyZoneEvent> outzone)
         {
             ObjectInZone -= inzone;
             ObjectOutZone = outzone;

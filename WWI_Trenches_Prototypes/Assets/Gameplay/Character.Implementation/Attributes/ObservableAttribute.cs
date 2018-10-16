@@ -1,7 +1,6 @@
-﻿using Assets.Gameplay.Character.Implementation;
-using UnityEngine.Events;
+﻿using System;
 
-namespace Assets.Gameplay.Character.Interfaces
+namespace Assets.Gameplay.Character.Implementation.Attributes
 {
     public class ObservableAttribute<T> : BasicAttribute<T>
     {
@@ -16,21 +15,24 @@ namespace Assets.Gameplay.Character.Interfaces
             return val;
         }
 
-        private readonly UnityEvent<T> _valueChanged;
+        private event EventHandler<T> _valueChanged;
 
         private void Invoke(T value)
         {
-            _valueChanged?.Invoke(value);
+            _valueChanged?.Invoke(this, value);
         }
 
-        public void Subscribe(UnityAction<T> action)
+        public void Subscribe(EventHandler<T> action)
         {
-            _valueChanged.AddListener(action);
+            _valueChanged += action;
+        }
+        public void Unsubscribe(EventHandler<T> action)
+        {
+            _valueChanged -= action;
         }
 
         public ObservableAttribute(string name, string displayName, T currentValue, T minValue, T maxVaue) : base(name, displayName, currentValue, minValue, maxVaue)
         {
-            _valueChanged = new BasicAttributeValueChanged<T>();
         }
     }
 }

@@ -1,14 +1,21 @@
 ﻿using System;
+using Assets.Gameplay.Character.Implementation;
 using Assets.Gameplay.Character.Implementation.Player;
+using Assets.Gameplay.Character.Interfaces;
 using Assets.Gameplay.Zoning;
 using UnityEngine;
 using UnityEngine.Animations;
 
 namespace Assets.Gameplay.Units.Enemy
 {
+    [Obsolete]
     public class Enemy : MonoBehaviour
     {
         public LookAtConstraint LookAtConstraint;
+
+        public string DisplayName => name;
+
+        public event EventHandler<ITargetable> EliminatedByOtherTarget;
 
         public ProxyZone ProxyZone;
         public BasicProjectile BasicProjectilePrefab;
@@ -18,6 +25,7 @@ namespace Assets.Gameplay.Units.Enemy
         public AnimationClip FireAnimationClip;
         public float FireSpeed = 0.833f;
         public bool IsLocked;
+
         private void Awake()
         {
             LookAtConstraint = GetComponent<LookAtConstraint>();
@@ -98,7 +106,6 @@ namespace Assets.Gameplay.Units.Enemy
         {
             Animator.Play(FireAnimationClip.name, -1, 0);
             Instantiate(BasicProjectilePrefab, ProjectileSpawn.position, ProjectileSpawn.rotation);
-
         }
 
 
@@ -112,5 +119,7 @@ namespace Assets.Gameplay.Units.Enemy
             CancelInvoke(nameof(Fire));
 
         }
+
+        
     }
 }

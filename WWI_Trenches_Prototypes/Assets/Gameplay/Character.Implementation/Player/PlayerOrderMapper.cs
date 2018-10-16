@@ -19,7 +19,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
             _idleOrder = new PlayerIdleOrder("Idle");
             _runningOrder = new PlayerRunOrder("Run");
             _crawlingOrder = new PlayerCrawlOrder("Crawl");
-            _attackOrder = new PlayerAttackOrder("Attack");
+            _attackOrder = new PlayerShootOrder("Attack");
         }
 
         public override ICharacterOrder<PlayerController> GetBehaviorFromState(PlayerController character)
@@ -32,7 +32,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
                     return _runningOrder;
                 case PlayerState.Crawling:
                     return _crawlingOrder;
-                case PlayerState.Attacking:
+                case PlayerState.Shooting:
                     return _attackOrder;
                 case PlayerState.Covering:
                 default:

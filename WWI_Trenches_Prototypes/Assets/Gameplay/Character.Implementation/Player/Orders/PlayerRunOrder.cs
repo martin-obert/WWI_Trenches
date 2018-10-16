@@ -21,7 +21,7 @@ namespace Assets.Gameplay.Character.Implementation.Player.Orders
         {
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendXHandle, 0);
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendYHandle, 1);
-            Debug.Log("running");
+            
             arguments.Navigator.Move(arguments.Destination);
             arguments.Attributes.Speed.CurrentValue = _runSpeed;
         }

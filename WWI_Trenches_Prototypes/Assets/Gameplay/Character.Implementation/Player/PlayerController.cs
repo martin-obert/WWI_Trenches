@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Assets.Gameplay.Abstract;
+using Assets.Gameplay.Character.Implementation.Attributes;
 using Assets.Gameplay.Character.Interfaces;
 using Assets.Gameplay.Inventory;
 using Assets.Gameplay.Units.Enemy;
@@ -31,119 +30,10 @@ namespace Assets.Gameplay.Character.Implementation.Player
         EnemyIsNear,
     }
 
-    public class WeaponData : ScriptableObject
-    {
-        [SerializeField]
-        private float _range = 1f;
-
-        public string Name;
-
-        [Tooltip("Attack frequency in seconds")]
-        public float AttackSpeed = 0.5f;
-
-        public float Range
-        {
-            get { return _range; }
-        }
-    }
-
-    public class Weapon : MonoBehaviour, IWeapon
-    {
-        [SerializeField]
-        private WeaponData _data;
-
-        [SerializeField]
-        private string _name;
-
-        private ProxyZone _weaponRangeProxyZone;
-
-        private GameObject _target;
-
-
-        public bool IsStackable => false;
-
-        public string Name => _name;
-
-        public int MaxStack => 1;
-        public int Amount => 1;
-
-        public bool IsInRange { get; private set; }
-
-        public bool CanFire => IsInRange;
-
-        
-        public GameObject Target
-        {
-            get { return _target; }
-            set
-            {
-                _target = value;
-                if (Mathf.Abs((_target.transform.position - transform.position).magnitude) <= Range)
-                {
-                    IsInRange = true;
-                }
-            }
-        }
-
-        public float Range => _data.Range;
-
-        public float AttackSpeed => _data.AttackSpeed;
-
-        public event EventHandler<IWeapon> IsInRangeChanged;
-
-       
-        void Awake()
-        {
-            _weaponRangeProxyZone.RangeRadius = _data.Range;
-            _weaponRangeProxyZone.SubscribeTriggers(Inzone, Outzone);
-        }
-
-        void OnDisable()
-        {
-            StopFiring();
-        }
-        void OnDestroy()
-        {
-            StopFiring();
-        }
-
-        private void Outzone(object sender, EventArgs eventArgs)
-        {
-            if (Target && ((ProxyZone.ProxyZoneEvent)eventArgs).ZonedObject == Target)
-            {
-                IsInRange = false;
-            }
-        }
-
-        private void Inzone(object sender, EventArgs eventArgs)
-        {
-            if (Target && ((ProxyZone.ProxyZoneEvent)eventArgs).ZonedObject == Target)
-            {
-                IsInRange = true;
-            }
-        }
-
-        public void StartFiring()
-        {
-            InvokeRepeating(nameof(Fire), 0, AttackSpeed);
-        }
-
-        public void StopFiring()
-        {
-            CancelInvoke(nameof(Fire));
-        }
-
-        private void Fire()
-        {
-            print("Boom!");
-        }
-    }
-
     [RequireComponent(typeof(PlayerBrain), typeof(NavMeshAgent))]
-    public class PlayerController : Singleton<PlayerController>
+    public class PlayerController : Singleton<PlayerController>, ITargetable
     {
-        [SerializeField]
-        private ProxyZone _enemyScanZone;
+        [SerializeField] private ProxyZone _enemyScanZone;
 
         private PlayerBrain _playerBrain;
 
@@ -153,7 +43,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         public PlayerCharacterNavigator Navigator { get; private set; }
 
-        private PlayerInventory _playerInventory;
+        private CharacterInventory _characterInventory;
 
         //Todo: tohle se presune nekam
         public Vector3 Destination { get; set; }
@@ -162,11 +52,24 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         public ProxyZone EnemyScanZone => _enemyScanZone;
 
+        public string DisplayName => name;
+
+        public GameObject GameObject => gameObject;
+
+        public ITargetable CurrentEnemy { get; private set; }
+
+        //Todo: Invoke from death method
+        public event EventHandler<ITargetable> EliminatedByOtherTarget;
+
+        public void GotKilledBy(ITargetable killer)
+        {
+            throw new NotImplementedException();
+        }
+
         #region ToBe refactored
 
-        public Weapon CurrentWeapon;
+        
 
-        public Enemy CurrentEnemy { get; private set; }
         #endregion
 
         void OnEnable()
@@ -177,7 +80,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
             _playerBrain = GetComponent<PlayerBrain>();
 
-            _playerInventory = GetComponent<PlayerInventory>();
+            _characterInventory = GetComponent<CharacterInventory>();
 
             Navigator = new PlayerCharacterNavigator(GetComponent<NavMeshAgent>(), AttributesContainer);
 
@@ -187,13 +90,11 @@ namespace Assets.Gameplay.Character.Implementation.Player
             }
         }
 
-        private void OutZoneEventHandler(object sender, EventArgs eventArgs)
+        private void OutZoneEventHandler(object sender, ProxyZone.ProxyZoneEvent eventArgs)
         {
-            var ev = eventArgs as ProxyZone.ProxyZoneEvent;
-
-            if (ev != null && ev.ZonedObject && ev.ZonedObject.CompareTag("Enemy"))
+            if (eventArgs != null && eventArgs.ZonedObject && eventArgs.ZonedObject.CompareTag("Enemy"))
             {
-                var enemy = ev.ZonedObject.GetComponent<Enemy>();
+                var enemy = eventArgs.ZonedObject.GetComponent<ITargetable>();
                 if (CurrentEnemy == enemy)
                 {
                     CurrentEnemy = null;
@@ -201,25 +102,21 @@ namespace Assets.Gameplay.Character.Implementation.Player
             }
         }
 
-        private void InZoneEventHandler(object sender, EventArgs eventArgs)
+        private void InZoneEventHandler(object sender, ProxyZone.ProxyZoneEvent eventArgs)
         {
-            var ev = eventArgs as ProxyZone.ProxyZoneEvent;
-
-            if (ev != null && ev.ZonedObject && ev.ZonedObject.CompareTag("Enemy"))
+            if (eventArgs != null && eventArgs.ZonedObject && eventArgs.ZonedObject.CompareTag("Enemy"))
             {
-                var enemy = ev.ZonedObject.GetComponent<Enemy>();
-                if (!enemy)
+                var enemy = eventArgs.ZonedObject.GetComponent<ITargetable>();
+                if (enemy == null)
                 {
-                    Debug.LogError("This is marked as enemy but has no enemy component" + ev.ZonedObject);
+                    Debug.LogError("This is marked as enemy but has no enemy component " + eventArgs.ZonedObject);
                 }
                 else
                 {
                     CurrentEnemy = enemy;
                 }
-
             }
         }
-
         void Start()
         {
             CreateSingleton(this);
@@ -241,11 +138,11 @@ namespace Assets.Gameplay.Character.Implementation.Player
             {
                 Crawl();
             }
+
             if (Input.GetKeyDown(KeyCode.R))
             {
                 Run();
             }
-
         }
 
         private void Crawl()
@@ -255,7 +152,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
             print("Crawl");
             _playerCharacterState.ChangeState(PlayerState.Crawling, this);
 
-            _playerBrain.ChangeBehavior(this);
+            _playerBrain.GiveOrder(this);
         }
 
         public void Run()
@@ -265,57 +162,30 @@ namespace Assets.Gameplay.Character.Implementation.Player
             print("Run");
             _playerCharacterState.ChangeState(PlayerState.Running, this);
 
-            _playerBrain.ChangeBehavior(this);
+            _playerBrain.GiveOrder(this);
         }
 
         public void Stop()
         {
-
         }
 
         public void TakeCover()
         {
-
         }
 
         public void LeaveCover()
         {
-
         }
 
-        public void Attack()
+        public void Shoot()
         {
-            if (_playerCharacterState.CurrentState == PlayerState.Attacking) return;
+            if (_playerCharacterState.CurrentState == PlayerState.Shooting) return;
 
-            if (!CurrentEnemy)
-            {
-                print("Player has no enemies");
-                return;
-            }
+            print("Shooting");
+            
+            _playerCharacterState.ChangeState(PlayerState.Shooting, this);
 
-            if (!CurrentWeapon)
-            {
-                print("Player has no weapon");
-                return;
-            }
-
-            CurrentWeapon.Target = CurrentEnemy.gameObject;
-
-            print("Attacking");
-
-            _playerCharacterState.ChangeState(PlayerState.Attacking, this);
-
-            _playerBrain.ChangeBehavior(this);
-        }
-
-        public void FireWeapon()
-        {
-            InvokeRepeating(nameof(CurrentWeapon.StartFiring), 0, CurrentWeapon.AttackSpeed);
-        }
-
-        public void StopFiringWeapon()
-        {
-            CancelInvoke(nameof(CurrentWeapon.StartFiring));
+            _playerBrain.GiveOrder(this);
         }
 
         public void Loot()

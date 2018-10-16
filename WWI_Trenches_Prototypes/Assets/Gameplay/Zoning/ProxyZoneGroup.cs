@@ -8,7 +8,7 @@ namespace Assets.Gameplay.Zoning
     {
         public ProxyZone[] ProxyZones;
 
-        public void SubscribeZones(EventHandler inZoneEventHandler, EventHandler outZoneEventHandler)
+        public void SubscribeZones(EventHandler<ProxyZone.ProxyZoneEvent> inZoneEventHandler, EventHandler<ProxyZone.ProxyZoneEvent> outZoneEventHandler)
         {
             foreach (var proxyZone in ProxyZones)
             {
@@ -16,7 +16,7 @@ namespace Assets.Gameplay.Zoning
             }
         }
 
-        public void UnsubscribeZones(EventHandler inZoneEventHandler, EventHandler outZoneEventHandler)
+        public void UnsubscribeZones(EventHandler<ProxyZone.ProxyZoneEvent> inZoneEventHandler, EventHandler<ProxyZone.ProxyZoneEvent> outZoneEventHandler)
         {
             foreach (var proxyZone in ProxyZones)
             {

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using Assets.Gameplay.Character.Interfaces;
 using UnityEngine;
 
@@ -13,7 +12,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         private ICharacterOrder<PlayerController> _currentOrder;
 
-        public void ChangeBehavior(PlayerController character)
+        public void GiveOrder(PlayerController character)
         {
             //Todo: tohle je mozna moc inicializace
             var args = new PlayerOrderArguments(character);
@@ -26,6 +25,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
             //Todo: priprava na sekvenci, jakmile jich bude vice tak execute provede celou sekvenci neco jako ISequence : ICharacterBehavior a ISequence jich ma vice v sobe
             _currentOrder?.Execute(args);
+
         }
 
         private ICharacterOrder<PlayerController> PickBehavior(PlayerController character)

@@ -1,10 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
 
 namespace Assets.Gameplay.Character.Interfaces
 {
     public interface ICharacterBrain<in TCharacter>
     {
-        void ChangeBehavior(TCharacter character);
+        void GiveOrder(TCharacter character);
     }
 
     public enum PlayerState
@@ -14,6 +14,6 @@ namespace Assets.Gameplay.Character.Interfaces
         Crawling,
         Covering,
 
-        Attacking
+        Shooting
     }
 }
