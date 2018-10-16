@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Gameplay.Character.Implementation.Player;
 using Assets.Gameplay.Character.Interfaces;
 using Assets.Gameplay.Zoning;
 using UnityEditor;
@@ -36,11 +37,12 @@ namespace Assets.Gameplay.Inventory.Items
 
         public bool IsFiring { get; private set; }
 
+        [SerializeField]
+        private Transform _projectileSpawn;
 
         void Awake()
         {
             _weaponRangeProxyZone.RangeRadius = _data.Range;
-            //_weaponRangeProxyZone.SubscribeTriggers(Inzone, Outzone);
         }
 
         void OnDisable()
@@ -53,21 +55,6 @@ namespace Assets.Gameplay.Inventory.Items
             StopFiring();
         }
 
-        //private void Outzone(object sender, ProxyZone.ProxyZoneEvent eventArgs)
-        //{
-        //    if (Target != null && eventArgs.ZonedObject == Target.GameObject)
-        //    {
-        //        IsInRange = false;
-        //    }
-        //}
-
-        //private void Inzone(object sender, ProxyZone.ProxyZoneEvent eventArgs)
-        //{
-        //    if (Target != null && eventArgs.ZonedObject == Target.GameObject)
-        //    {
-        //        IsInRange = true;
-        //    }
-        //}
 
         public void StartFiring(Vector3 target)
         {
@@ -88,7 +75,9 @@ namespace Assets.Gameplay.Inventory.Items
 
         private void Fire()
         {
-            print("Boom!");
+            var projectile = Instantiate(_data.Projectile, _projectileSpawn.position, transform.rotation);
+
+            transform.LookAt(Target);
         }
     }
 
@@ -110,7 +99,7 @@ namespace Assets.Gameplay.Inventory.Items
             Handles.color = Color.red;
 
             Handles.DrawWireDisc(zone.transform.position, Vector3.up, zone.Range);
-            Handles.Label(zone.transform.position + zone.transform.forward * zone.Range, $"Check tag: {zone.Name}", new GUIStyle { normal = new GUIStyleState { textColor = Color.red } });
+            Handles.Label(zone.transform.position + zone.transform.forward * zone.Range,String.Empty, new GUIStyle { normal = new GUIStyleState { textColor = Color.red } });
         }
     }
 #endif

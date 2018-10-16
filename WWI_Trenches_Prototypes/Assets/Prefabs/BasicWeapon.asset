@@ -14,3 +14,5 @@ MonoBehaviour:
   _range: 5
   Name: 
   AttackSpeed: 0.5
+  Projectile: {fileID: 114191814275923192, guid: 29cfce44e5b9d474f9477d23f7af6938,
+    type: 2}

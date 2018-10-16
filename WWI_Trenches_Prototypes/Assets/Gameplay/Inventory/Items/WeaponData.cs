@@ -16,5 +16,8 @@ namespace Assets.Gameplay.Inventory.Items
         {
             get { return _range; }
         }
+
+       
+        public BasicProjectile Projectile;
     }
 }

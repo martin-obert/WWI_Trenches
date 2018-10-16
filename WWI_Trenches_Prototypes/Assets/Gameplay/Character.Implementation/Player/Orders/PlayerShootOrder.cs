@@ -40,7 +40,7 @@ namespace Assets.Gameplay.Character.Implementation.Player.Orders
         protected override void Activate(PlayerOrderArguments arguments)
         {
             arguments.Navigator.Stop();
-           
+            
         }
 
         public override void Deactivate(PlayerOrderArguments arguments)
@@ -66,7 +66,8 @@ namespace Assets.Gameplay.Character.Implementation.Player.Orders
             }
 
             arguments.Navigator.LookOn(arguments.Enemy.GameObject.transform);
-
+            arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendXHandle, 1);
+            arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendYHandle, 1);
             weapon.StartFiring(arguments.Enemy.GameObject.transform.position);
         }
     }

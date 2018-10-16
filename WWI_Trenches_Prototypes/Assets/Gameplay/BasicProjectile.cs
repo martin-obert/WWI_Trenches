@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Gameplay.Character.Implementation.Player;
+using UnityEngine;
 
 namespace Assets.Gameplay
 {
@@ -8,6 +9,7 @@ namespace Assets.Gameplay
 
         public float Lifetime = 10f;
 
+        public string ShotByTag;
 
         void Start()
         {
@@ -19,5 +21,17 @@ namespace Assets.Gameplay
             transform.position = Vector3.Lerp(transform.position, transform.position + transform.forward, Time.deltaTime * Speed);
         }
 
+
+        void OnTriggerEnter(Collider collision)
+        {
+            print("Hit");
+            if (collision.gameObject.CompareTag(TagsHelper.PlayerTag))
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Destroy(collision.gameObject);
+        }
     }
 }
