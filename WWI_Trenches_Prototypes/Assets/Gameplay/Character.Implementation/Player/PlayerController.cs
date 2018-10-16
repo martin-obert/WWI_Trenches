@@ -24,6 +24,12 @@ namespace Assets.Gameplay.Character.Implementation.Player
         }
     }
 
+    public sealed class TagsHelper
+    {
+        public static readonly string EnemyTag = "Enemy";
+        public static readonly string PlayerTag = "Player";
+    }
+
     public enum ThreatLevel
     {
         None,
@@ -66,12 +72,6 @@ namespace Assets.Gameplay.Character.Implementation.Player
             throw new NotImplementedException();
         }
 
-        #region ToBe refactored
-
-        
-
-        #endregion
-
         void OnEnable()
         {
             AttributesContainer = new BasicCharacterAttributesContainer();
@@ -92,7 +92,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         private void OutZoneEventHandler(object sender, ProxyZone.ProxyZoneEvent eventArgs)
         {
-            if (eventArgs != null && eventArgs.ZonedObject && eventArgs.ZonedObject.CompareTag("Enemy"))
+            if (eventArgs != null && eventArgs.ZonedObject && eventArgs.ZonedObject.CompareTag(TagsHelper.EnemyTag))
             {
                 var enemy = eventArgs.ZonedObject.GetComponent<ITargetable>();
                 if (CurrentEnemy == enemy)
@@ -104,7 +104,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         private void InZoneEventHandler(object sender, ProxyZone.ProxyZoneEvent eventArgs)
         {
-            if (eventArgs != null && eventArgs.ZonedObject && eventArgs.ZonedObject.CompareTag("Enemy"))
+            if (eventArgs != null && eventArgs.ZonedObject && eventArgs.ZonedObject.CompareTag(TagsHelper.EnemyTag))
             {
                 var enemy = eventArgs.ZonedObject.GetComponent<ITargetable>();
                 if (enemy == null)

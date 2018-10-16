@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 
-namespace Assets.Gameplay
+namespace Assets.Gameplay.Character.Implementation.Player
 {
-    public static class PlayerAnimatorParameter
+    public sealed class PlayerAnimatorParameter
     {
-        public static int BlendXHandle = Animator.StringToHash("BlendX");
-        public static int BlendYHandle = Animator.StringToHash("BlendY");
+        public static readonly int BlendXHandle = Animator.StringToHash("BlendX");
+        public static readonly int BlendYHandle = Animator.StringToHash("BlendY");
     }
 }
