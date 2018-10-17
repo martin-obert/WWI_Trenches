@@ -51,7 +51,7 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
 
             _navigator = GetComponent<GruntNavigator>();
         }
-        
+
         void OnDestroy()
         {
             _fireProxyZone.UnsubscribeTriggers(Inzone, Outzone);
@@ -63,8 +63,13 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
             if (target != null && target == Target && target.GameObject.CompareTag(TagsHelper.PlayerTag))
             {
                 Target = null;
-                _gruntBrain.GiveOrder(this);
+                _gruntBrain.State.ChangeStance(CharacterStance.Idle, GetArgs());
             }
+        }
+
+        private EnemyOrderArguments GetArgs()
+        {
+            return new EnemyOrderArguments(Target, Inventory, Navigator);
         }
 
         private void Inzone(object sender, ProxyZone.ProxyZoneEvent proxyZoneEvent)
@@ -74,7 +79,7 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
             {
                 Target = target;
                 print("Attacking player");
-                _gruntBrain.GiveOrder(this);
+                _gruntBrain.State.ChangeStance(CharacterStance.Crouching, GetArgs());
             }
         }
     }

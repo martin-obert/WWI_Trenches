@@ -1,6 +1,4 @@
 ﻿using System;
-using Assets.Gameplay.Character.Implementation.Player;
-using Assets.Gameplay.Character.Interfaces;
 using Assets.Gameplay.Zoning;
 using UnityEditor;
 using UnityEngine;
@@ -18,16 +16,23 @@ namespace Assets.Gameplay.Inventory.Items
 
         public bool IsStackable => false;
 
+        public int Id => GetInstanceID();
+
+        public int OwnerId { get; private set; }
+
+        public WeaponData Data => _data;
+
+        public Vector3 ProjectileSpawnLocation => _projectileSpawn.position;
+
         public string Name => _name;
 
         public int MaxStack => 1;
 
         public int Amount => 1;
 
-        public bool IsInRange { get; private set; }
+        public bool CanFire { get; } = true;
 
-        public bool CanFire => IsInRange;
-
+        public bool IsInRange { get; }
 
         public Vector3 Target { get; private set; }
 
@@ -56,13 +61,15 @@ namespace Assets.Gameplay.Inventory.Items
         }
 
 
-        public void StartFiring(Vector3 target)
+        public void StartFiring(Vector3 target, int shooterId)
         {
             if (IsFiring) return;
 
             Target = target;
 
             IsFiring = true;
+            OwnerId = shooterId;
+
             InvokeRepeating(nameof(Fire), 0, AttackSpeed);
         }
 
@@ -75,9 +82,7 @@ namespace Assets.Gameplay.Inventory.Items
 
         private void Fire()
         {
-            var projectile = Instantiate(_data.Projectile, _projectileSpawn.position, transform.rotation);
-
-            transform.LookAt(Target);
+            ProjectilesManager.Instance.ShootProjectile(this);
         }
     }
 

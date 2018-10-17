@@ -7,12 +7,17 @@ namespace Assets.Gameplay.Character.Implementation.Player
 {
     public class PlayerBrain : MonoBehaviour, ICharacterBrain<PlayerController>
     {
+        private ICharacterOrder<PlayerController> _currentOrder;
+
         private PlayerOrder _runningOrder;
         private PlayerOrder _idleOrder;
         private PlayerOrder _crawlingOrder;
         private PlayerOrder _attackOrder;
         private PlayerOrder _coverOrder;
-         void OnEnable()
+
+        public ICharacterState<PlayerController> State { get; private set; }
+
+        void OnEnable()
         {
             //Todo: prenest do editoru
             _idleOrder = new PlayerIdleOrder("Idle");
@@ -20,41 +25,41 @@ namespace Assets.Gameplay.Character.Implementation.Player
             _crawlingOrder = new PlayerCrawlOrder("Crawl");
             _attackOrder = new PlayerShootOrder("Attack");
             _coverOrder = new PlayerCoverOrder("Cover");
+            State = new PlayerCharacterState();
+            State.StateChanged += StateOnStateChanged;
         }
 
-
-        private ICharacterOrder<PlayerController> _currentOrder;
-
-        public void GiveOrder(PlayerController character)
+        void OnDestroy()
         {
-            //Todo: tohle je mozna moc inicializace
-            var args = new PlayerOrderArguments(character);
+            State.StateChanged -= StateOnStateChanged;
+        }
 
+        private void StateOnStateChanged(object sender, IOrderArguments<PlayerController> args)
+        {
             _currentOrder?.Deactivate(args);
 
-            _currentOrder = PickBehavior(character);
+            _currentOrder = PickStance();
 
-            print("Order: "+ _currentOrder.Name);
+            print("Order: " + _currentOrder.Name);
             _currentOrder?.Activate(args);
 
             //Todo: priprava na sekvenci, jakmile jich bude vice tak execute provede celou sekvenci neco jako ISequence : ICharacterBehavior a ISequence jich ma vice v sobe
             _currentOrder?.Execute(args);
-
         }
-
-        private ICharacterOrder<PlayerController> PickBehavior(PlayerController character)
+      
+        private ICharacterOrder<PlayerController> PickStance()
         {
-            switch (character.State)
+            switch (State.CurrentStance)
             {
-                case PlayerState.Idle:
+                case CharacterStance.Idle:
                     return _idleOrder;
-                case PlayerState.Running:
+                case CharacterStance.Running:
                     return _runningOrder;
-                case PlayerState.Crawling:
+                case CharacterStance.Crawling:
                     return _crawlingOrder;
-                case PlayerState.Shooting:
+                case CharacterStance.Crouching:
                     return _attackOrder;
-                case PlayerState.Covering:
+                case CharacterStance.Sitting:
                     return _coverOrder;
                 default:
                     throw new ArgumentOutOfRangeException();

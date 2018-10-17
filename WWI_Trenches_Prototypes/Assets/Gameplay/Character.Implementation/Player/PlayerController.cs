@@ -1,12 +1,14 @@
 ﻿using System;
 using Assets.Gameplay.Abstract;
 using Assets.Gameplay.Character.Implementation.Attributes;
+using Assets.Gameplay.Character.Implementation.Player.Orders;
 using Assets.Gameplay.Character.Interfaces;
 using Assets.Gameplay.Inventory;
 using Assets.Gameplay.Units;
 using Assets.Gameplay.Units.Enemy;
 using Assets.Gameplay.Zoning;
 using Assets.TileGenerator;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -38,16 +40,21 @@ namespace Assets.Gameplay.Character.Implementation.Player
         EnemyIsNear,
     }
 
+    public interface ICharacterController
+    {
+
+    }
+
     [RequireComponent(typeof(PlayerBrain), typeof(NavMeshAgent))]
-    public class PlayerController : Singleton<PlayerController>, ITargetable
+    public class PlayerController : Singleton<PlayerController>, ITargetable, IProjectileTrigger
     {
         [SerializeField] private ProxyZone _enemyScanZone;
 
         private PlayerBrain _playerBrain;
 
-        private PlayerCharacterState _playerCharacterState;
+        private Animator _animator;
 
-        public BasicCharacterAttributesContainer AttributesContainer { get; private set; }
+        public BasicCharacterAttributesContainer Attributes { get; private set; }
 
         public PlayerCharacterNavigator Navigator { get; private set; }
 
@@ -56,11 +63,9 @@ namespace Assets.Gameplay.Character.Implementation.Player
         //Todo: tohle se presune nekam
         public Vector3 Destination { get; set; }
 
-        public PlayerState State => _playerCharacterState.CurrentState;
-
-        public ProxyZone EnemyScanZone => _enemyScanZone;
-
         public string DisplayName => name;
+
+        public int Id => GetInstanceID();
 
         public GameObject GameObject => gameObject;
 
@@ -73,20 +78,20 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         public void GotKilledBy(ITargetable killer)
         {
-            throw new NotImplementedException();
+            EliminatedByOtherTarget?.Invoke(this, killer);
         }
 
         void OnEnable()
         {
-            AttributesContainer = new BasicCharacterAttributesContainer();
-
-            _playerCharacterState = new PlayerCharacterState();
+            Attributes = new BasicCharacterAttributesContainer();
 
             _playerBrain = GetComponent<PlayerBrain>();
 
             _characterInventory = GetComponent<CharacterInventory>();
 
-            Navigator = new PlayerCharacterNavigator(GetComponent<NavMeshAgent>(), AttributesContainer, transform);
+            _animator = GetComponentInChildren<Animator>();
+
+            Navigator = new PlayerCharacterNavigator(GetComponent<NavMeshAgent>(), Attributes, transform);
 
             if (_enemyScanZone)
             {
@@ -96,7 +101,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         private void OutZoneEventHandler(object sender, ProxyZone.ProxyZoneEvent eventArgs)
         {
-            if (eventArgs != null && eventArgs.ZonedObject && eventArgs.ZonedObject.CompareTag(TagsHelper.EnemyTag))
+            if (eventArgs.ZonedObject && eventArgs.ZonedObject.CompareTag(TagsHelper.EnemyTag))
             {
                 var enemy = eventArgs.ZonedObject.GetComponent<ITargetable>();
                 if (CurrentEnemy == enemy)
@@ -109,7 +114,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
         private void InZoneEventHandler(object sender, ProxyZone.ProxyZoneEvent eventArgs)
         {
             print("is " + eventArgs.ZonedObject);
-            if (eventArgs != null && eventArgs.ZonedObject && eventArgs.ZonedObject.CompareTag(TagsHelper.EnemyTag))
+            if (eventArgs.ZonedObject && eventArgs.ZonedObject.CompareTag(TagsHelper.EnemyTag))
             {
                 var enemy = eventArgs.ZonedObject.GetComponent<ITargetable>();
                 if (enemy == null)
@@ -118,7 +123,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
                 }
                 else
                 {
-                    
+
                     CurrentEnemy = enemy;
                 }
             }
@@ -130,11 +135,6 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         void OnDestroy()
         {
-            if (_enemyScanZone)
-            {
-                _enemyScanZone.UnsubscribeTriggers(InZoneEventHandler, OutZoneEventHandler);
-            }
-
             GCSingleton(this);
         }
 
@@ -152,28 +152,23 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                Shoot();
+                AttackEnemy();
             }
+        }
+
+
+        //Todo: moc inicializace
+        private PlayerOrderArguments GetOrderArguments()
+        {
+            return new PlayerOrderArguments(_animator, Destination, CurrentEnemy, Navigator, Attributes, _characterInventory);
         }
 
         private void Crawl()
         {
-            if (_playerCharacterState.CurrentState == PlayerState.Crawling) return;
-
-            print("Crawl");
-            _playerCharacterState.ChangeState(PlayerState.Crawling, this);
-
-            _playerBrain.GiveOrder(this);
         }
 
         public void Run()
         {
-            if (_playerCharacterState.CurrentState == PlayerState.Running) return;
-
-            print("Run");
-            _playerCharacterState.ChangeState(PlayerState.Running, this);
-
-            _playerBrain.GiveOrder(this);
         }
 
         public void Stop()
@@ -182,39 +177,45 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         public void TakeCover(Cover cover)
         {
-            if (_playerCharacterState.CurrentState == PlayerState.Covering && cover == _selectedCover) return;
+            if (_playerBrain.State.CurrentStance == CharacterStance.Sitting && cover == _selectedCover) return;
 
             print("Cover");
 
             _selectedCover = cover;
 
-            _playerCharacterState.ChangeState(PlayerState.Running, this);
-
             Destination = cover.transform.position;
 
-            _playerBrain.GiveOrder(this);
+            _playerBrain.State.ChangeStance(CharacterStance.Running, GetOrderArguments());
         }
 
         public void HideInCover()
         {
-            _playerCharacterState.ChangeState(PlayerState.Covering, this);
-
-            _playerBrain.GiveOrder(this);
+            _playerBrain.State.ChangeStance(CharacterStance.Sitting, GetOrderArguments());
         }
 
         public void LeaveCover()
         {
         }
 
-        public void Shoot()
+        public void AttackEnemy()
         {
-            if (_playerCharacterState.CurrentState == PlayerState.Shooting) return;
+            
+            if (_playerBrain.State.CurrentStance == CharacterStance.Aiming) return;
 
             print("Shooting");
 
-            _playerCharacterState.ChangeState(PlayerState.Shooting, this);
+            _playerBrain.State.ChangeStance(CharacterStance.Aiming, GetOrderArguments());
 
-            _playerBrain.GiveOrder(this);
+            Shoot();
+
+        }
+
+        public void Shoot()
+        {
+            if(CurrentEnemy == null)
+                return;
+
+            _characterInventory.MainWeapon?.StartFiring(CurrentEnemy.GameObject.transform.position, Id);
         }
 
         public void Loot()
@@ -243,5 +244,26 @@ namespace Assets.Gameplay.Character.Implementation.Player
         {
             Navigator.Teleport(startPointPosition);
         }
+
+        public void OnProjectileTriggered(IProjectile projectile)
+        {
+            throw new NotImplementedException();
+        }
+
+        
     }
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(PlayerController))]
+    public class PlayerControllerEditor : Editor
+    {
+        void OnSceneGUI()
+        {
+            var zone = serializedObject.FindProperty("_enemyScanZone").objectReferenceValue as ProxyZone;
+            if (zone)
+                ProxyZoneEditor.DrawZone(zone);
+        }
+    }
+
+#endif
 }

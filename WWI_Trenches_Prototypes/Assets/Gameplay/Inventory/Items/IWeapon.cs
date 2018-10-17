@@ -5,7 +5,7 @@ namespace Assets.Gameplay.Inventory.Items
 {
     public interface IWeapon : IItem
     {
-        void StartFiring(Vector3 target);
+        void StartFiring(Vector3 target, int shooterId);
 
         void StopFiring();
 
@@ -18,5 +18,12 @@ namespace Assets.Gameplay.Inventory.Items
         float AttackSpeed { get; }
 
         bool IsFiring { get; }
+
+        int Id { get;  }
+
+        int OwnerId { get; }
+
+        WeaponData Data { get;  }
+        Vector3 ProjectileSpawnLocation { get;  }
     }
 }

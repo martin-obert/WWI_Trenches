@@ -1,19 +1,7 @@
-﻿using System;
-
-namespace Assets.Gameplay.Character.Interfaces
+﻿namespace Assets.Gameplay.Character.Interfaces
 {
-    public interface ICharacterBrain<in TCharacter>
+    public interface ICharacterBrain<TCharacter>
     {
-        void GiveOrder(TCharacter character);
-    }
-
-    public enum PlayerState
-    {
-        Idle,
-        Running,
-        Crawling,
-        Covering,
-
-        Shooting
+        ICharacterState<TCharacter> State { get; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using Assets.Gameplay.Character.Implementation.Attributes;
+﻿using Assets.Gameplay.Character.Implementation.Attributes;
 using Assets.Gameplay.Character.Interfaces;
 using UnityEngine;
 using UnityEngine.AI;
@@ -41,8 +40,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
         {
             if (!CheckNavMesh())
             {
-                Debug.LogError("Nav mesh agent is not active");
-                return;
+                Enable();
             }
 
             _navMeshAgent.Warp(position);
@@ -52,8 +50,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
         {
             if (!CheckNavMesh())
             {
-                Debug.LogError("Nav mesh agent is not active");
-                return;
+                Enable();
             }
 
             _navMeshAgent.SetDestination(position);
@@ -61,12 +58,6 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         public void Stop()
         {
-            if (!CheckNavMesh())
-            {
-                Debug.LogError("Nav mesh agent is not active");
-                return;
-            }
-
             //Todo: asi resit jinak, neco jako speed 0 nebo tak pokud to bude hazet errory + nastudovat na gitu jak to vlastne funguje :)
             Disable();
 

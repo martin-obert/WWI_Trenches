@@ -26,15 +26,15 @@ namespace Assets.Gameplay.Character.Implementation.Player
         {
             switch (character.State)
             {
-                case PlayerState.Idle:
+                case CharacterStance.Idle:
                     return _idleOrder;
-                case PlayerState.Running:
+                case CharacterStance.Running:
                     return _runningOrder;
-                case PlayerState.Crawling:
+                case CharacterStance.Crawling:
                     return _crawlingOrder;
-                case PlayerState.Shooting:
+                case CharacterStance.Crouching:
                     return _attackOrder;
-                case PlayerState.Covering:
+                case CharacterStance.Sitting:
                 default:
                     throw new ArgumentOutOfRangeException();
             }

@@ -1,24 +1,22 @@
 ﻿using System;
 using Assets.Gameplay.Character.Interfaces;
-using Assets.Gameplay.Units;
-using UnityEngine.Events;
 
 namespace Assets.Gameplay.Character.Implementation.Player
 {
     public class PlayerCharacterState : ICharacterState<PlayerController>
     {
-        public event EventHandler<PlayerController> StateChanged;
+        public event EventHandler<IOrderArguments<PlayerController>> StateChanged;
 
-        public PlayerState CurrentState { get; private set; } = PlayerState.Idle;
-
-        public void ChangeState(PlayerState state, PlayerController player)
+        public void ChangeStance(CharacterStance stance, IOrderArguments<PlayerController> orderArguments)
         {
-            var invoke = state != CurrentState;
+            var invoke = stance != CurrentStance;
 
-            CurrentState = state;
+            CurrentStance = stance;
 
             if (invoke)
-                StateChanged?.Invoke(this,player);
+                StateChanged?.Invoke(this, orderArguments);
         }
+
+        public CharacterStance CurrentStance { get; private set; } = CharacterStance.Idle;
     }
 }

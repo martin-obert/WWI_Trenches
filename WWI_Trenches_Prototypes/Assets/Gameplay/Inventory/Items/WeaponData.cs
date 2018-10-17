@@ -17,7 +17,9 @@ namespace Assets.Gameplay.Inventory.Items
             get { return _range; }
         }
 
-       
+        public int ClipMaxSize;
+
+
         public BasicProjectile Projectile;
     }
 }

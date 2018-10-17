@@ -99,5 +99,7 @@ namespace Assets.Gameplay.Zoning
             Handles.Label(zone.transform.position + zone.transform.forward * zone.RangeRadius, $"Check tag: {zone.CheckTag}", new GUIStyle { normal = new GUIStyleState { textColor = zone.HandleColor } });
         }
     }
+    
+
 #endif
 }

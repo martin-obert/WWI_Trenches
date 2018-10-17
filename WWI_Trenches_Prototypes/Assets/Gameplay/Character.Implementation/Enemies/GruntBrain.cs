@@ -1,8 +1,24 @@
-﻿using Assets.Gameplay.Character.Interfaces;
+﻿using System;
+using Assets.Gameplay.Character.Interfaces;
 using UnityEngine;
 
 namespace Assets.Gameplay.Character.Implementation.Enemies
 {
+    public class EnemyState : ICharacterState<GruntController>
+    {
+        public event EventHandler<IOrderArguments<GruntController>> StateChanged;
+        public void ChangeStance(CharacterStance stance, IOrderArguments<GruntController> orderArguments)
+        {
+            var hasChanged = CurrentStance != stance;
+
+            CurrentStance = stance;
+
+            if (hasChanged) StateChanged?.Invoke(this, orderArguments);
+        }
+
+        public CharacterStance CurrentStance { get; private set; }
+    }
+
     public class GruntBrain : MonoBehaviour, ICharacterBrain<GruntController>
     {
         [SerializeField]
@@ -10,21 +26,29 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
         [SerializeField]
         private EnemyOrder _attackOrder;
 
+        private ICharacterOrder<GruntController> _currentOrder;
+
+        public ICharacterState<GruntController> State { get; private set; }
+
+
         void OnEnable()
         {
             _idleOrder = new EnemyIdleOrder("Idle");
             _attackOrder = new EnemyShootOrder("Attack");
+            State = new EnemyState();
+            State.StateChanged += StateOnStateChanged;
         }
 
-        private ICharacterOrder<GruntController> _currentOrder;
-
-        public void GiveOrder(GruntController character)
+        void OnDestroy()
         {
-            var arguments = new EnemyOrderArguments(character.Target, character.Inventory, character.Navigator);
+            State.StateChanged -= StateOnStateChanged;
+        }
 
+        private void StateOnStateChanged(object sender, IOrderArguments<GruntController> arguments)
+        {
             _currentOrder?.Deactivate(arguments);
 
-            var newOrder = PickBehavior(character);
+            var newOrder = PickBehavior(arguments);
 
             _currentOrder = newOrder;
 
@@ -33,9 +57,9 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
             _currentOrder?.Execute(arguments);
         }
 
-        private EnemyOrder PickBehavior(GruntController character)
+        private EnemyOrder PickBehavior(IOrderArguments<GruntController> arguments)
         {
-            if (character.Target != null)
+            if (arguments.CurrentTarget != null)
             {
                 print("Enemy has attacking order");
                 return _attackOrder;
@@ -43,5 +67,6 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
 
             return _idleOrder;
         }
+
     }
 }
