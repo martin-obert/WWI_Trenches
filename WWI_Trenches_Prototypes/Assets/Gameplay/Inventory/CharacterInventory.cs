@@ -13,10 +13,9 @@ namespace Assets.Gameplay.Inventory
 
         private ProjectilesManager _projectilesManager;
 
-        public GameObject Owner;
-
         void Start()
         {
+            _projectilesManager = InjectService.Instance.GetInstance<ProjectilesManager>(instance => _projectilesManager = instance);
             if (_template)
             {
                 var instance = Instantiate(_template.MainWeapon, _mainWeaponSpot);
@@ -24,7 +23,7 @@ namespace Assets.Gameplay.Inventory
                 EquipMainWeapon(instance);
             }
 
-            InjectService.Instance.GetInstance<ProjectilesManager>(instance => _projectilesManager = instance);
+            
         }
 
         [SerializeField]
@@ -36,10 +35,10 @@ namespace Assets.Gameplay.Inventory
         {
             if (_mainWeapon.IsOccupied)
             {
-                _projectilesManager.UnregisterWeapon(Owner.GetInstanceID(), _mainWeapon.Item);
+                _projectilesManager.UnregisterWeapon(gameObject.GetInstanceID(), _mainWeapon.Item);
             }
-
-            _projectilesManager.RegisterWeapon(Owner.GetInstanceID(), weapon);
+            print(weapon.Id);
+            _projectilesManager.RegisterWeapon(gameObject.GetInstanceID(), weapon);
 
             _mainWeapon.Item = weapon;
         }

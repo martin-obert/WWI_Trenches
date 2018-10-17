@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Gameplay.Character.Implementation.Enemies;
 using UnityEngine;
 
 namespace Assets.Gameplay.Character.Interfaces
@@ -12,5 +13,9 @@ namespace Assets.Gameplay.Character.Interfaces
         event EventHandler<ITargetable> EliminatedByOtherTarget;
 
         void GotKilledBy(ITargetable killer);
+
+        bool IsVisibleTo(ITargetable targetable);
+
+        event EventHandler VisibilityChanged;
     }
 }

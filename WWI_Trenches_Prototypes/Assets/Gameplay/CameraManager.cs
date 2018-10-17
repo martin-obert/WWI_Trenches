@@ -1,7 +1,5 @@
 ﻿using Assets.Gameplay.Abstract;
 using Assets.Gameplay.Character.Implementation.Player;
-using Assets.Gameplay.Units;
-using Assets.IoC;
 using UnityEditor;
 using UnityEngine;
 
@@ -42,7 +40,7 @@ namespace Assets.Gameplay
 
             var terrain = TerrainManager.Instance?.CurrentTerrain;
 
-            if (_player && _camera && _player)
+            if (_player && _camera && _player && terrain)
             {
                 UpdateCameraPosition(_player.transform.position, terrain.StartPoint.position);
             }

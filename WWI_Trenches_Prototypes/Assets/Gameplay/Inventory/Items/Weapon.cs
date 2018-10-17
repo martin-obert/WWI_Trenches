@@ -50,39 +50,13 @@ namespace Assets.Gameplay.Inventory.Items
             _weaponRangeProxyZone.RangeRadius = _data.Range;
         }
 
-        void OnDisable()
+        public void FireOnce(Vector3 target, int shooterId)
         {
-            StopFiring();
-        }
-
-        void OnDestroy()
-        {
-            StopFiring();
-        }
-
-
-        public void StartFiring(Vector3 target, int shooterId)
-        {
-            if (IsFiring) return;
-
             Target = target;
-
-            IsFiring = true;
             OwnerId = shooterId;
 
-            InvokeRepeating(nameof(Fire), 0, AttackSpeed);
-        }
-
-        public void StopFiring()
-        {
-            if (!IsFiring) return;
-            IsFiring = false;
-            CancelInvoke(nameof(Fire));
-        }
-
-        private void Fire()
-        {
             ProjectilesManager.Instance.ShootProjectile(this);
+
         }
     }
 

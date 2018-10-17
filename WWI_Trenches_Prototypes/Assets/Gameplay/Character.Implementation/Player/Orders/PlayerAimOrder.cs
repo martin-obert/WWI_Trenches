@@ -9,15 +9,6 @@ namespace Assets.Gameplay.Character.Implementation.Player.Orders
         {
         }
 
-        protected override void Activate(PlayerOrderArguments arguments)
-        {
-            
-        }
-
-        public override void Deactivate(PlayerOrderArguments arguments)
-        {
-            arguments.Navigator.Enable();
-        }
 
         public override void Execute(PlayerOrderArguments arguments)
         {
@@ -30,22 +21,11 @@ namespace Assets.Gameplay.Character.Implementation.Player.Orders
     }
 
 
-    public class PlayerShootOrder : PlayerOrder
+    public class PlayerAimOrder : PlayerOrder
     {
 
-        public PlayerShootOrder(string name) : base(name)
+        public PlayerAimOrder(string name) : base(name)
         {
-        }
-
-        protected override void Activate(PlayerOrderArguments arguments)
-        {
-            arguments.Navigator.Stop();
-            
-        }
-
-        public override void Deactivate(PlayerOrderArguments arguments)
-        {
-            arguments.Inventory?.MainWeapon?.StopFiring();
         }
 
         public override void Execute(PlayerOrderArguments arguments)
@@ -59,16 +39,17 @@ namespace Assets.Gameplay.Character.Implementation.Player.Orders
                 return;
             }
 
-            if (arguments.Enemy == null)
+            if (arguments.CurrentTarget == null)
             {
                 Debug.LogError("Player has no target");
                 return;
             }
 
-            arguments.Navigator.LookOn(arguments.Enemy.GameObject.transform);
+            arguments.Navigator.Stop();
+            arguments.Navigator.Disable();
+            arguments.Navigator.LookOn(arguments.CurrentTarget.GameObject.transform);
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendXHandle, 1);
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendYHandle, 1);
-            weapon.StartFiring(arguments.Enemy.GameObject.transform.position);
         }
     }
 }

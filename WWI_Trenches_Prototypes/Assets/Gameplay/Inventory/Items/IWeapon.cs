@@ -5,9 +5,8 @@ namespace Assets.Gameplay.Inventory.Items
 {
     public interface IWeapon : IItem
     {
-        void StartFiring(Vector3 target, int shooterId);
+        void FireOnce(Vector3 target, int shooterId);
 
-        void StopFiring();
 
         Vector3 Target { get; }
         

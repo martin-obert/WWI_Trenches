@@ -26,8 +26,6 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
         [SerializeField]
         private EnemyOrder _attackOrder;
 
-        private ICharacterOrder<GruntController> _currentOrder;
-
         public ICharacterState<GruntController> State { get; private set; }
 
 
@@ -36,25 +34,15 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
             _idleOrder = new EnemyIdleOrder("Idle");
             _attackOrder = new EnemyShootOrder("Attack");
             State = new EnemyState();
-            State.StateChanged += StateOnStateChanged;
         }
 
-        void OnDestroy()
-        {
-            State.StateChanged -= StateOnStateChanged;
-        }
+     
 
-        private void StateOnStateChanged(object sender, IOrderArguments<GruntController> arguments)
+        public void StateOnStateChanged(object sender, IOrderArguments<GruntController> arguments)
         {
-            _currentOrder?.Deactivate(arguments);
-
             var newOrder = PickBehavior(arguments);
 
-            _currentOrder = newOrder;
-
-            _currentOrder?.Activate(arguments);
-
-            _currentOrder?.Execute(arguments);
+            newOrder?.Execute(arguments);
         }
 
         private EnemyOrder PickBehavior(IOrderArguments<GruntController> arguments)

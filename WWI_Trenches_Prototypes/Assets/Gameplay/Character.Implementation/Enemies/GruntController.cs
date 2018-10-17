@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Assets.Gameplay.Character.Implementation.Enemies
 {
-    public class GruntController : MonoBehaviour, ITargetable
+    public class GruntController : MonoBehaviour, ITargetable, IProjectileTrigger
     {
         [SerializeField]
         private ProxyZone _fireProxyZone;
@@ -41,6 +41,13 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
             EliminatedByOtherTarget?.Invoke(this, killer);
         }
 
+        public bool IsVisibleTo(ITargetable targetable)
+        {
+            return true;
+        }
+
+        public event EventHandler VisibilityChanged;
+
         public ITargetable Target { get; private set; }
 
         void Start()
@@ -50,11 +57,48 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
             _attributes = new BasicCharacterAttributesContainer();
 
             _navigator = GetComponent<GruntNavigator>();
+
+            _gruntBrain.State.StateChanged += StateOnStateChanged;
+        }
+
+        private void StateOnStateChanged(object sender, IOrderArguments<GruntController> e)
+        {
+            _gruntBrain.StateOnStateChanged(null, GetArgs());
         }
 
         void OnDestroy()
         {
+            _gruntBrain.State.StateChanged -= StateOnStateChanged;
             _fireProxyZone.UnsubscribeTriggers(Inzone, Outzone);
+        }
+        private void Inzone(object sender, ProxyZone.ProxyZoneEvent proxyZoneEvent)
+        {
+            var target = proxyZoneEvent.ZonedObject?.GetComponent<ITargetable>();
+            if (Target == null && target != null && Target != target && target.GameObject.CompareTag(TagsHelper.PlayerTag))
+            {
+                Target = target;
+                Target.VisibilityChanged += TargetOnVisibilityChanged;
+                TryShootTarget();
+            }
+        }
+
+        private void TargetOnVisibilityChanged(object sender, EventArgs e)
+        {
+            TryShootTarget();
+        }
+
+
+        private void TryShootTarget()
+        {
+            //Todo: Tohle by mohl delat brain
+            if (Target != null && Target.IsVisibleTo(this) && _gruntBrain.State.CurrentStance != CharacterStance.Aiming)
+            {
+                print("Attacking player");
+
+                _gruntBrain.State.ChangeStance(CharacterStance.Aiming, GetArgs());
+
+                InvokeRepeating(nameof(InvokeFire), 1, _inventory.MainWeapon.AttackSpeed);
+            }
         }
 
         private void Outzone(object sender, ProxyZone.ProxyZoneEvent proxyZoneEvent)
@@ -62,9 +106,12 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
             var target = proxyZoneEvent.ZonedObject?.GetComponent<ITargetable>();
             if (target != null && target == Target && target.GameObject.CompareTag(TagsHelper.PlayerTag))
             {
+                Target.VisibilityChanged -= TargetOnVisibilityChanged;
                 Target = null;
                 _gruntBrain.State.ChangeStance(CharacterStance.Idle, GetArgs());
+                CancelInvoke(nameof(InvokeFire));
             }
+
         }
 
         private EnemyOrderArguments GetArgs()
@@ -72,15 +119,23 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
             return new EnemyOrderArguments(Target, Inventory, Navigator);
         }
 
-        private void Inzone(object sender, ProxyZone.ProxyZoneEvent proxyZoneEvent)
+
+        void Update()
         {
-            var target = proxyZoneEvent.ZonedObject?.GetComponent<ITargetable>();
-            if (Target == null && target != null && Target != target && target.GameObject.CompareTag(TagsHelper.PlayerTag))
-            {
-                Target = target;
-                print("Attacking player");
-                _gruntBrain.State.ChangeStance(CharacterStance.Crouching, GetArgs());
-            }
+
         }
+
+        private void InvokeFire()
+        {
+            _inventory.MainWeapon.FireOnce(Target.GameObject.transform.position, gameObject.GetInstanceID());
+        }
+
+        public void OnProjectileTriggered(IProjectile projectile)
+        {
+            Destroy(gameObject);
+            Application.Quit();
+        }
+
+        public int Id => gameObject.GetInstanceID();
     }
 }

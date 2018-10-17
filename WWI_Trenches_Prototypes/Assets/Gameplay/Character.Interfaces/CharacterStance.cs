@@ -6,7 +6,6 @@
         Running,
         Crawling,
         Sitting,
-        Crouching,
         Aiming
     }
 }

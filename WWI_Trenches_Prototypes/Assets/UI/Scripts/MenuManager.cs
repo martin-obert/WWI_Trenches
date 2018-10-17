@@ -37,6 +37,11 @@ namespace Assets.UI.Scripts
         private void Start()
         {
             CreateSingleton(this);
+            foreach (var menuController in _menuControllers)
+            {
+                menuController.HideMenu();
+            }
+
             StartCoroutine(DelayedSwitch(CurrentMenu));
         }
 

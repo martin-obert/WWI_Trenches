@@ -7,21 +7,13 @@ namespace Assets.Gameplay.Character.Implementation.Player.Orders
     {
         private float _runSpeed = 5f;
 
-        protected override void Activate(PlayerOrderArguments arguments)
-        {
-
-        }
-
-        public override void Deactivate(PlayerOrderArguments arguments)
-        {
-
-        }
+       
 
         public override void Execute(PlayerOrderArguments arguments)
         {
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendXHandle, 0);
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendYHandle, 1);
-            
+            arguments.Navigator.Enable();
             arguments.Navigator.Move(arguments.Destination);
             arguments.Attributes.Speed.CurrentValue = _runSpeed;
         }

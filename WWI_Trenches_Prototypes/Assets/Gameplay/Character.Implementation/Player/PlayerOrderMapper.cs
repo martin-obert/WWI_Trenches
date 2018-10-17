@@ -19,25 +19,12 @@ namespace Assets.Gameplay.Character.Implementation.Player
             _idleOrder = new PlayerIdleOrder("Idle");
             _runningOrder = new PlayerRunOrder("Run");
             _crawlingOrder = new PlayerCrawlOrder("Crawl");
-            _attackOrder = new PlayerShootOrder("Attack");
+            _attackOrder = new PlayerAimOrder("Attack");
         }
 
         public override ICharacterOrder<PlayerController> GetBehaviorFromState(PlayerController character)
         {
-            switch (character.State)
-            {
-                case CharacterStance.Idle:
-                    return _idleOrder;
-                case CharacterStance.Running:
-                    return _runningOrder;
-                case CharacterStance.Crawling:
-                    return _crawlingOrder;
-                case CharacterStance.Crouching:
-                    return _attackOrder;
-                case CharacterStance.Sitting:
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            throw new ArgumentOutOfRangeException();
         }
     }
 

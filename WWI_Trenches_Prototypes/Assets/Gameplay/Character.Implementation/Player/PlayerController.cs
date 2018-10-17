@@ -65,7 +65,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         public string DisplayName => name;
 
-        public int Id => GetInstanceID();
+        public int Id => gameObject.GetInstanceID();
 
         public GameObject GameObject => gameObject;
 
@@ -80,6 +80,14 @@ namespace Assets.Gameplay.Character.Implementation.Player
         {
             EliminatedByOtherTarget?.Invoke(this, killer);
         }
+
+        public bool IsVisibleTo(ITargetable targetable)
+        {
+            //print(_playerBrain.State.CurrentStance);
+            return _playerBrain.State.CurrentStance != CharacterStance.Crawling;
+        }
+
+        public event EventHandler VisibilityChanged;
 
         void OnEnable()
         {
@@ -130,11 +138,18 @@ namespace Assets.Gameplay.Character.Implementation.Player
         }
         void Start()
         {
+            _playerBrain.State.StateChanged+= StateOnStateChanged;
             CreateSingleton(this);
+        }
+
+        private void StateOnStateChanged(object sender, IOrderArguments<PlayerController> e)
+        {
+            VisibilityChanged?.Invoke(this, null);
         }
 
         void OnDestroy()
         {
+            _playerBrain.State.StateChanged -= StateOnStateChanged;
             GCSingleton(this);
         }
 
@@ -142,11 +157,15 @@ namespace Assets.Gameplay.Character.Implementation.Player
         {
             if (Input.GetKeyDown(KeyCode.C))
             {
+                if(!_selectedCover)
+                Destination = PlayerHelpers.GetEndPoint(this, TerrainManager.Instance.CurrentTerrain);
                 Crawl();
             }
 
             if (Input.GetKeyDown(KeyCode.R))
             {
+                if (!_selectedCover)
+                    Destination = PlayerHelpers.GetEndPoint(this, TerrainManager.Instance.CurrentTerrain);
                 Run();
             }
 
@@ -163,12 +182,21 @@ namespace Assets.Gameplay.Character.Implementation.Player
             return new PlayerOrderArguments(_animator, Destination, CurrentEnemy, Navigator, Attributes, _characterInventory);
         }
 
-        private void Crawl()
+        public void Crawl()
         {
+            _playerBrain.State.ChangeStance(CharacterStance.Crawling, GetOrderArguments());
+            _playerBrain.ProcessSequence(GetOrderArguments(), typeof(PlayerCrawlOrder));
         }
 
         public void Run()
         {
+            _playerBrain.State.ChangeStance(CharacterStance.Running, GetOrderArguments());
+            _playerBrain.ProcessSequence(GetOrderArguments(), typeof(PlayerChangeCourseOrder), typeof(PlayerRunOrder));
+        }
+
+        public void ChangeCourse()
+        {
+            
         }
 
         public void Stop()
@@ -177,20 +205,18 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         public void TakeCover(Cover cover)
         {
-            if (_playerBrain.State.CurrentStance == CharacterStance.Sitting && cover == _selectedCover) return;
-
-            print("Cover");
-
             _selectedCover = cover;
 
             Destination = cover.transform.position;
 
-            _playerBrain.State.ChangeStance(CharacterStance.Running, GetOrderArguments());
+            _playerBrain.State.ChangeStance(CharacterStance.Crawling, GetOrderArguments());
+            _playerBrain.ProcessSequence(GetOrderArguments(), typeof(PlayerChangeCourseOrder), typeof(PlayerCrawlOrder));
         }
 
         public void HideInCover()
         {
             _playerBrain.State.ChangeStance(CharacterStance.Sitting, GetOrderArguments());
+            _playerBrain.ProcessSequence(GetOrderArguments(), typeof(PlayerCoverOrder));
         }
 
         public void LeaveCover()
@@ -199,12 +225,12 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         public void AttackEnemy()
         {
-            
-            if (_playerBrain.State.CurrentStance == CharacterStance.Aiming) return;
-
-            print("Shooting");
-
+            if (CurrentEnemy == null)
+            {
+                return;
+            }
             _playerBrain.State.ChangeStance(CharacterStance.Aiming, GetOrderArguments());
+            _playerBrain.ProcessSequence(GetOrderArguments(), typeof(PlayerAimOrder));
 
             Shoot();
 
@@ -214,8 +240,8 @@ namespace Assets.Gameplay.Character.Implementation.Player
         {
             if(CurrentEnemy == null)
                 return;
-
-            _characterInventory.MainWeapon?.StartFiring(CurrentEnemy.GameObject.transform.position, Id);
+            
+            _characterInventory.MainWeapon?.FireOnce(CurrentEnemy.GameObject.transform.position, Id);
         }
 
         public void Loot()
@@ -230,7 +256,11 @@ namespace Assets.Gameplay.Character.Implementation.Player
             {
                 var cover = other.GetComponent<Cover>();
                 if (cover == _selectedCover)
+                {
+                    _selectedCover = null;
                     HideInCover();
+                }
+
 
             }
         }
@@ -247,7 +277,6 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         public void OnProjectileTriggered(IProjectile projectile)
         {
-            throw new NotImplementedException();
         }
 
         

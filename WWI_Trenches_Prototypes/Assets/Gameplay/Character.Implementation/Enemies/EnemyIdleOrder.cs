@@ -8,7 +8,6 @@
 
         protected override void Activate(EnemyOrderArguments arguments)
         {
-            arguments.Inventory.MainWeapon?.StopFiring();
             arguments.Navigator.LookOn(null);
         }
 

@@ -14,27 +14,7 @@ public class HudController : MenuController
 
     private void Start()
     {
-        _basicActions.alpha = 0;
-        _coverActions.alpha = 0;
 
-        var playerInstance = InjectService.Instance.GetInstance<PlayerController>(BindPlayer);
-        if (playerInstance)
-        {
-            BindPlayer(playerInstance);
-        }
-    }
-
-    private void BindPlayer(PlayerController player)
-    {
-        //if (!player) return;
-
-        //_player = player;
-        //_player.PlayerStateChanged.AddListener(StateChanged);
-    }
-
-    private void StateChanged(PlayerController value)
-    {
-        //_basicActions.alpha = value.ThreatLevel > 0 ? 1 : 0;
-        //_coverActions.alpha = value.IsInCover ? 1 : 0;
+      
     }
 }
