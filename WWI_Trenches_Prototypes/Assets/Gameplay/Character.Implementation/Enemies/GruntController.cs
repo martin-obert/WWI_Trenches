@@ -16,7 +16,7 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
         [SerializeField]
         private GruntBrain _gruntBrain;
 
-        private BasicCharacterAttributesContainer _attributes;
+        private CharacterAttributesContainer _attributes;
 
         [SerializeField]
         private GruntNavigator _navigator;
@@ -54,11 +54,9 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
         {
             _fireProxyZone.SubscribeTriggers(Inzone, Outzone);
 
-            _attributes = new BasicCharacterAttributesContainer();
+            _attributes = new CharacterAttributesContainer();
 
             _navigator = GetComponent<GruntNavigator>();
-
-            _gruntBrain.State.StateChanged += StateOnStateChanged;
         }
 
         private void StateOnStateChanged(object sender, IOrderArguments<GruntController> e)
@@ -68,7 +66,6 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
 
         void OnDestroy()
         {
-            _gruntBrain.State.StateChanged -= StateOnStateChanged;
             _fireProxyZone.UnsubscribeTriggers(Inzone, Outzone);
         }
         private void Inzone(object sender, ProxyZone.ProxyZoneEvent proxyZoneEvent)
@@ -91,11 +88,12 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
         private void TryShootTarget()
         {
             //Todo: Tohle by mohl delat brain
-            if (Target != null && Target.IsVisibleTo(this) && _gruntBrain.State.CurrentStance != CharacterStance.Aiming)
+            if (Target != null && Target.IsVisibleTo(this) && _gruntBrain.Memory.CurrentStance != CharacterStance.Aiming)
             {
                 print("Attacking player");
 
-                _gruntBrain.State.ChangeStance(CharacterStance.Aiming, GetArgs());
+                //Todo: tohlse doimplementuje jidne
+                //_gruntBrain.Memory.ChangeStance(CharacterStance.Aiming, GetArgs());
 
                 InvokeRepeating(nameof(InvokeFire), 1, _inventory.MainWeapon.AttackSpeed);
             }
@@ -108,7 +106,10 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
             {
                 Target.VisibilityChanged -= TargetOnVisibilityChanged;
                 Target = null;
-                _gruntBrain.State.ChangeStance(CharacterStance.Idle, GetArgs());
+
+                //todo: Tohle se doimplementuje jindy
+                //_gruntBrain.Memory.ChangeStance(CharacterStance.Idle, GetArgs());
+
                 CancelInvoke(nameof(InvokeFire));
             }
 

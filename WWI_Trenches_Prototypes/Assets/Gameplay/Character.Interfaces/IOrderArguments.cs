@@ -12,10 +12,10 @@ namespace Assets.Gameplay.Character.Interfaces
 
         Animator Animator { get; }
 
-        BasicCharacterAttributesContainer Attributes { get; }
+        CharacterAttributesContainer Attributes { get; }
 
         CharacterInventory Inventory { get; }
 
-        Vector3 Destination { get; }
+        Vector3? Destination { get; }
     }
 }

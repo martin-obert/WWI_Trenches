@@ -3,6 +3,7 @@ using Assets.Gameplay.Abstract;
 using Assets.Gameplay.Character.Implementation.Attributes;
 using Assets.Gameplay.Character.Implementation.Player.Orders;
 using Assets.Gameplay.Character.Interfaces;
+using Assets.Gameplay.Instructions;
 using Assets.Gameplay.Inventory;
 using Assets.Gameplay.Units;
 using Assets.Gameplay.Units.Enemy;
@@ -45,23 +46,23 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
     }
 
-    [RequireComponent(typeof(PlayerBrain), typeof(NavMeshAgent))]
-    public class PlayerController : Singleton<PlayerController>, ITargetable, IProjectileTrigger
+    [Obsolete("User character instead"), RequireComponent(typeof(PlayerBrain), typeof(NavMeshAgent))]
+    public class PlayerController : Singleton<PlayerController>,  ICharacterProxy<PlayerController>
     {
         [SerializeField] private ProxyZone _enemyScanZone;
 
-        private PlayerBrain _playerBrain;
+        private ICharacterBrain<PlayerController> _playerBrain;
 
         private Animator _animator;
 
-        public BasicCharacterAttributesContainer Attributes { get; private set; }
+        public CharacterAttributesContainer Attributes { get; private set; }
 
         public PlayerCharacterNavigator Navigator { get; private set; }
 
         private CharacterInventory _characterInventory;
 
         //Todo: tohle se presune nekam
-        public Vector3 Destination { get; set; }
+        public Vector3? Destination { get; set; }
 
         public string DisplayName => name;
 
@@ -76,6 +77,8 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         private Cover _selectedCover;
 
+        private ICharacterBehavior<PlayerController> _behavior;
+
         public void GotKilledBy(ITargetable killer)
         {
             EliminatedByOtherTarget?.Invoke(this, killer);
@@ -84,14 +87,14 @@ namespace Assets.Gameplay.Character.Implementation.Player
         public bool IsVisibleTo(ITargetable targetable)
         {
             //print(_playerBrain.State.CurrentStance);
-            return _playerBrain.State.CurrentStance != CharacterStance.Crawling;
+            return _playerBrain.Memory.CurrentStance != CharacterStance.Crawling;
         }
 
         public event EventHandler VisibilityChanged;
 
         void OnEnable()
         {
-            Attributes = new BasicCharacterAttributesContainer();
+            Attributes = new CharacterAttributesContainer();
 
             _playerBrain = GetComponent<PlayerBrain>();
 
@@ -99,7 +102,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
             _animator = GetComponentInChildren<Animator>();
 
-            Navigator = new PlayerCharacterNavigator(GetComponent<NavMeshAgent>(), Attributes, transform);
+            Navigator = new PlayerCharacterNavigator();
 
             if (_enemyScanZone)
             {
@@ -138,7 +141,6 @@ namespace Assets.Gameplay.Character.Implementation.Player
         }
         void Start()
         {
-            _playerBrain.State.StateChanged+= StateOnStateChanged;
             CreateSingleton(this);
         }
 
@@ -149,7 +151,6 @@ namespace Assets.Gameplay.Character.Implementation.Player
 
         void OnDestroy()
         {
-            _playerBrain.State.StateChanged -= StateOnStateChanged;
             GCSingleton(this);
         }
 
@@ -159,19 +160,16 @@ namespace Assets.Gameplay.Character.Implementation.Player
             {
                 if(!_selectedCover)
                 Destination = PlayerHelpers.GetEndPoint(this, TerrainManager.Instance.CurrentTerrain);
-                Crawl();
             }
 
             if (Input.GetKeyDown(KeyCode.R))
             {
                 if (!_selectedCover)
                     Destination = PlayerHelpers.GetEndPoint(this, TerrainManager.Instance.CurrentTerrain);
-                Run();
             }
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                AttackEnemy();
             }
         }
 
@@ -182,73 +180,7 @@ namespace Assets.Gameplay.Character.Implementation.Player
             return new PlayerOrderArguments(_animator, Destination, CurrentEnemy, Navigator, Attributes, _characterInventory);
         }
 
-        public void Crawl()
-        {
-            _playerBrain.State.ChangeStance(CharacterStance.Crawling, GetOrderArguments());
-            _playerBrain.ProcessSequence(GetOrderArguments(), typeof(PlayerCrawlOrder));
-        }
-
-        public void Run()
-        {
-            _playerBrain.State.ChangeStance(CharacterStance.Running, GetOrderArguments());
-            _playerBrain.ProcessSequence(GetOrderArguments(), typeof(PlayerChangeCourseOrder), typeof(PlayerRunOrder));
-        }
-
-        public void ChangeCourse()
-        {
-            
-        }
-
-        public void Stop()
-        {
-        }
-
-        public void TakeCover(Cover cover)
-        {
-            _selectedCover = cover;
-
-            Destination = cover.transform.position;
-
-            _playerBrain.State.ChangeStance(CharacterStance.Crawling, GetOrderArguments());
-            _playerBrain.ProcessSequence(GetOrderArguments(), typeof(PlayerChangeCourseOrder), typeof(PlayerCrawlOrder));
-        }
-
-        public void HideInCover()
-        {
-            _playerBrain.State.ChangeStance(CharacterStance.Sitting, GetOrderArguments());
-            _playerBrain.ProcessSequence(GetOrderArguments(), typeof(PlayerCoverOrder));
-        }
-
-        public void LeaveCover()
-        {
-        }
-
-        public void AttackEnemy()
-        {
-            if (CurrentEnemy == null)
-            {
-                return;
-            }
-            _playerBrain.State.ChangeStance(CharacterStance.Aiming, GetOrderArguments());
-            _playerBrain.ProcessSequence(GetOrderArguments(), typeof(PlayerAimOrder));
-
-            Shoot();
-
-        }
-
-        public void Shoot()
-        {
-            if(CurrentEnemy == null)
-                return;
-            
-            _characterInventory.MainWeapon?.FireOnce(CurrentEnemy.GameObject.transform.position, Id);
-        }
-
-        public void Loot()
-        {
-
-        }
-
+     
         void OnTriggerEnter(Collider other)
         {
 
@@ -258,6 +190,8 @@ namespace Assets.Gameplay.Character.Implementation.Player
                 if (cover == _selectedCover)
                 {
                     _selectedCover = null;
+                    //Todo: spis nabidnout cover
+
                     HideInCover();
                 }
 
@@ -279,7 +213,33 @@ namespace Assets.Gameplay.Character.Implementation.Player
         {
         }
 
-        
+        public IOrderArguments<PlayerController> OrderArguments { get; }
+
+        public void Attack()
+        {
+            _behavior.PrepareToAttack(_playerBrain).Execute(GetOrderArguments());
+        }
+
+        public void ChangeCourse()
+        {
+            _behavior.CourseChanged(_playerBrain, _playerBrain.Memory).Execute(GetOrderArguments());
+        }
+
+        public void Stop()
+        {
+            Destination = null;
+            _behavior.CourseChanged(_playerBrain, _playerBrain.Memory).Execute(GetOrderArguments());
+        }
+
+        public void Shoot()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HideInCover()
+        {
+            _behavior.HideSelf(_playerBrain).Execute(GetOrderArguments());
+        }
     }
 
 #if UNITY_EDITOR

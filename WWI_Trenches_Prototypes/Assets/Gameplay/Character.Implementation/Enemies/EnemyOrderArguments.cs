@@ -17,7 +17,7 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
         public ICharacterNavigator<GruntController> Navigator { get; }
         public ITargetable CurrentTarget { get; }
         public Animator Animator { get; }
-        public BasicCharacterAttributesContainer Attributes { get; }
+        public CharacterAttributesContainer Attributes { get; }
 
         public CharacterInventory Inventory { get; }
         public Vector3 Destination { get; }

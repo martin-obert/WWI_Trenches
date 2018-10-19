@@ -1,13 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Assets.Gameplay.Character.Implementation.Player.Orders;
 using Assets.Gameplay.Character.Interfaces;
+using Assets.Gameplay.Instructions;
 using UnityEngine;
 
 namespace Assets.Gameplay.Character.Implementation.Player
 {
-    public class PlayerBrain : MonoBehaviour, ICharacterBrain<PlayerController>
+    public interface IOrderSet<TCharacter>
+    {
+        ICharacterOrder<TCharacter> GetOrder(Type type);
+    }
+
+    public class PlayerOrdersSet : ScriptableObject, ICharacterBehavior<PlayerController> //IOrderSet<PlayerController>
     {
         private PlayerOrder _runningOrder;
         private PlayerOrder _idleOrder;
@@ -15,11 +20,14 @@ namespace Assets.Gameplay.Character.Implementation.Player
         private PlayerOrder _attackOrder;
         private PlayerOrder _coverOrder;
         private PlayerOrder _changeCourse;
-        private PlayerOrder[] _container;
-        public ICharacterState<PlayerController> State { get; private set; }
 
-        void OnEnable()
+        private PlayerOrder[] _container;
+
+       void OnEnable()
         {
+            //Todo: on state changed?
+
+
             _idleOrder = new PlayerIdleOrder("Idle");
 
             _runningOrder = new PlayerRunOrder("Run");
@@ -41,46 +49,119 @@ namespace Assets.Gameplay.Character.Implementation.Player
                 _runningOrder,
                 _changeCourse
             };
-
-            State = new PlayerCharacterState();
         }
 
+
+        public ICharacterOrder<PlayerController> GetOrder(Type type)
+        {
+            return _container.FirstOrDefault(x => x.GetType() == type);
+        }
+
+        public ISequenceExecutor PrepareToAttack(ISequenceExecutor sequenceExecutor)
+        {
+           return sequenceExecutor.Do(_attackOrder);
+        }
+
+        public ISequenceExecutor CourseChanged(ISequenceExecutor sequenceExecutor, ICharacterMemory<PlayerController> memory)
+        {
+            return sequenceExecutor.If(memory.CurrentStance == CharacterStance.Crawling, 
+                new IOrder[] {_crawlingOrder},
+                new IOrder[] {_runningOrder});
+        }
+
+        public ISequenceExecutor HideSelf(ISequenceExecutor sequenceExecutor)
+        {
+            return sequenceExecutor.Do(_coverOrder);
+        }
+    }
+
+    public interface ICharacterBehavior<TCharacter>
+    {
+        ISequenceExecutor PrepareToAttack(ISequenceExecutor sequenceExecutor);
+        ISequenceExecutor CourseChanged(ISequenceExecutor sequenceExecutor, ICharacterMemory<TCharacter> memory);
+        ISequenceExecutor HideSelf(ISequenceExecutor sequenceExecutor);
+    }
+
+    public class PlayerBrain : MonoBehaviour, ICharacterBrain<PlayerController>
+    {
         
 
-        public void ProcessSequence(PlayerOrderArguments args, params Type[] orders)
+        private ISequence _currentSequence;
+        private ISequence _startingSequence;
+        private int _safeLoopBreakCounter = 100;
+        public ISequence CurrentSequence
         {
-            foreach (var order in orders)
+            get { return _currentSequence; }
+            set
             {
-                var playerOrder = _container.FirstOrDefault(x => x.GetType() == order);
+                if (_startingSequence == null)
+                    _startingSequence = value;
 
-                if (playerOrder != null)
-                {
-                    playerOrder.Execute(args);
-                }
-                else
-                {
-                    Debug.LogError("Cannot find type of " + order.Name);
-                }
+                _currentSequence?.Chain(value);
+                _currentSequence = value;
             }
         }
 
-        public ICharacterOrder<PlayerController> PickStanceAccordingToStance()
+        public ICharacterMemory<PlayerController> Memory { get; private set; }
+
+
+        [SerializeField]
+        private PlayerOrdersSet _ordersSet;
+
+        void OnEnable()
         {
-            switch (State.CurrentStance)
+            Memory = new PlayerCharacterMemory();
+
+        }
+
+
+        public void StateChanged(object sender, IOrderArguments<PlayerController> arguments)
+        {
+            
+        }
+
+        public void Execute<T>(IOrderArguments<T> arguments, ISequence sequence = null)
+        {
+
+            _safeLoopBreakCounter = 100;
+
+            while (_safeLoopBreakCounter >= 0)
             {
-                case CharacterStance.Idle:
-                    return _idleOrder;
-                case CharacterStance.Running:
-                    return _runningOrder;
-                case CharacterStance.Crawling:
-                    return _crawlingOrder;
-                case CharacterStance.Aiming:
-                    return _attackOrder;
-                case CharacterStance.Sitting:
-                    return _coverOrder;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                _safeLoopBreakCounter--;
+
+                var current = sequence ?? _startingSequence;
+
+                if (sequence == _startingSequence || sequence == null) return;
+
+                var orders = current.Orders;
+                if (orders != null && orders.Length > 0)
+                {
+                    foreach (var order in orders)
+                    {
+                        var playerOrder = order;
+
+                        if (playerOrder != null)
+                        {
+                            playerOrder.Execute(arguments);
+                        }
+                        else
+                        {
+                            Debug.LogError("Cannot find type of " + order.Name);
+                        }
+                    }
+                }
+
+                if (current.Next != null)
+                {
+                    sequence = current.Next;
+                    continue;
+                }
+
+                break;
             }
         }
+
+
+     
     }
 }

@@ -1,82 +1,47 @@
-﻿using Assets.Gameplay.Character.Implementation.Attributes;
+﻿using System;
 using Assets.Gameplay.Character.Interfaces;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace Assets.Gameplay.Character.Implementation.Player
 {
+    [Obsolete("User character navigator")]
     public class PlayerCharacterNavigator : ICharacterNavigator<PlayerController>
     {
-        private readonly NavMeshAgent _navMeshAgent;
-
-        private readonly Transform _transform;
-
-        public PlayerCharacterNavigator(NavMeshAgent navMeshAgent, BasicCharacterAttributesContainer attributes, Transform transform)
-        {
-            _navMeshAgent = navMeshAgent;
-            _transform = transform;
-            attributes.Speed.Subscribe(SpeedChanged);
-        }
-
-        private void SpeedChanged(object sender, float f)
-        {
-            if (_navMeshAgent)
-            {
-                _navMeshAgent.speed = f;
-            }
-        }
-
         public void LookOn(Transform target)
         {
-            _transform.LookAt(target.position);
+            throw new NotImplementedException();
         }
 
         public void LookAtDirection(Quaternion roatation)
         {
-            _transform.rotation = roatation;
+            throw new NotImplementedException();
         }
 
         public void Teleport(Vector3 position)
         {
-            if (!CheckNavMesh())
-            {
-                Enable();
-            }
-
-            _navMeshAgent.Warp(position);
+            throw new NotImplementedException();
         }
 
         public void Move(Vector3 position)
         {
-            if (!CheckNavMesh())
-            {
-                Enable();
-            }
-
-            _navMeshAgent.SetDestination(position);
+            throw new NotImplementedException();
         }
 
         public void Stop()
         {
-            //Todo: asi resit jinak, neco jako speed 0 nebo tak pokud to bude hazet errory + nastudovat na gitu jak to vlastne funguje :)
-            Disable();
-
+            throw new NotImplementedException();
         }
 
         public void Disable()
         {
-            _navMeshAgent.enabled = false;
+            throw new NotImplementedException();
         }
 
         public void Enable()
         {
-
-            _navMeshAgent.enabled = true;
+            throw new NotImplementedException();
         }
 
-        private bool CheckNavMesh()
-        {
-            return _navMeshAgent;
-        }
+        public Vector3? Destination { get; }
     }
 }

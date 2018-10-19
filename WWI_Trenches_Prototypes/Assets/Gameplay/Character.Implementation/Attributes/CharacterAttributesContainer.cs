@@ -1,11 +1,14 @@
-﻿namespace Assets.Gameplay.Character.Implementation.Attributes
+﻿using UnityEngine;
+
+namespace Assets.Gameplay.Character.Implementation.Attributes
 {
-    public class BasicCharacterAttributesContainer
+    [CreateAssetMenu(fileName = "Basic Attributes", menuName = "Character/Attributes")]
+    public class CharacterAttributesContainer : ScriptableObject
     {
         public ObservableAttribute<float> Speed { get; }
         public ObservableAttribute<float> Health { get; }
 
-        public BasicCharacterAttributesContainer()
+        public CharacterAttributesContainer()
         {
             Speed = new ObservableAttribute<float>("speed", "Speed", 3, 0, 5);
             Health = new ObservableAttribute<float>("hp", "HP", 3, 0, 5);

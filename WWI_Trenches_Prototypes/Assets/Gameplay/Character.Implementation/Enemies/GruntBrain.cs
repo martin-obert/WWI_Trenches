@@ -1,43 +1,59 @@
 ﻿using System;
 using Assets.Gameplay.Character.Interfaces;
+using Assets.Gameplay.Instructions;
 using UnityEngine;
 
 namespace Assets.Gameplay.Character.Implementation.Enemies
 {
-    public class EnemyState : ICharacterState<GruntController>
+    public class EnemyMemory : ICharacterMemory<GruntController>
     {
-        public event EventHandler<IOrderArguments<GruntController>> StateChanged;
-        public void ChangeStance(CharacterStance stance, IOrderArguments<GruntController> orderArguments)
+        public EnemyMemory()
+        {
+            _args = new CharacterMemoryEventArgs();
+        }
+
+        private readonly CharacterMemoryEventArgs _args;
+
+        public event EventHandler<CharacterMemoryEventArgs> StateChanged;
+
+        public void ChangeStance(CharacterStance stance)
         {
             var hasChanged = CurrentStance != stance;
 
-            CurrentStance = stance;
-
-            if (hasChanged) StateChanged?.Invoke(this, orderArguments);
+            _args.LastStance = CurrentStance;
+            _args.CurrentStance = stance;
+            if (hasChanged) StateChanged ?.Invoke(this, _args);
         }
 
-        public CharacterStance CurrentStance { get; private set; }
+        public CharacterStance LastStance => _args.LastStance;
+
+        public CharacterStance CurrentStance => _args.CurrentStance;
     }
 
     public class GruntBrain : MonoBehaviour, ICharacterBrain<GruntController>
     {
-        [SerializeField]
         private EnemyOrder _idleOrder;
-        [SerializeField]
+
         private EnemyOrder _attackOrder;
 
-        public ICharacterState<GruntController> State { get; private set; }
+        private ISequence _currentSequence;
+
+        private ISequence _startingSequence;
+
+        private int _safeLoopBreakCounter = 100;
+
+        public ICharacterMemory<GruntController> Memory { get; private set; }
 
 
         void OnEnable()
         {
             _idleOrder = new EnemyIdleOrder("Idle");
             _attackOrder = new EnemyShootOrder("Attack");
-            State = new EnemyState();
+            Memory = new EnemyMemory();
         }
 
      
-
+        //Todo: tohle se musí volat odjinud
         public void StateOnStateChanged(object sender, IOrderArguments<GruntController> arguments)
         {
             var newOrder = PickBehavior(arguments);
@@ -56,5 +72,49 @@ namespace Assets.Gameplay.Character.Implementation.Enemies
             return _idleOrder;
         }
 
+      
+        public ISequence CurrentSequence
+        {
+            get { return _currentSequence; }
+            set
+            {
+                if (_startingSequence == null)
+                    _startingSequence = value;
+
+                _currentSequence?.Chain(value);
+                _currentSequence = value;
+            }
+        }
+
+
+        public void Execute<T>(IOrderArguments<T> arguments, ISequence sequence = null)
+        {
+            _safeLoopBreakCounter = 100;
+            while (_safeLoopBreakCounter >= 0)
+            {
+                _safeLoopBreakCounter--;
+
+                var current = sequence ?? _startingSequence;
+
+                if (sequence == _startingSequence || sequence == null) return;
+
+                var orders = current.Orders;
+                if (orders != null && orders.Length > 0)
+                {
+                    foreach (var order in orders)
+                    {
+                        order.Execute(arguments);
+                    }
+                }
+
+                if (current.Next != null)
+                {
+                    sequence = current.Next;
+                    continue;
+                }
+
+                break;
+            }
+        }
     }
 }

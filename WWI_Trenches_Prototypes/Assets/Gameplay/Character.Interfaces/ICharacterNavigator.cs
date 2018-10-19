@@ -11,5 +11,6 @@ namespace Assets.Gameplay.Character.Interfaces
         void Stop();
         void Disable();
         void Enable();
+        Vector3? Destination { get;  }
     }
 }

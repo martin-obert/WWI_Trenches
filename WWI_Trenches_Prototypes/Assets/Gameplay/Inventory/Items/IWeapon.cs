@@ -1,12 +1,10 @@
-﻿using Assets.Gameplay.Character.Interfaces;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Gameplay.Inventory.Items
 {
     public interface IWeapon : IItem
     {
         void FireOnce(Vector3 target, int shooterId);
-
 
         Vector3 Target { get; }
         
@@ -23,6 +21,7 @@ namespace Assets.Gameplay.Inventory.Items
         int OwnerId { get; }
 
         WeaponData Data { get;  }
+
         Vector3 ProjectileSpawnLocation { get;  }
     }
 }

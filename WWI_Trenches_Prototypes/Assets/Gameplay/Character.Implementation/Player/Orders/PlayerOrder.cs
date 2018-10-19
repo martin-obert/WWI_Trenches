@@ -9,12 +9,18 @@ namespace Assets.Gameplay.Character.Implementation.Player.Orders
             Name = name;
         }
 
-        public string Name { get; }
-
         public void Execute(IOrderArguments<PlayerController> arguments)
         {
             Execute((PlayerOrderArguments)arguments);
         }
+
+        public string Name { get; }
+
+        public void Execute<T>(IOrderArguments<T> arguments)
+        {
+            Execute((PlayerOrderArguments)arguments);
+        }
+
         public abstract void Execute(PlayerOrderArguments arguments);
     }
     }

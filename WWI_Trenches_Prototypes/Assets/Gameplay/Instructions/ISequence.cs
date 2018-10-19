@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using Assets.Gameplay.Character.Interfaces;
-using UnityEngine.Assertions.Must;
 
 namespace Assets.Gameplay.Instructions
 {
@@ -9,35 +7,37 @@ namespace Assets.Gameplay.Instructions
     {
         void Chain(ISequence sequence);
 
-        Type[] Orders { get; }
+        IOrder[] Orders { get; }
 
         ISequence Next { get; }
     }
 
 
-    public interface ISequencer
+    public interface ISequenceExecutor
     {
-        void Execute<T>(IOrderArguments<T> arguments, ISequence sequence = null);
         ISequence CurrentSequence { get; set; }
+        void Execute<T>(IOrderArguments<T> arguments, ISequence sequence = null);
     }
 
     public interface IConditionalSequence : ISequence
     {
-        Type[] OnSuccess { get; }
-        Type[] OnFailed { get; }
+        IOrder[] OnSuccess { get; }
+        IOrder[] OnFailed { get; }
     }
 
     public class ConditionalSequence : IConditionalSequence
     {
         private readonly Func<bool> _predicate;
 
-        public Type[] OnSuccess { get; }
+        public IOrder[] OnSuccess { get; }
 
-        public Type[] OnFailed { get; }
-        public Type[] Orders => _predicate() ? OnSuccess : OnFailed;
+        public IOrder[] OnFailed { get; }
+
+        public IOrder[] Orders => _predicate() ? OnSuccess : OnFailed;
+
         public ISequence Next { get; private set; }
 
-        public ConditionalSequence(Func<bool> predicate, Type[] onSuccess, Type[] onFailed)
+        public ConditionalSequence(Func<bool> predicate, IOrder[] onSuccess, IOrder[] onFailed)
         {
             _predicate = predicate;
             OnSuccess = onSuccess;
@@ -59,9 +59,9 @@ namespace Assets.Gameplay.Instructions
             Next = sequence;
         }
 
-        public Type[] Orders { get; }
+        public IOrder[] Orders { get; }
 
-        public BasicSequence(params Type[] order)
+        public BasicSequence(params IOrder[] order)
         {
             Orders = order;
         }
@@ -80,28 +80,31 @@ namespace Assets.Gameplay.Instructions
 
     public class ForkSequence : IForkSequence
     {
-        private readonly Func<ISequencer, ISequence> _onSucccess;
-        private readonly Func<ISequencer, ISequence> _onFailed;
-        private readonly ISequencer _sequencer;
-        public ForkSequence(Func<bool> predicate, ISequencer sequencer, Func<ISequencer, ISequence> onSuccess, Func<ISequencer, ISequence> onFailed)
+        private readonly Func<ISequenceExecutor, ISequence> _onSucccess;
+
+        private readonly Func<ISequenceExecutor, ISequence> _onFailed;
+
+        private readonly ISequenceExecutor _sequenceExecutor;
+
+        public ForkSequence(Func<bool> predicate, ISequenceExecutor sequenceExecutor, Func<ISequenceExecutor, ISequence> onSuccess, Func<ISequenceExecutor, ISequence> onFailed)
         {
-            _sequencer = sequencer;
+            _sequenceExecutor = sequenceExecutor;
             IsFulfilled = predicate;
             _onFailed = onFailed;
             _onSucccess = onSuccess;
         }
 
 
-        public ISequence OnDone => _onSucccess(_sequencer);
+        public ISequence OnDone => _onSucccess(_sequenceExecutor);
 
-        public ISequence OnFailed => _onFailed(_sequencer);
+        public ISequence OnFailed => _onFailed(_sequenceExecutor);
 
         public Func<bool> IsFulfilled { get; }
     }
 
     public static class BrainHelper
     {
-        public static ISequencer Do(this ISequencer builder, params Type[] order)
+        public static ISequenceExecutor Do(this ISequenceExecutor builder, params IOrder[] order)
         {
             if (order == null || order.Length == 0)
                 return null;
@@ -112,7 +115,7 @@ namespace Assets.Gameplay.Instructions
             return builder;
         }
 
-        public static ISequencer Then(this ISequencer sequence, params Type[] order)
+        public static ISequenceExecutor Then(this ISequenceExecutor sequence, params IOrder[] order)
         {
             if (order == null || order.Length == 0)
                 return null;
@@ -131,7 +134,7 @@ namespace Assets.Gameplay.Instructions
         /// <param name="onSuccess"></param>
         /// <param name="onFail"></param>
         /// <returns></returns>
-        public static ISequencer If(this ISequencer sequence, bool predicate, Type[] onSuccess, Type[] onFail)
+        public static ISequenceExecutor If(this ISequenceExecutor sequence, bool predicate, IOrder[] onSuccess, IOrder[] onFail)
         {
             if (onSuccess == null || onSuccess.Length == 0 && onFail == null || onFail.Length == 0) return sequence;
 
@@ -151,62 +154,11 @@ namespace Assets.Gameplay.Instructions
         /// <param name="onSuccess"></param>
         /// <param name="onFail"></param>
         /// <returns></returns>
-        public static ISequencer Decide(this ISequencer sequence, Func<bool> predicate, Type[] onSuccess, Type[] onFail)
+        public static ISequenceExecutor Decide(this ISequenceExecutor sequence, Func<bool> predicate, IOrder[] onSuccess, IOrder[] onFail)
         {
             if (onSuccess == null || onSuccess.Length == 0 && onFail == null || onFail.Length == 0) return sequence;
             sequence.CurrentSequence = new ConditionalSequence(predicate, onSuccess, onFail);
             return sequence;
-        }
-
-        //public static ISequencer Fork(this ISequencer sequencer, Func<bool> predicate,
-        //    Func<ISequencer, ISequence> onSuccess, Func<ISequencer, ISequence> onFail)
-        //{
-        //    sequencer.CurrentSequence = new ForkSequence(predicate, sequencer, onSuccess, onFail);
-
-        //    return sequencer;
-        //}
-
-        public static void Execute<T>(this ISequencer sequence, IOrderArguments<T> arguments)
-        {
-            sequence.Execute(arguments);
-        }
-    }
-
-
-    /// <summary>
-    /// Example
-    /// </summary>
-    public class Test : ISequencer
-    {
-        private ISequence _currentSequence;
-        private ISequence _startingSequence;
-
-
-
-        public void Execute<T>(IOrderArguments<T> arguments, ISequence sequence = null)
-        {
-            var current = sequence ?? _startingSequence;
-
-            if (sequence == _startingSequence || sequence == null)
-                return;
-
-            var orders = current.Orders;
-
-            if (current.Next != null)
-                Execute(arguments, current.Next);
-        }
-
-        public ISequence CurrentSequence
-        {
-            get { return _currentSequence; }
-            set
-            {
-                if (_startingSequence == null)
-                    _startingSequence = value;
-
-                _currentSequence?.Chain(value);
-                _currentSequence = value;
-            }
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Assets.Gameplay.Inventory
 
         private ProjectilesManager _projectilesManager;
 
-        void Start()
+        void Awake()
         {
             _projectilesManager = InjectService.Instance.GetInstance<ProjectilesManager>(instance => _projectilesManager = instance);
             if (_template)
@@ -37,7 +37,7 @@ namespace Assets.Gameplay.Inventory
             {
                 _projectilesManager.UnregisterWeapon(gameObject.GetInstanceID(), _mainWeapon.Item);
             }
-            print(weapon.Id);
+            Debug.Log(weapon.Id);
             _projectilesManager.RegisterWeapon(gameObject.GetInstanceID(), weapon);
 
             _mainWeapon.Item = weapon;

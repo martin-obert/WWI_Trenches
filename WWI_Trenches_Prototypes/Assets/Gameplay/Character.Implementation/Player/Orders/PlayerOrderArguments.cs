@@ -10,16 +10,16 @@ namespace Assets.Gameplay.Character.Implementation.Player.Orders
         public ICharacterNavigator<PlayerController> Navigator { get;  }
         public ITargetable CurrentTarget { get; }
 
-        public Vector3 Destination { get; }
+        public Vector3? Destination { get; }
 
         public Animator Animator { get; }
 
-        public BasicCharacterAttributesContainer Attributes { get;  }
+        public CharacterAttributesContainer Attributes { get;  }
 
         public CharacterInventory Inventory { get; }
 
 
-        public PlayerOrderArguments(Animator animator, Vector3 destination, ITargetable currentTarget, ICharacterNavigator<PlayerController> navigator, BasicCharacterAttributesContainer attributes, CharacterInventory inventory)
+        public PlayerOrderArguments(Animator animator, Vector3? destination, ITargetable currentTarget, ICharacterNavigator<PlayerController> navigator, CharacterAttributesContainer attributes, CharacterInventory inventory)
         {
             Animator = animator;
             Destination = destination;
