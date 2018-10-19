@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Assets.Gameplay.Inventory
 {
+    //Todo: Scriptable? :D
     public class CharacterInventory : MonoBehaviour
     {
         [SerializeField]

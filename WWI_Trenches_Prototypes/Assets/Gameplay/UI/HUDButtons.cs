@@ -1,31 +1,27 @@
-﻿using Assets.Gameplay.Character.Implementation.Player;
-using Assets.Gameplay.Units;
+﻿using Assets.Gameplay;
 using Assets.IoC;
 using UnityEngine;
 
 public class HUDButtons : MonoBehaviour
 {
-
-    private PlayerController _player;
+    private GameManager _gameManager;
 
     private void Start()
     {
-        _player = InjectService.Instance.GetInstance<PlayerController>(player => _player = player);
+        _gameManager = InjectService.Instance.GetInstance<GameManager>(manage => _gameManager = manage);
     }
 
     public void CrawlToggle()
     {
-        _player.Crawl();
-
+        _gameManager.CurrentPlayer.Crawl();
     }
 
     public void Run()
     {
-        _player.Run();
+        _gameManager.CurrentPlayer.Run();
     }
 
     public void Attack()
     {
-        _player.AttackEnemy();
     }
 }

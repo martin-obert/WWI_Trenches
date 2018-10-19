@@ -1,5 +1,4 @@
 ﻿using Assets.Gameplay.Abstract;
-using Assets.Gameplay.Character.Implementation.Player;
 using UnityEditor;
 using UnityEngine;
 

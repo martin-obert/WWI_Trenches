@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25cbe85d238daad409eed14e712b1299, type: 3}
+  m_Name: Basic behavior
+  m_EditorClassIdentifier: Assembly-CSharp:Assets.Gameplay.Character.Merge:CharacterBehavior
+  _moveOrder: {fileID: 11400000, guid: 30074d097252933498ea1297927d090f, type: 2}
+  _idleOrder: {fileID: 0}
+  _crawlingOrder: {fileID: 11400000, guid: 06fa01f01a9958b458f9229524eb62fd, type: 2}
+  _aimOrder: {fileID: 11400000, guid: 6f0f890469f8dfb4b91783cbef4e9372, type: 2}
+  _coverOrder: {fileID: 11400000, guid: af632c9e36971c14c85dfe537b4d7616, type: 2}

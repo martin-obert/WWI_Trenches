@@ -1,5 +1,5 @@
 ﻿using System;
-using Assets.Gameplay.Character.Interfaces;
+using Assets.Gameplay.Character;
 
 namespace Assets.Gameplay.Instructions
 {

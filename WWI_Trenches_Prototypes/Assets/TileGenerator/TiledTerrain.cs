@@ -27,5 +27,11 @@ namespace Assets.TileGenerator
                 _navMeshSurface.BuildNavMesh();
             }
         }
+
+        public void SpawnAtStart(GameObject go)
+        {
+            go.transform.position = StartPoint.position;
+            go.transform.rotation = Quaternion.FromToRotation(StartPoint.position, EndPoint.position);
+        }
     }
 }

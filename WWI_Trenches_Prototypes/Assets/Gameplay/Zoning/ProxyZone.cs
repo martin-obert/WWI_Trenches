@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Gameplay.Character;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ namespace Assets.Gameplay.Zoning
         public class ProxyZoneEvent : EventArgs
         {
             public GameObject ZonedObject { get; set; }
+
+            public Lazy<ITargetable> Targetable { get; set; }
         }
 
         public event EventHandler<ProxyZoneEvent> ObjectInZone;
@@ -53,7 +56,8 @@ namespace Assets.Gameplay.Zoning
         {
             ObjectInZone?.Invoke(this, new ProxyZoneEvent
             {
-                ZonedObject = zonedObject
+                ZonedObject = zonedObject,
+                Targetable = new Lazy<ITargetable>(zonedObject.GetComponent<ITargetable>)
             });
         }
 
@@ -61,7 +65,8 @@ namespace Assets.Gameplay.Zoning
         {
             ObjectOutZone?.Invoke(this, new ProxyZoneEvent
             {
-                ZonedObject = zonedObject
+                ZonedObject = zonedObject,
+                Targetable = new Lazy<ITargetable>(zonedObject.GetComponent<ITargetable>)
             });
         }
 

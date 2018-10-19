@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using Assets.Gameplay.Abstract;
-using Assets.Gameplay.Character.Implementation.Player;
-using Assets.Gameplay.Units;
-using Assets.IoC;
+using Assets.Gameplay.Character.Implementation;
 using Assets.TileGenerator;
 using UnityEditor;
 using UnityEngine;
@@ -21,7 +18,11 @@ namespace Assets.Gameplay
         [SerializeField] private TerrainTileBuilder _terrainTileBuilder;
 
         [SerializeField] private bool _autoStart = false;
+
         private TerrainManager _terrainManager;
+
+        public BasicCharacter CurrentPlayer { get; private set; }
+
         void Awake()
         {
             Dependency<Bootstrapper>(bootstrapper => { _bootstrapper = bootstrapper; });
@@ -72,11 +73,13 @@ namespace Assets.Gameplay
         private IEnumerator DelayedStart(TerrainTileBuilder.TerrainBuilderEventArgs args)
         {
             yield return new WaitForSecondsRealtime(1.5f);
-            var player = Instantiate(_bootstrapper.PlayerPrefab);
 
-            player.Spawn(args.BuildedTerrain.StartPoint.position);
-            player.Destination = PlayerHelpers.GetEndPoint(player, args.BuildedTerrain);
-            player.Run();
+            CurrentPlayer = Instantiate(_bootstrapper.PlayerPrefab, args.BuildedTerrain.StartPoint.position, Quaternion.Euler(Vector3.forward));
+
+            args.BuildedTerrain.SpawnAtStart(CurrentPlayer.gameObject);
+
+            CurrentPlayer.MoveTo(PlayerHelpers.GetEndPoint(CurrentPlayer.transform, args.BuildedTerrain));
+            
         }
 
         public void StartLevel()
