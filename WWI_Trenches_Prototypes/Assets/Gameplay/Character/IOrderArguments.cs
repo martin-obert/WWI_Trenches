@@ -6,7 +6,7 @@ namespace Assets.Gameplay.Character
 {
     public interface IOrderArguments<TCharacter>
     {
-        ICharacterNavigator<TCharacter> Navigator { get; }
+        ICharacterNavigator Navigator { get; }
 
         ITargetable CurrentTarget { get; }
 

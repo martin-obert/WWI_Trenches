@@ -5,7 +5,7 @@ namespace Assets.Gameplay.Character.Implementation
 {
     public class CharacterOrderArguments : IOrderArguments<BasicCharacter>
     {
-        public ICharacterNavigator<BasicCharacter> Navigator { get; }
+        public ICharacterNavigator Navigator { get; }
 
         public ITargetable CurrentTarget { get; }
 
