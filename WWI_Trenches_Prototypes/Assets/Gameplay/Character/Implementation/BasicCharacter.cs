@@ -50,7 +50,7 @@ namespace Assets.Gameplay.Character.Implementation
 
         public ICombatBehavior<BasicCharacter> Behavior => _behavior;
 
-        public ICharacterNavigator<BasicCharacter> Navigator => _navigator;
+        public ICharacterNavigator Navigator => _navigator;
 
         public Animator Animator => _animator;
 
@@ -65,9 +65,9 @@ namespace Assets.Gameplay.Character.Implementation
         public Vector3? Destination { get; set; }
 
        
-        public float Visibility => Attributes.Visibility.CurrentValueTyped();
+        public float Visibility => Attributes.Visibility.Value();
 
-        public float NoiseLevel => Attributes.NoiseLevel.CurrentValueTyped();
+        public float NoiseLevel => Attributes.NoiseLevel.Value();
         #endregion
 
         void Start()
@@ -150,9 +150,17 @@ namespace Assets.Gameplay.Character.Implementation
 
         public void Shoot()
         {
-            if (_inventory && CurrentTarget != null)
+            if (_inventory && CurrentTarget != null && _inventory.MainWeapon != null)
             {
-                _inventory.MainWeapon?.MeleeAttack(CurrentTarget, this);
+                var ranged = _inventory.MainWeapon as RangedWeapon;
+                if (ranged)
+                {
+                    ranged.RangedAttack(CurrentTarget, this);
+                }
+                else
+                {
+                    _inventory.MainWeapon.MeleeAttack(CurrentTarget, this);
+                }
             }
         }
 
@@ -168,7 +176,6 @@ namespace Assets.Gameplay.Character.Implementation
         public void Crawl()
         {
             Brain.Memory.ChangeStance(BasicStance.Crawling);
-            
         }
 
         public void Run()

@@ -3,7 +3,7 @@ using Assets.Gameplay.Character;
 
 namespace Assets.Gameplay.Attributes
 {
-    public class BasicAttribute<T> : ICharacterAttribute
+    public class BasicAttribute<T> : ICharacterAttribute where T : IComparable<T>
     {
         private object _currentValue;
 
@@ -29,10 +29,7 @@ namespace Assets.Gameplay.Attributes
             set { Value((T)value); }
         }
 
-        public T CurrentValueTyped()
-        {
-            return (T)_currentValue;
-        }
+
 
         public object MaxValue { get; }
 
@@ -42,10 +39,15 @@ namespace Assets.Gameplay.Attributes
 
         public int Hash { get; }
 
-        protected virtual T Value(T value = default(T))
+        public T Value()
         {
+            return (T) CurrentValue;
+        }
 
-            _currentValue = Clamp != null ? Clamp((T)MinValue, value, (T)MaxValue) : value;
+        public virtual T Value(T value)
+        {
+            if (value != null && value.CompareTo((T)CurrentValue) != 0)
+                _currentValue = Clamp != null ? Clamp((T)MinValue, value, (T)MaxValue) : value;
 
             return (T)_currentValue;
         }

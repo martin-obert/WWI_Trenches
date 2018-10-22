@@ -1,6 +1,6 @@
 ﻿namespace Assets.Gameplay.Character
 {
-    public interface IOrder
+    public interface ISequence
     {
         string Name { get; }
 

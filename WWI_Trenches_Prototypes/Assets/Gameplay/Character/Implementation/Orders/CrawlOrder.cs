@@ -18,7 +18,7 @@ namespace Assets.Gameplay.Character.Implementation.Orders
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendXHandle, -1);
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendYHandle, 0);
 
-            arguments.Attributes.Speed.CurrentValue = _crawlSpeed * ((float)arguments.Attributes.Speed.MaxValue / 100);
+            arguments.Attributes.Speed.Value(_crawlSpeed * ((float)arguments.Attributes.Speed.MaxValue / 100));
         }
     }
 }

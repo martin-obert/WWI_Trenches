@@ -7,8 +7,8 @@ namespace Assets.Gameplay.Character.Implementation
     public class CharacterBrain : ScriptableObject, ICharacterBrain<BasicCharacter>
     {
 
-        private ISequence _currentSequence;
-        private ISequence _startingSequence;
+        private Instructions.ISequence _currentSequence;
+        private Instructions.ISequence _startingSequence;
         private int _safeLoopBreakCounter = 100;
 
 
@@ -19,7 +19,7 @@ namespace Assets.Gameplay.Character.Implementation
             Memory = new CharacterMemory();
         }
 
-        public ISequence CurrentSequence
+        public Instructions.ISequence CurrentSequence
         {
             get { return _currentSequence; }
             set
@@ -32,7 +32,7 @@ namespace Assets.Gameplay.Character.Implementation
             }
         }
 
-        public void Execute<T>(IOrderArguments<T> arguments, ISequence sequence = null)
+        public void Execute<T>(IOrderArguments<T> arguments, Instructions.ISequence sequence = null)
         {
             _safeLoopBreakCounter = 100;
 

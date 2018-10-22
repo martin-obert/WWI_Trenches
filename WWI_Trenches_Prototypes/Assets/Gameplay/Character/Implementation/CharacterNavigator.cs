@@ -4,7 +4,7 @@ using UnityEngine.AI;
 namespace Assets.Gameplay.Character.Implementation
 {
     [RequireComponent(typeof(NavMeshAgent))]
-    public class CharacterNavigator : MonoBehaviour, ICharacterNavigator<BasicCharacter>
+    public class CharacterNavigator : MonoBehaviour, ICharacterNavigator
     {
         private NavMeshAgent _navMeshAgent;
 
@@ -31,11 +31,10 @@ namespace Assets.Gameplay.Character.Implementation
 
         private void SpeedChanged(object sender, float f)
         {
-            print("Speed changed to " + f);
             _navMeshAgent.speed = f;
         }
 
-        public void LookOn(Transform target)
+        public void LockOn(Transform target)
         {
             _rootObject.LookAt(target.position);
         }
@@ -71,7 +70,7 @@ namespace Assets.Gameplay.Character.Implementation
 
         public void Stop()
         {
-            //Todo: asi resit jinak, neco jako speed 0 nebo tak pokud to bude hazet errory + nastudovat na gitu jak to vlastne funguje :)
+            //Todo: bacha na speed = 0, eventem se divam na speed value attributu
             Disable();
 
         }
@@ -86,8 +85,13 @@ namespace Assets.Gameplay.Character.Implementation
             print("Enabling nav mesh");
             _navMeshAgent.enabled = true;
 
-            if (Destination.HasValue)
+            if (Destination.HasValue && _navMeshAgent.destination != Destination.Value)
                 _navMeshAgent.destination = Destination.Value;
+        }
+
+        public void Continue()
+        {
+            Enable();
         }
 
         private bool CheckNavMesh()

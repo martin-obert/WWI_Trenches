@@ -30,7 +30,7 @@ namespace Assets.Gameplay.Character.Implementation.Orders
 
             arguments.Navigator.Stop();
             arguments.Navigator.Disable();
-            arguments.Navigator.LookOn(arguments.CurrentTarget.GameObject.transform);
+            arguments.Navigator.LockOn(arguments.CurrentTarget.GameObject.transform);
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendXHandle, 1);
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendYHandle, 1);
         }

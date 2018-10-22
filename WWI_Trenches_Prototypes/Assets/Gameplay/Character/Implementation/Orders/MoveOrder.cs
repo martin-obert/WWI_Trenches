@@ -11,10 +11,9 @@ namespace Assets.Gameplay.Character.Implementation.Orders
 
         public override void Execute(CharacterOrderArguments arguments)
         {
-            Debug.Log("Executing move order: current speed: " + (float)arguments.Attributes.Speed.MaxValue);
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendXHandle, 0);
             arguments.Animator.SetFloat(PlayerAnimatorParameter.BlendYHandle, 1);
-            arguments.Attributes.Speed.CurrentValue = (float)arguments.Attributes.Speed.MaxValue * (_speedPercentace / 100f);
+            arguments.Attributes.Speed.Value((float)arguments.Attributes.Speed.MaxValue * (_speedPercentace / 100f));
         }
 
         public MoveOrder(string name) : base(name)

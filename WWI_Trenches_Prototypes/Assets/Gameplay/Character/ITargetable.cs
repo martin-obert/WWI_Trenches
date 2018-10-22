@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Gameplay.Character.Implementation;
 using Assets.Gameplay.Inventory.Items;
 using UnityEngine;
 
@@ -21,8 +22,6 @@ namespace Assets.Gameplay.Character
     {
         ICoverable CurrentCover { get; }
 
-        ThreatLevel ThreatLevel { get; set; }
-
         string DisplayName { get; }
 
         GameObject GameObject { get; }
@@ -31,5 +30,6 @@ namespace Assets.Gameplay.Character
         void GotHitRanged(IProjectile projectile);
 
         float Visibility { get; }
+        CharacterAttributesContainer Attributes { get; }
     }
 }

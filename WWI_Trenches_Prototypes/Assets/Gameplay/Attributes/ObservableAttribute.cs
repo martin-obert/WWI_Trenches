@@ -2,15 +2,17 @@
 
 namespace Assets.Gameplay.Attributes
 {
-    public class ObservableAttribute<T> : BasicAttribute<T>
+    public class ObservableAttribute<T> : BasicAttribute<T> where T: IComparable<T>
     {
-        private object _currentValue;
 
-        protected override T Value(T value = default(T))
+        public override T Value(T value)
         {
+            var doInvoke = value.CompareTo((T)CurrentValue) != 0;
+
             var val = base.Value(value);
 
-            Invoke(val);
+            if (doInvoke)
+                Invoke(val);
 
             return val;
         }
@@ -31,7 +33,7 @@ namespace Assets.Gameplay.Attributes
             ValueChanged -= action;
         }
 
-        public ObservableAttribute(string name, string displayName, T minValue, T currentValue, T maxVaue, Func<T,T,T,T> clamp = null) : base(name, displayName,  minValue, currentValue, maxVaue, clamp)
+        public ObservableAttribute(string name, string displayName, T minValue, T currentValue, T maxVaue, Func<T, T, T, T> clamp = null) : base(name, displayName, minValue, currentValue, maxVaue, clamp)
         {
         }
     }

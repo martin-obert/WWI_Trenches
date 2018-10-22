@@ -7,7 +7,7 @@ namespace Assets.Gameplay.Instructions
     {
         void Chain(ISequence sequence);
 
-        IOrder[] Orders { get; }
+        Character.ISequence[] Orders { get; }
 
         ISequence Next { get; }
     }
@@ -21,23 +21,23 @@ namespace Assets.Gameplay.Instructions
 
     public interface IConditionalSequence : ISequence
     {
-        IOrder[] OnSuccess { get; }
-        IOrder[] OnFailed { get; }
+        Character.ISequence[] OnSuccess { get; }
+        Character.ISequence[] OnFailed { get; }
     }
 
     public class ConditionalSequence : IConditionalSequence
     {
         private readonly Func<bool> _predicate;
 
-        public IOrder[] OnSuccess { get; }
+        public Character.ISequence[] OnSuccess { get; }
 
-        public IOrder[] OnFailed { get; }
+        public Character.ISequence[] OnFailed { get; }
 
-        public IOrder[] Orders => _predicate() ? OnSuccess : OnFailed;
+        public Character.ISequence[] Orders => _predicate() ? OnSuccess : OnFailed;
 
         public ISequence Next { get; private set; }
 
-        public ConditionalSequence(Func<bool> predicate, IOrder[] onSuccess, IOrder[] onFailed)
+        public ConditionalSequence(Func<bool> predicate, Character.ISequence[] onSuccess, Character.ISequence[] onFailed)
         {
             _predicate = predicate;
             OnSuccess = onSuccess;
@@ -59,9 +59,9 @@ namespace Assets.Gameplay.Instructions
             Next = sequence;
         }
 
-        public IOrder[] Orders { get; }
+        public Character.ISequence[] Orders { get; }
 
-        public BasicSequence(params IOrder[] order)
+        public BasicSequence(params Character.ISequence[] order)
         {
             Orders = order;
         }
@@ -104,7 +104,7 @@ namespace Assets.Gameplay.Instructions
 
     public static class BrainHelper
     {
-        public static ISequenceExecutor Do(this ISequenceExecutor builder, params IOrder[] order)
+        public static ISequenceExecutor Do(this ISequenceExecutor builder, params Character.ISequence[] order)
         {
             if (order == null || order.Length == 0)
                 return null;
@@ -115,7 +115,7 @@ namespace Assets.Gameplay.Instructions
             return builder;
         }
 
-        public static ISequenceExecutor Then(this ISequenceExecutor sequence, params IOrder[] order)
+        public static ISequenceExecutor Then(this ISequenceExecutor sequence, params Character.ISequence[] order)
         {
             if (order == null || order.Length == 0)
                 return null;
@@ -134,7 +134,7 @@ namespace Assets.Gameplay.Instructions
         /// <param name="onSuccess"></param>
         /// <param name="onFail"></param>
         /// <returns></returns>
-        public static ISequenceExecutor If(this ISequenceExecutor sequence, bool predicate, IOrder[] onSuccess, IOrder[] onFail)
+        public static ISequenceExecutor If(this ISequenceExecutor sequence, bool predicate, Character.ISequence[] onSuccess, Character.ISequence[] onFail)
         {
             if (onSuccess == null || onSuccess.Length == 0 && onFail == null || onFail.Length == 0) return sequence;
 
@@ -154,7 +154,7 @@ namespace Assets.Gameplay.Instructions
         /// <param name="onSuccess"></param>
         /// <param name="onFail"></param>
         /// <returns></returns>
-        public static ISequenceExecutor Decide(this ISequenceExecutor sequence, Func<bool> predicate, IOrder[] onSuccess, IOrder[] onFail)
+        public static ISequenceExecutor Decide(this ISequenceExecutor sequence, Func<bool> predicate, Character.ISequence[] onSuccess, Character.ISequence[] onFail)
         {
             if (onSuccess == null || onSuccess.Length == 0 && onFail == null || onFail.Length == 0) return sequence;
             sequence.CurrentSequence = new ConditionalSequence(predicate, onSuccess, onFail);
