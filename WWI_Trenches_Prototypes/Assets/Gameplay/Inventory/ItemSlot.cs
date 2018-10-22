@@ -1,5 +1,4 @@
 ﻿using Assets.Gameplay.Inventory.Items;
-using UnityEngine;
 
 namespace Assets.Gameplay.Inventory
 {

@@ -1,6 +1,8 @@
-﻿namespace Assets.Gameplay.Inventory.Items
+﻿using Assets.Gameplay.Character;
+
+namespace Assets.Gameplay.Inventory.Items
 {
-    public interface IItem
+    public interface IItem : IIdentificable
     {
         bool IsStackable { get; }
         string Name { get; }

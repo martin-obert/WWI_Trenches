@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Assets.Gameplay.Character.Implementation
 {
     [CreateAssetMenu(fileName = "Basic behavior", menuName = "Character/Basic/Behavior")]
-    public class CharacterBehavior : ScriptableObject, ICharacterBehavior<BasicCharacter>
+    public class CharacterBehavior : ScriptableObject, ICombatBehavior<BasicCharacter>
     {
         [SerializeField]
         private Order _moveOrder;
@@ -18,16 +18,15 @@ namespace Assets.Gameplay.Character.Implementation
         [SerializeField]
         private Order _coverOrder;
 
-        public ISequenceExecutor PrepareToAttack(ISequenceExecutor sequenceExecutor)
+        public ISequenceExecutor Aim(ISequenceExecutor sequenceExecutor)
         {
             return sequenceExecutor.Do(_aimOrder);
         }
 
         public ISequenceExecutor RefreshStance(ISequenceExecutor sequenceExecutor, ICharacterMemory<BasicCharacter> memory)
         {
-            Debug.Log("Memory " + memory);
 
-            return sequenceExecutor.Decide(() => memory.CurrentStance == CharacterStance.Crawling, new[] { _crawlingOrder }, new[] { _moveOrder });
+            return sequenceExecutor.Decide(() => memory.CurrentStance == BasicStance.Crawling, new[] { _crawlingOrder }, new[] { _moveOrder });
         }
 
         public ISequenceExecutor HideSelf(ISequenceExecutor sequenceExecutor)

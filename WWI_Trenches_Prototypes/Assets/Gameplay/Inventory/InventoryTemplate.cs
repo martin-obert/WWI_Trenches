@@ -5,6 +5,7 @@ namespace Assets.Gameplay.Inventory
 {
     public abstract  class  InventoryTemplate : ScriptableObject
     {
-        public abstract Weapon MainWeapon { get; }
+        public abstract RangedWeapon MainWeapon { get; }
+        public abstract MeleeWeapon MeleeWeapon { get; }
     }
 }

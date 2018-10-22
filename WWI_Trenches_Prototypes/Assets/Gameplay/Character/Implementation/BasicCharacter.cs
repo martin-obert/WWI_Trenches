@@ -1,6 +1,9 @@
 ﻿using System;
 using Assets.Gameplay.Inventory;
+using Assets.Gameplay.Inventory.Items;
+using Assets.Gameplay.Mechanics;
 using Assets.Gameplay.Zoning;
+using Assets.IoC;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,40 +12,43 @@ namespace Assets.Gameplay.Character.Implementation
     [RequireComponent(typeof(CharacterInventory))]
     public class BasicCharacter : MonoBehaviour, ICharacterProxy<BasicCharacter>
     {
-        [SerializeField]
-        private CharacterBrain _brain;
+        [SerializeField] private CharacterBrain _brain;
 
-        [SerializeField]
-        private string _displayName;
+        [SerializeField] private string _displayName;
 
-        [SerializeField]
-        private CharacterBehavior _behavior;
+        [SerializeField] private CharacterBehavior _behavior;
 
-        [SerializeField]
-        private CharacterNavigator _navigator;
+        [SerializeField] private CharacterNavigator _navigator;
 
-        [SerializeField]
-        private CharacterInventory _inventory;
+        [SerializeField] private CharacterInventory _inventory;
 
-        [SerializeField]
-        private Animator _animator;
+        [SerializeField] private Animator _animator;
 
         [SerializeField] private CharacterAttributesContainer _attributesContainer;
 
         [SerializeField] private ProxyZone _enemyScanner;
 
+        private Cover _currentCover;
+
         public CharacterAttributesContainer Attributes => _attributesContainer;
 
         public int Id => GetInstanceID();
+
+        public ICoverable CurrentCover => _currentCover;
+
+        public ThreatLevel ThreatLevel { get; set; }
 
         public string DisplayName => _displayName;
 
         public GameObject GameObject => gameObject;
 
+        private MechanicsManager _mechanicsManager;
+
         #region Tohle je defakto jen implementace IOrderArguments?
+
         public ICharacterBrain<BasicCharacter> Brain => _brain;
 
-        public ICharacterBehavior<BasicCharacter> Behavior => _behavior;
+        public ICombatBehavior<BasicCharacter> Behavior => _behavior;
 
         public ICharacterNavigator<BasicCharacter> Navigator => _navigator;
 
@@ -55,22 +61,63 @@ namespace Assets.Gameplay.Character.Implementation
         public CharacterInventory Inventory => _inventory;
 
         public ITargetable CurrentTarget { get; set; }
+
         public Vector3? Destination { get; set; }
 
+       
+        public float Visibility => Attributes.Visibility.CurrentValueTyped();
+
+        public float NoiseLevel => Attributes.NoiseLevel.CurrentValueTyped();
         #endregion
-
-        public event EventHandler<ITargetable> EliminatedByOtherTarget;
-
-        public event EventHandler VisibilityChanged;
 
         void Start()
         {
             _enemyScanner.SubscribeTriggers(Inzone, Outzone);
+
+            _mechanicsManager =
+                InjectService.Instance.GetInstance<MechanicsManager>(manager => _mechanicsManager = manager);
+
+            _brain.Memory.StateChanged += MemoryOnStateChanged;
+
+            if (_inventory)
+            {
+                _inventory.BindInventory(this);
+            }
+        }
+
+      
+        void OnDestroy()
+        {
+            _brain.Memory.StateChanged -= MemoryOnStateChanged;
+            _enemyScanner.UnsubscribeTriggers(Inzone, Outzone);
+        }
+
+        void LateUpdate()
+        {
+            if (CurrentTarget != null)
+            {
+                _mechanicsManager.MechanicsResolver.ResolveThreat(CurrentTarget, this);
+            }
+        }
+
+        void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag(TagsHelper.CoverTag))
+            {
+                _currentCover = other.GetComponent<Cover>();
+            }
+        }
+
+        void OnTriggerExit(Collider other)
+        {
+            if (other.CompareTag(TagsHelper.CoverTag) && _currentCover == other.GetComponent<Cover>())
+            {
+                _currentCover = null;
+            }
         }
 
         private void Outzone(object sender, ProxyZone.ProxyZoneEvent e)
         {
-
             CurrentTarget = e.Targetable.Value;
         }
 
@@ -81,19 +128,20 @@ namespace Assets.Gameplay.Character.Implementation
                 CurrentTarget = null;
             }
         }
-
-
-        public void Attack()
+        private void MemoryOnStateChanged(object sender, CharacterMemoryEventArgs characterMemoryEventArgs)
         {
-            Behavior.PrepareToAttack(Brain).Execute(OrderArguments);
+            Behavior.RefreshStance(Brain, Brain.Memory).Execute(OrderArguments);
+        }
+
+        public void Aim()
+        {
+            Behavior.Aim(Brain).Execute(OrderArguments);
         }
 
         public void MoveTo(Vector3? point)
         {
             Navigator.Move(point);
-            Behavior.RefreshStance(Brain, Brain.Memory).Execute(OrderArguments);
         }
-
 
         public void Stop()
         {
@@ -102,35 +150,30 @@ namespace Assets.Gameplay.Character.Implementation
 
         public void Shoot()
         {
-            throw new System.NotImplementedException();
+            if (_inventory && CurrentTarget != null)
+            {
+                _inventory.MainWeapon?.MeleeAttack(CurrentTarget, this);
+            }
         }
 
-        public void GotKilledBy(ITargetable killer)
+        public void GotHitMelee(IWeapon weapon)
         {
-            throw new NotImplementedException();
+            _mechanicsManager.MechanicsResolver.ResolveHit(weapon, this);
         }
-
-        public bool IsVisibleTo(ITargetable targetable)
+        public void GotHitRanged(IProjectile projectile)
         {
-            throw new NotImplementedException();
+            _mechanicsManager.MechanicsResolver.ResolveHit(projectile, this);
         }
-
-        public void OnProjectileTriggered(IProjectile projectile)
-        {
-            throw new NotImplementedException();
-        }
-
 
         public void Crawl()
         {
-            Brain.Memory.ChangeStance(CharacterStance.Crawling);
-            Behavior.RefreshStance(Brain, Brain.Memory).Execute(OrderArguments);
+            Brain.Memory.ChangeStance(BasicStance.Crawling);
+            
         }
 
         public void Run()
         {
-            Brain.Memory.ChangeStance(CharacterStance.Running);
-            Behavior.RefreshStance(Brain, Brain.Memory).Execute(OrderArguments);
+            Brain.Memory.ChangeStance(BasicStance.Running);
         }
     }
 
@@ -140,7 +183,6 @@ namespace Assets.Gameplay.Character.Implementation
     {
         void OnSceneGUI()
         {
-
             var zone = (target as BasicCharacter)?.EnemyScanZone;
             if (zone)
                 ProxyZoneEditor.DrawZone(zone);

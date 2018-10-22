@@ -1,11 +1,12 @@
-﻿using Assets.Gameplay.Inventory.Items;
+﻿using Assets.Gameplay.Character;
+using Assets.Gameplay.Inventory.Items;
 using Assets.IoC;
 using UnityEngine;
 
 namespace Assets.Gameplay.Inventory
 {
-    //Todo: Scriptable? :D
-    public class CharacterInventory : MonoBehaviour
+    [CreateAssetMenu(fileName = "Character Inventory", menuName = "Character/Basic/Inventory")]
+    public class CharacterInventory : ScriptableObject
     {
         [SerializeField]
         private InventoryTemplate _template;
@@ -17,31 +18,56 @@ namespace Assets.Gameplay.Inventory
         void Awake()
         {
             _projectilesManager = InjectService.Instance.GetInstance<ProjectilesManager>(instance => _projectilesManager = instance);
+
             if (_template)
             {
                 var instance = Instantiate(_template.MainWeapon, _mainWeaponSpot);
                 instance.transform.localPosition = Vector3.zero;
                 EquipMainWeapon(instance);
             }
-
-            
         }
 
-        [SerializeField]
-        private DedicatedInventorySlot<IWeapon> _mainWeapon = new DedicatedInventorySlot<IWeapon>();
+        
+        private readonly DedicatedInventorySlot<IWeapon> _mainWeapon = new DedicatedInventorySlot<IWeapon>();
 
         public IWeapon MainWeapon => _mainWeapon?.Item;
 
+        private int? _ownerId;
+
+        public void BindInventory<TCharacter>(ICharacterProxy<TCharacter> character)
+        {
+            _ownerId = character.Id;
+        }
+
         public void EquipMainWeapon(IWeapon weapon)
         {
+            if (!_ownerId.HasValue)
+            {
+                Debug.LogError("This inventory has not yet been bound");
+                return;
+            }
+
             if (_mainWeapon.IsOccupied)
             {
-                _projectilesManager.UnregisterWeapon(gameObject.GetInstanceID(), _mainWeapon.Item);
+                _projectilesManager.UnregisterWeapon(_ownerId.Value, _mainWeapon.Item);
             }
-            Debug.Log(weapon.Id);
-            _projectilesManager.RegisterWeapon(gameObject.GetInstanceID(), weapon);
+
+
+            _projectilesManager.RegisterWeapon(_ownerId.Value, weapon);
 
             _mainWeapon.Item = weapon;
+        }
+
+        public void UnequipMainWeapon()
+        {
+            if (!_mainWeapon.IsOccupied || !_ownerId.HasValue)
+            {
+                return;
+            }
+
+            _projectilesManager.UnregisterWeapon(_ownerId.Value, MainWeapon);
+
+            _mainWeapon.Item = null;
         }
     }
 }

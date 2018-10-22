@@ -62,11 +62,11 @@ namespace Assets.Gameplay
             wepons.Remove(weapon.Id);
         }
 
-        public void ShootProjectile(IWeapon weapon)
+        public void ShootProjectile(RangedWeapon weapon)
         {
-            var dir = weapon.Target - weapon.ProjectileSpawnLocation;
+            var dir = weapon.Target.GameObject.transform.position - weapon.ProjectileSpawnLocation;
 
-            _characterWeaponProjectiles[weapon.OwnerId][weapon.Id].FirstOrDefault(x => !x.IsFired)?.Shoot(weapon.ProjectileSpawnLocation, dir.normalized);
+            _characterWeaponProjectiles[weapon.Owner.Id][weapon.Id].FirstOrDefault(x => !x.IsFired)?.Shoot(weapon.ProjectileSpawnLocation, dir.normalized);
         }
     }
 }

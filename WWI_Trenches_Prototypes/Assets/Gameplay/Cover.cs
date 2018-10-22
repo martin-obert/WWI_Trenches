@@ -1,16 +1,17 @@
-﻿using Assets.Gameplay.Character.Implementation.Player;
-using Assets.IoC;
+﻿using Assets.IoC;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Assets.Gameplay.Units
+namespace Assets.Gameplay
 {
-    public class Cover : MonoBehaviour
+    //Todo: velikost, typ a kvalita krytí
+    public interface ICoverable
     {
-        public Transform JumpDestination;
 
+    }
 
-
+    public class Cover : MonoBehaviour, ICoverable
+    {
         private Color _color;
 
         void Start()
@@ -30,8 +31,7 @@ namespace Assets.Gameplay.Units
             var player = InjectService.Instance.GetInstance<PlayerController>();
             if (player)
             {
-                //Todo: cover characte
-               // player.TakeCover(this);
+               player.Character.MoveTo(transform.position);
             }
 
         }

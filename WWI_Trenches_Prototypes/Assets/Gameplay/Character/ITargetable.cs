@@ -1,20 +1,35 @@
 ﻿using System;
+using Assets.Gameplay.Inventory.Items;
 using UnityEngine;
 
 namespace Assets.Gameplay.Character
 {
-    public interface ITargetable
+    public interface IIdentificable
     {
+        int Id { get; }
+    }
+
+    public enum ThreatLevel
+    {
+        None,
+        Low,
+        Medium,
+        High
+    }
+
+    public interface ITargetable : IIdentificable
+    {
+        ICoverable CurrentCover { get; }
+
+        ThreatLevel ThreatLevel { get; set; }
+
         string DisplayName { get; }
 
         GameObject GameObject { get; }
 
-        event EventHandler<ITargetable> EliminatedByOtherTarget;
+        void GotHitMelee(IWeapon weapon);
+        void GotHitRanged(IProjectile projectile);
 
-        void GotKilledBy(ITargetable killer);
-
-        bool IsVisibleTo(ITargetable targetable);
-
-        event EventHandler VisibilityChanged;
+        float Visibility { get; }
     }
 }

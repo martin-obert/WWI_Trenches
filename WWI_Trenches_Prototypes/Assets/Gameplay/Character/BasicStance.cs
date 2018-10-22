@@ -1,6 +1,6 @@
 ﻿namespace Assets.Gameplay.Character
 {
-    public enum CharacterStance
+    public enum BasicStance
     {
         Idle,
         Running,

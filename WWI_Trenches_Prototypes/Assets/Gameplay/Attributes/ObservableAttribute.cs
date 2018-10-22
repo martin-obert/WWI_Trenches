@@ -1,5 +1,4 @@
 ﻿using System;
-using Assets.Gameplay.Character.Implementation;
 
 namespace Assets.Gameplay.Attributes
 {
@@ -16,23 +15,23 @@ namespace Assets.Gameplay.Attributes
             return val;
         }
 
-        private event EventHandler<T> _valueChanged;
+        private event EventHandler<T> ValueChanged;
 
         private void Invoke(T value)
         {
-            _valueChanged?.Invoke(this, value);
+            ValueChanged?.Invoke(this, value);
         }
 
         public void Subscribe(EventHandler<T> action)
         {
-            _valueChanged += action;
+            ValueChanged += action;
         }
         public void Unsubscribe(EventHandler<T> action)
         {
-            _valueChanged -= action;
+            ValueChanged -= action;
         }
 
-        public ObservableAttribute(string name, string displayName, T minValue, T currentValue, T maxVaue) : base(name, displayName,  minValue, currentValue, maxVaue)
+        public ObservableAttribute(string name, string displayName, T minValue, T currentValue, T maxVaue, Func<T,T,T,T> clamp = null) : base(name, displayName,  minValue, currentValue, maxVaue, clamp)
         {
         }
     }

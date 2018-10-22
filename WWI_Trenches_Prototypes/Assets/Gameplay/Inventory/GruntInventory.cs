@@ -1,13 +1,13 @@
-﻿using Assets.Gameplay.Inventory.Items;
+﻿using System;
 using UnityEngine;
 
 namespace Assets.Gameplay.Inventory
 {
-    [CreateAssetMenu(menuName = "Inventory/Templates/Grunt", fileName = "GruntInventory")]
-    public class GruntInventory :  InventoryTemplate
+    [Obsolete,CreateAssetMenu(menuName = "Inventory/Templates/Grunt", fileName = "GruntInventory")]
+    public class GruntInventory :  MonoBehaviour
     {
-        public Weapon WeaponPrefab;
+        //public Weapon WeaponPrefab;
 
-        public override Weapon MainWeapon => WeaponPrefab;
+        //public override Weapon MainWeapon => WeaponPrefab;
     }
 }

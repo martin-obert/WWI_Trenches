@@ -6,19 +6,19 @@ namespace Assets.Gameplay.Character
     {
      
 
-        public CharacterStance LastStance { get; set; }
+        public BasicStance LastStance { get; set; }
 
-        public CharacterStance CurrentStance { get; set; }
+        public BasicStance CurrentStance { get; set; }
     }
 
     public interface ICharacterMemory<T>
     {
         event EventHandler<CharacterMemoryEventArgs> StateChanged;
 
-        void ChangeStance(CharacterStance stance);
+        void ChangeStance(BasicStance stance);
 
-        CharacterStance LastStance { get; }
+        BasicStance LastStance { get; }
 
-        CharacterStance CurrentStance { get; }
+        BasicStance CurrentStance { get; }
     }
 }

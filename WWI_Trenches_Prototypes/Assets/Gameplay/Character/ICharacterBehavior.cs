@@ -1,17 +1,15 @@
-﻿using Assets.Gameplay.Attributes;
-using Assets.Gameplay.Instructions;
+﻿using Assets.Gameplay.Instructions;
 
 namespace Assets.Gameplay.Character
 {
     public interface ICharacterBehavior<TCharacter>
     {
-        ISequenceExecutor PrepareToAttack(ISequenceExecutor sequenceExecutor);
         ISequenceExecutor RefreshStance(ISequenceExecutor sequenceExecutor, ICharacterMemory<TCharacter> memory);
-        ISequenceExecutor HideSelf(ISequenceExecutor sequenceExecutor);
     }
 
-    public interface INavigatorAttributes
+    public interface ICombatBehavior<TCharacter> : ICharacterBehavior<TCharacter>
     {
-        ObservableAttribute<float> Speed { get; }
+        ISequenceExecutor HideSelf(ISequenceExecutor sequenceExecutor);
+        ISequenceExecutor Aim(ISequenceExecutor sequenceExecutor);
     }
 }

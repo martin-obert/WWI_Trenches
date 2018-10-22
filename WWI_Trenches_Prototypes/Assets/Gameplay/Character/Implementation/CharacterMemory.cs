@@ -13,7 +13,7 @@ namespace Assets.Gameplay.Character.Implementation
             _args = new CharacterMemoryEventArgs();
         }
 
-        public void ChangeStance(CharacterStance stance)
+        public void ChangeStance(BasicStance stance)
         {
             if (stance == CurrentStance) return;
 
@@ -24,8 +24,8 @@ namespace Assets.Gameplay.Character.Implementation
             StateChanged?.Invoke(this, _args);
         }
 
-        public CharacterStance LastStance => _args.LastStance;
+        public BasicStance LastStance => _args.LastStance;
 
-        public CharacterStance CurrentStance => _args.CurrentStance;
+        public BasicStance CurrentStance => _args.CurrentStance;
     }
 }

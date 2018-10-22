@@ -30,7 +30,7 @@ namespace Assets.Gameplay
             GCSingleton(this);
         }
 
-        void Update()
+        void LateUpdate()
         {
             if (!_camera)
             {

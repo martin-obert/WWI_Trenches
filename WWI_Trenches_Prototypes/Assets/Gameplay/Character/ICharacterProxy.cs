@@ -4,13 +4,13 @@ using UnityEngine;
 namespace Assets.Gameplay.Character
 {
     //Todo: tohle prejmenuj na character a udelej abstractni class s CharacterProxy
-    public interface ICharacterProxy<TCharacter> : ITargetable, IProjectileTrigger
+    public interface ICharacterProxy<TCharacter> : ITargetable
     {
         ProxyZone EnemyScanZone { get; }
 
         IOrderArguments<TCharacter> OrderArguments { get; }
 
-        void Attack();
+        void Aim();
 
         void MoveTo(Vector3? point);
 
@@ -22,4 +22,6 @@ namespace Assets.Gameplay.Character
 
         void Crawl();
     }
+
+    
 }
