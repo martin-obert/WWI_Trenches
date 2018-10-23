@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33315404615639050}
   - component: {fileID: 23101435339758358}
   - component: {fileID: 65506287535583060}
+  - component: {fileID: 114467550597713674}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -55,8 +56,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4356034893317946}
-  - component: {fileID: 114900162024965360}
   - component: {fileID: 114379332643442484}
+  - component: {fileID: 114477373021681494}
   m_Layer: 0
   m_Name: Weapon
   m_TagString: Untagged
@@ -299,9 +300,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   HandleColor: {r: 1, g: 0, b: 0, a: 1}
-  RangeRadius: 12.65
+  RangeRadius: 10.43
   CheckTag: Player
---- !u!114 &114900162024965360
+--- !u!114 &114467550597713674
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1452686649483954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 136d50acbf577aa40b5ef413db3be35e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HandleColor: {r: 1, g: 0, b: 0, a: 1}
+  RangeRadius: 0.81
+  CheckTag: Player
+--- !u!114 &114477373021681494
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -309,13 +324,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1801083467494064}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b76214c4c6ff634781a7cd9ca99ebb8, type: 3}
+  m_Script: {fileID: 11500000, guid: 35a88e63db404d841a8efd23f7e7097f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _data: {fileID: 11400000, guid: 95663abf7b981ab458afa3afa4431da3, type: 2}
-  _name: Basic Weapon
-  _weaponRangeProxyZone: {fileID: 114379332643442484}
+  _data: {fileID: 11400000, guid: 0397359317d03d144a4fc93d5ef4c01b, type: 2}
+  _name: Ranged
+  _weaponMeleeProxyZoneRange: {fileID: 114467550597713674}
   _projectileSpawn: {fileID: 4733349738835576}
+  _rangedProxyZone: {fileID: 114379332643442484}
 --- !u!136 &136181024583870400
 CapsuleCollider:
   m_ObjectHideFlags: 1

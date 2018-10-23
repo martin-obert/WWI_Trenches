@@ -41,13 +41,18 @@ namespace Assets.Gameplay.Attributes
 
         public T Value()
         {
-            return (T) CurrentValue;
+            if (_currentValue == null)
+                return default(T);
+
+            return (T) _currentValue;
         }
 
         public virtual T Value(T value)
         {
             if (value != null && value.CompareTo((T)CurrentValue) != 0)
                 _currentValue = Clamp != null ? Clamp((T)MinValue, value, (T)MaxValue) : value;
+
+            if (_currentValue == null) return default(T);
 
             return (T)_currentValue;
         }

@@ -11,7 +11,6 @@ namespace Assets.Gameplay.Inventory
         [SerializeField]
         private InventoryTemplate _template;
 
-        [SerializeField] private Transform _mainWeaponSpot;
 
         private ProjectilesManager _projectilesManager;
 
@@ -19,12 +18,13 @@ namespace Assets.Gameplay.Inventory
         {
             _projectilesManager = InjectService.Instance.GetInstance<ProjectilesManager>(instance => _projectilesManager = instance);
 
-            if (_template)
-            {
-                var instance = Instantiate(_template.MainWeapon, _mainWeaponSpot);
-                instance.transform.localPosition = Vector3.zero;
-                EquipMainWeapon(instance);
-            }
+            //Todo: implement this
+            //if (_template)
+            //{
+            //    var instance = Instantiate(_template.MainWeapon, _mainWeaponSpot);
+            //    instance.transform.localPosition = Vector3.zero;
+            //    EquipMainWeapon(instance);
+            //}
         }
 
         

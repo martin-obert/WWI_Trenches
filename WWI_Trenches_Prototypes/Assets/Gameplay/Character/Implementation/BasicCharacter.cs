@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace Assets.Gameplay.Character.Implementation
 {
-    [RequireComponent(typeof(CharacterInventory))]
     public class BasicCharacter : MonoBehaviour, ICharacterProxy<BasicCharacter>
     {
         [SerializeField] private CharacterBrain _brain;

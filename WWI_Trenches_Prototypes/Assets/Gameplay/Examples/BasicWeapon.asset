@@ -8,8 +8,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c833de5895769b742b107c3acf576469, type: 3}
-  m_Name: GruntInventory
+  m_Script: {fileID: 11500000, guid: 85bfec237173fa444bb803e76d4d95b4, type: 3}
+  m_Name: BasicWeapon
   m_EditorClassIdentifier: 
-  WeaponPrefab: {fileID: 114900162024965360, guid: 3d6fd9013e41e634ebc89f2b80c836a7,
+  Name: 
+  AttackSpeed: 0.5
+  MeleeRange: 0
+  FireRange: 0
+  MaxStack: 0
+  ClipMaxSize: 0
+  Projectile: {fileID: 114191814275923192, guid: 29cfce44e5b9d474f9477d23f7af6938,
     type: 2}

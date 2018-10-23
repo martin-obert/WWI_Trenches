@@ -579,7 +579,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4814444922226696}
   - component: {fileID: 114360562471091598}
-  - component: {fileID: 114866517594641592}
   - component: {fileID: 114571750957881288}
   - component: {fileID: 195109447115845742}
   - component: {fileID: 114914249287514498}
@@ -2226,24 +2225,11 @@ MonoBehaviour:
   _displayName: Player
   _behavior: {fileID: 11400000, guid: e415c404e8cf703449266a74af1642b9, type: 2}
   _navigator: {fileID: 114914249287514498}
-  _inventory: {fileID: 114866517594641592}
+  _inventory: {fileID: 11400000, guid: 0027aff96b33ada4e9c7c72781d49ad7, type: 2}
   _animator: {fileID: 95389813108063492}
   _attributesContainer: {fileID: 11400000, guid: 0c522b47a4fbcd6468ceb118ee27c6fb,
     type: 2}
   _enemyScanner: {fileID: 114394503886868640}
---- !u!114 &114866517594641592
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1489465866345078}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bdd6f15218818e346a5efaf81b20f540, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _template: {fileID: 11400000, guid: 1d1a604e3369e8248a00f2413138bf4e, type: 2}
-  _mainWeaponSpot: {fileID: 4684248388508152}
 --- !u!114 &114914249287514498
 MonoBehaviour:
   m_ObjectHideFlags: 1
