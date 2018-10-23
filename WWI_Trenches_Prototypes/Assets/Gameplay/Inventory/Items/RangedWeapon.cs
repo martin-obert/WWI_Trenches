@@ -6,6 +6,9 @@ namespace Assets.Gameplay.Inventory.Items
 {
     public class RangedWeapon : MeleeWeapon
     {
+        public Transform LeftHand;
+        public Transform RightHand;
+
         [SerializeField]
         private Transform _projectileSpawn;
 

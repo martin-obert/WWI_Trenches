@@ -6,6 +6,10 @@ namespace Assets.Gameplay.Inventory.Items
 {
     public class MeleeWeapon : MonoBehaviour, IWeapon
     {
+        public Transform LeftHand;
+        public Transform RightHand;
+
+
         [SerializeField] protected WeaponData _data;
 
         [SerializeField] private string _name;
@@ -100,6 +104,14 @@ namespace Assets.Gameplay.Inventory.Items
         private void MeleeCooldown()
         {
             CanFire = true;
+        }
+
+        void LateUpdate()
+        {
+            var direction = Vector3.Normalize(LeftHand.transform.position - RightHand.transform.position);
+
+            transform.rotation = Quaternion.LookRotation(direction);
+            transform.position = LeftHand.position;
         }
     }
 }
