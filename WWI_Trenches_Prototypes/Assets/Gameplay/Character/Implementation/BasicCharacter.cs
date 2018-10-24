@@ -11,16 +11,18 @@ namespace Assets.Gameplay.Character.Implementation
 {
     public class BasicCharacter : MonoBehaviour, ICharacterProxy<BasicCharacter>
     {
+        private CharacterNavigator _navigator;
+
+        private CharacterEquipment _equipment;
+
         [SerializeField] private CharacterBrain _brain;
+
+        [SerializeField] private HumanoidSkeletonProxy _humanoidSkeleton;
 
         [SerializeField] private string _displayName;
 
         [SerializeField] private CharacterBehavior _behavior;
-
-        [SerializeField] private CharacterNavigator _navigator;
-
-        [SerializeField] private CharacterInventory _inventory;
-
+        
         [SerializeField] private Animator _animator;
 
         [SerializeField] private CharacterAttributesContainer _attributesContainer;
@@ -55,39 +57,38 @@ namespace Assets.Gameplay.Character.Implementation
 
         public ProxyZone EnemyScanZone => _enemyScanner;
 
-        public IOrderArguments<BasicCharacter> OrderArguments => new CharacterOrderArguments(this);
+        public IOrderArguments<BasicCharacter> Components => new CharacterOrderArguments(this);
 
-        public CharacterInventory Inventory => _inventory;
+        public CharacterEquipment Equipment => _equipment;
 
         public ITargetable CurrentTarget { get; set; }
 
         public Vector3? Destination { get; set; }
 
-       
+
         public float Visibility => Attributes.Visibility.Value();
 
         public float NoiseLevel => Attributes.NoiseLevel.Value();
+
+        public IHumanoidSkeletonProxy SkeletonProxy => _humanoidSkeleton;
+
         #endregion
 
         void Start()
         {
-            _enemyScanner.SubscribeTriggers(Inzone, Outzone);
+            InjectService.Instance.GetInstance<MechanicsManager>(manager => _mechanicsManager = manager);
 
-            _mechanicsManager =
-                InjectService.Instance.GetInstance<MechanicsManager>(manager => _mechanicsManager = manager);
+            _enemyScanner.SubscribeTriggers(Inzone, Outzone);
 
             _brain.Memory.StateChanged += MemoryOnStateChanged;
 
-            if (_inventory)
-            {
-                _inventory.BindInventory(this);
-            }
+            _equipment.BindEquipment(this);
         }
 
-      
         void OnDestroy()
         {
             _brain.Memory.StateChanged -= MemoryOnStateChanged;
+
             _enemyScanner.UnsubscribeTriggers(Inzone, Outzone);
         }
 
@@ -129,12 +130,12 @@ namespace Assets.Gameplay.Character.Implementation
         }
         private void MemoryOnStateChanged(object sender, CharacterMemoryEventArgs characterMemoryEventArgs)
         {
-            Behavior.RefreshStance(Brain, Brain.Memory).Execute(OrderArguments);
+            Behavior.RefreshStance(Brain, Brain.Memory).Execute(Components);
         }
 
         public void Aim()
         {
-            Behavior.Aim(Brain).Execute(OrderArguments);
+            Behavior.Aim(Brain).Execute(Components);
         }
 
         public void MoveTo(Vector3? point)
@@ -149,16 +150,16 @@ namespace Assets.Gameplay.Character.Implementation
 
         public void Shoot()
         {
-            if (_inventory && CurrentTarget != null && _inventory.MainWeapon != null)
+            if (_equipment != null && CurrentTarget != null && _equipment.MainWeapon != null)
             {
-                var ranged = _inventory.MainWeapon as RangedWeapon;
+                var ranged = _equipment.MainWeapon.Item as RangedWeapon;
                 if (ranged)
                 {
-                    ranged.RangedAttack(CurrentTarget, this);
+                    ranged.RangedAttack(CurrentTarget);
                 }
                 else
                 {
-                    _inventory.MainWeapon.MeleeAttack(CurrentTarget, this);
+                    _equipment.MainWeapon.Item.MeleeAttack(CurrentTarget);
                 }
             }
         }

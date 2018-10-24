@@ -20,7 +20,7 @@ namespace Assets.Gameplay.Inventory.Items
 
         public Vector3 ProjectileSpawnLocation => _projectileSpawn.position;
 
-        public void RangedAttack(ITargetable target, IIdentificable shooter)
+        public void RangedAttack(ITargetable target)
         {
             if (!CanFire)
             {
@@ -28,8 +28,6 @@ namespace Assets.Gameplay.Inventory.Items
             }
 
             Target = target;
-
-            Owner = shooter;
 
             ProjectilesManager.Instance.ShootProjectile(this);
 

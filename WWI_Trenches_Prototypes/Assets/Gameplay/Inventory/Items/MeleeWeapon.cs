@@ -6,9 +6,9 @@ namespace Assets.Gameplay.Inventory.Items
 {
     public class MeleeWeapon : MonoBehaviour, IWeapon
     {
-        public Transform LeftHand;
-        public Transform RightHand;
+        protected Transform LeftHand;
 
+        protected Transform RightHand;
 
         [SerializeField] protected WeaponData _data;
 
@@ -24,7 +24,7 @@ namespace Assets.Gameplay.Inventory.Items
         public int Id => GetInstanceID();
 
         public IIdentificable Owner { get; protected set; }
-
+       
         public WeaponData Data => _data;
 
         public string Name => _name;
@@ -82,7 +82,7 @@ namespace Assets.Gameplay.Inventory.Items
         }
 
 
-        public void MeleeAttack(ITargetable target, IIdentificable shooter)
+        public void MeleeAttack(ITargetable target)
         {
             if (!CanFire) return;
 
@@ -108,10 +108,37 @@ namespace Assets.Gameplay.Inventory.Items
 
         void LateUpdate()
         {
-            var direction = Vector3.Normalize(LeftHand.transform.position - RightHand.transform.position);
+            if (!Data.IsSingleHanded && LeftHand)
+            {
+                var direction = Vector3.Normalize(LeftHand.transform.position - RightHand.transform.position);
 
-            transform.rotation = Quaternion.LookRotation(direction);
-            transform.position = LeftHand.position;
+                transform.rotation = Quaternion.LookRotation(direction);
+            }
+        }
+        public void Equip<TOwner>(TOwner owner) where TOwner : ICharacterProxy<TOwner>
+        {
+            gameObject.SetActive(true);
+
+            Owner = owner;
+
+            RightHand.SetParent(owner.Components.SkeletonProxy.RightHandProxy.Palm, false);
+
+            if (!Data.IsSingleHanded)
+            {
+                LeftHand = owner.Components.SkeletonProxy.LeftHandProxy.Palm;
+            }
+            else
+            {
+                RightHand.Translate(Vector3.zero, Space.Self);
+                RightHand.Rotate(Vector3.zero, Space.Self);
+            }
+        }
+
+        public void Unequip<TOwner>(TOwner owner) where TOwner : ICharacterProxy<TOwner>
+        {
+            LeftHand = null;
+            RightHand = null;
+            gameObject.SetActive(false);
         }
     }
 }

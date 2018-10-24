@@ -14,7 +14,7 @@ namespace Assets.Gameplay.Character.Implementation.Orders
         public override void Execute(CharacterOrderArguments arguments)
         {
 
-            var weapon = arguments.Inventory.MainWeapon;
+            var weapon = arguments.Equipment.MainWeapon;
 
             if (weapon == null)
             {

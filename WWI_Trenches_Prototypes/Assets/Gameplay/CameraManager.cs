@@ -20,7 +20,7 @@ namespace Assets.Gameplay
 
         void Start()
         {
-            _player = IoC.InjectService.Instance.GetInstance<PlayerController>(player => _player = player);
+            IoC.InjectService.Instance.GetInstance<PlayerController>(player => _player = player);
 
             CreateSingleton(this);
         }

@@ -70,7 +70,7 @@ namespace Assets.IoC
             Container.UnRegister<T>();
         }
 
-        public T GetInstance<T>(Action<T> callback = null) where T : UnityEngine.Object
+        public void GetInstance<T>(Action<T> callback) where T : UnityEngine.Object
         {
             if (Container == null)
             {
@@ -80,12 +80,10 @@ namespace Assets.IoC
             object result;
 
             if (Container.Singletons.TryGetValue(typeof(T), out result))
-                return result as T;
+                callback(result as T);
 
             if (callback != null)
                 Observe<T>(o => callback(o as T));
-
-            return default(T);
         }
 
         void Awake()

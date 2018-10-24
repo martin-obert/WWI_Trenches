@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace Assets.Gameplay.Inventory.Items
 {
-    public interface IWeapon : IItem
+    public interface IWeapon : IItem, IEquipable
     {
-        void MeleeAttack(ITargetable target, IIdentificable shooter);
+        void MeleeAttack(ITargetable target);
 
         ITargetable Target { get; }
         
@@ -14,8 +14,6 @@ namespace Assets.Gameplay.Inventory.Items
         bool CanFire { get; }
 
         float AttackSpeed { get; }
-
-        IIdentificable Owner { get; }
 
         WeaponData Data { get;  }
     }

@@ -8,12 +8,13 @@ namespace Assets.Gameplay.Character.Implementation
         public ICharacterNavigator Navigator { get; }
 
         public ITargetable CurrentTarget { get; }
+        public IHumanoidSkeletonProxy SkeletonProxy { get; }
 
         public Animator Animator { get; }
 
         public CharacterAttributesContainer Attributes { get; }
 
-        public CharacterInventory Inventory { get; }
+        public CharacterEquipment Equipment { get; }
 
         public Vector3? Destination { get; }
 
@@ -23,8 +24,9 @@ namespace Assets.Gameplay.Character.Implementation
             Animator = basicCharacter.Animator;
             Attributes = basicCharacter.Attributes;
             Destination = basicCharacter.Destination;
-            Inventory = basicCharacter.Inventory;
+            Equipment = basicCharacter.Equipment;
             CurrentTarget = basicCharacter.CurrentTarget;
+            SkeletonProxy = basicCharacter.SkeletonProxy;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Assets.Gameplay.Character
     {
         ProxyZone EnemyScanZone { get; }
 
-        IOrderArguments<TCharacter> OrderArguments { get; }
+        IOrderArguments<TCharacter> Components { get; }
 
         void Aim();
 

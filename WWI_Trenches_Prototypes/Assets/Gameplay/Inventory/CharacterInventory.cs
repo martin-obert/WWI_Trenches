@@ -1,73 +1,68 @@
-﻿using Assets.Gameplay.Character;
+﻿using System;
+using Assets.Gameplay.Character;
 using Assets.Gameplay.Inventory.Items;
 using Assets.IoC;
 using UnityEngine;
 
 namespace Assets.Gameplay.Inventory
 {
-    [CreateAssetMenu(fileName = "Character Inventory", menuName = "Character/Basic/Inventory")]
-    public class CharacterInventory : ScriptableObject
+    public interface IEquipable
     {
-        [SerializeField]
-        private InventoryTemplate _template;
+        IIdentificable Owner { get; }
 
+        void Equip<TOwner>(TOwner owner) where TOwner : ICharacterProxy<TOwner>;
+        void Unequip<TOwner>(TOwner owner) where TOwner : ICharacterProxy<TOwner>;
+    }
+
+    
+    public class CharacterEquipment 
+    {
+        public EquipableItemSlot<IWeapon> MainWeapon { get; }
 
         private ProjectilesManager _projectilesManager;
 
-        void Awake()
-        {
-            _projectilesManager = InjectService.Instance.GetInstance<ProjectilesManager>(instance => _projectilesManager = instance);
-
-            //Todo: implement this
-            //if (_template)
-            //{
-            //    var instance = Instantiate(_template.MainWeapon, _mainWeaponSpot);
-            //    instance.transform.localPosition = Vector3.zero;
-            //    EquipMainWeapon(instance);
-            //}
-        }
-
-        
-        private readonly DedicatedInventorySlot<IWeapon> _mainWeapon = new DedicatedInventorySlot<IWeapon>();
-
-        public IWeapon MainWeapon => _mainWeapon?.Item;
-
         private int? _ownerId;
 
-        public void BindInventory<TCharacter>(ICharacterProxy<TCharacter> character)
+        public void BindEquipment<TCharacter>(ICharacterProxy<TCharacter> character)
         {
             _ownerId = character.Id;
         }
 
-        public void EquipMainWeapon(IWeapon weapon)
+
+        public CharacterEquipment()
+        {
+            MainWeapon = new EquipableItemSlot<IWeapon>();
+            MainWeapon.ItemChanged += MainWeaponOnItemChanged;
+
+            InjectService.Instance.GetInstance<ProjectilesManager>(instance => _projectilesManager = instance);
+        }
+
+        private void MainWeaponOnItemChanged(object sender, EquipableItemSlot<IWeapon>.InventorySlotEventArgs e)
         {
             if (!_ownerId.HasValue)
             {
-                Debug.LogError("This inventory has not yet been bound");
+                Debug.LogWarning("Equiping weapon to unbound equipment " + this);
                 return;
             }
 
-            if (_mainWeapon.IsOccupied)
+            if (e.PreviousItem != null)
             {
-                _projectilesManager.UnregisterWeapon(_ownerId.Value, _mainWeapon.Item);
+                _projectilesManager.UnregisterWeapon(_ownerId.Value, e.PreviousItem);
             }
 
-
-            _projectilesManager.RegisterWeapon(_ownerId.Value, weapon);
-
-            _mainWeapon.Item = weapon;
-        }
-
-        public void UnequipMainWeapon()
-        {
-            if (!_mainWeapon.IsOccupied || !_ownerId.HasValue)
+            if (e.CurrentItem != null)
             {
-                return;
+                _projectilesManager.RegisterWeapon(_ownerId.Value, e.PreviousItem);
             }
-
-            _projectilesManager.UnregisterWeapon(_ownerId.Value, MainWeapon);
-
-            _mainWeapon.Item = null;
         }
+
+
+
+    }
+
+    [CreateAssetMenu(fileName = "Character Inventory", menuName = "Character/Basic/Inventory")]
+    public class CharacterInventory : ScriptableObject
+    {
+        
     }
 }

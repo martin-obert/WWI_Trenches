@@ -1,4 +1,7 @@
-﻿using Assets.Gameplay.Character.Implementation;
+﻿using Assets.Gameplay.Abstract;
+using Assets.Gameplay.Character.Implementation;
+using Assets.Gameplay.Inventory;
+using Assets.Gameplay.Inventory.Items;
 using Assets.IoC;
 using Assets.TileGenerator;
 using UnityEngine;
@@ -12,20 +15,26 @@ namespace Assets.Gameplay
         TerrainTile[] TerrainTilesPrefabs { get; }
     }
 
-    public class Bootstrapper : MonoBehaviour, IBootstrapper
+    public class Bootstrapper : Singleton<Bootstrapper>, IBootstrapper
     {
         [SerializeField] private BasicCharacter _playerPrefabPlayer;
+
         [SerializeField] private  TerrainTile[] _terrainTilesPrefabs;
 
         public BasicCharacter PlayerPrefab => _playerPrefabPlayer;
 
         public TerrainTile[] TerrainTilesPrefabs => _terrainTilesPrefabs;
 
-        void Start()
+        public RangedWeapon PlayerMainWeapon;
+
+        void OnEnable()
         {
-            InjectService.Instance.Register(this);
+           CreateSingleton(this);
         }
 
-
+        void OnDestroy()
+        {
+            GCSingleton(this);
+        }
     }
 }

@@ -10,11 +10,13 @@ namespace Assets.Gameplay.Character
 
         ITargetable CurrentTarget { get; }
 
+        IHumanoidSkeletonProxy SkeletonProxy { get; }
+
         Animator Animator { get; }
 
         CharacterAttributesContainer Attributes { get; }
 
-        CharacterInventory Inventory { get; }
+        CharacterEquipment Equipment { get; }
 
         Vector3? Destination { get; }
     }

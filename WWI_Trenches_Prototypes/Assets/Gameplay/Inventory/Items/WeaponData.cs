@@ -7,6 +7,8 @@ namespace Assets.Gameplay.Inventory.Items
     {
         public string Name;
 
+        public bool IsSingleHanded;
+
         [Tooltip("Attack frequency in seconds")]
         public float AttackSpeed = 0.5f;
 
