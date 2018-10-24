@@ -17,11 +17,11 @@ namespace Assets.Gameplay
         private Vector3 _target = Vector3.zero;
 
         private PlayerController _player;
-
+        private TerrainManager _terrainManager;
         void Start()
         {
-            IoC.InjectService.Instance.GetInstance<PlayerController>(player => _player = player);
-
+            Dependency<PlayerController>(player => _player = player);
+            Dependency<TerrainManager>(terrainManager => _terrainManager = terrainManager);
             CreateSingleton(this);
         }
 
@@ -30,14 +30,23 @@ namespace Assets.Gameplay
             GCSingleton(this);
         }
 
+        protected override void DependenciesResolved()
+        {
+            print("Dependencies resolved");
+            base.DependenciesResolved();
+        }
+
         void LateUpdate()
         {
+            if(!AreDependenciesResolved)
+                return;
+
             if (!_camera)
             {
                 _camera = Camera.main ?? Camera.current;
             }
 
-            var terrain = TerrainManager.Instance?.CurrentTerrain;
+            var terrain = _terrainManager?.CurrentTerrain;
 
             if (_player && _camera && _player && terrain)
             {

@@ -11,6 +11,7 @@ namespace Assets.Gameplay.Character.Implementation
 {
     public class BasicCharacter : MonoBehaviour, ICharacterProxy<BasicCharacter>
     {
+        [SerializeField]
         private CharacterNavigator _navigator;
 
         private CharacterEquipment _equipment;
@@ -36,8 +37,6 @@ namespace Assets.Gameplay.Character.Implementation
         public int Id => GetInstanceID();
 
         public ICoverable CurrentCover => _currentCover;
-
-        public ThreatLevel ThreatLevel { get; set; }
 
         public string DisplayName => _displayName;
 
@@ -73,6 +72,11 @@ namespace Assets.Gameplay.Character.Implementation
         public IHumanoidSkeletonProxy SkeletonProxy => _humanoidSkeleton;
 
         #endregion
+
+        void OnEnable()
+        {
+            _equipment = new CharacterEquipment();
+        }
 
         void Start()
         {

@@ -8,7 +8,7 @@ public class HUDButtons : MonoBehaviour
 
     private void Start()
     {
-        _gameManager = InjectService.Instance.GetInstance<GameManager>(manage => _gameManager = manage);
+        InjectService.Instance.GetInstance<GameManager>(manage => _gameManager = manage);
     }
 
     public void CrawlToggle()
@@ -23,5 +23,7 @@ public class HUDButtons : MonoBehaviour
 
     public void Attack()
     {
+        _gameManager.CurrentPlayer.Aim();
+        _gameManager.CurrentPlayer.Shoot();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using Assets.Gameplay.Abstract;
 using Assets.Gameplay.Character.Implementation;
+using Assets.Gameplay.Factories;
 using Assets.TileGenerator;
 using UnityEditor;
 using UnityEngine;
@@ -23,12 +24,14 @@ namespace Assets.Gameplay
 
         public BasicCharacter CurrentPlayer { get; private set; }
 
+        private CharacterFactory _characterFactory;
+
         void Awake()
         {
             Dependency<Bootstrapper>(bootstrapper => { _bootstrapper = bootstrapper; });
             Dependency<TerrainTileBuilder>(RegisterTerrainBuilder);
             Dependency<TerrainManager>(terrainManager => _terrainManager = terrainManager);
-
+            Dependency<CharacterFactory>(factory => _characterFactory = factory);
         }
 
         void Start()
@@ -74,7 +77,7 @@ namespace Assets.Gameplay
         {
             yield return new WaitForSecondsRealtime(1.5f);
 
-            CurrentPlayer = Instantiate(_bootstrapper.PlayerPrefab, args.BuildedTerrain.StartPoint.position, Quaternion.Euler(Vector3.forward));
+            CurrentPlayer = _characterFactory.CreatePlayerInstance();
 
             args.BuildedTerrain.SpawnAtStart(CurrentPlayer.gameObject);
 

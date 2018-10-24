@@ -28,11 +28,13 @@ namespace Assets.Gameplay
 
         public void SelectedHandler(BaseEventData data)
         {
-            var player = InjectService.Instance.GetInstance<PlayerController>();
-            if (player)
+            InjectService.Instance.GetInstance<PlayerController>(player =>
             {
-               player.Character.MoveTo(transform.position);
-            }
+                if (player)
+                {
+                    player.Character.MoveTo(transform.position);
+                }
+            });
 
         }
 

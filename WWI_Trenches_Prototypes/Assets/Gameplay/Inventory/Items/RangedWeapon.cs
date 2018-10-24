@@ -12,8 +12,6 @@ namespace Assets.Gameplay.Inventory.Items
 
         [SerializeField] private ProxyZone _rangedProxyZone;
 
-        public override bool IsRanged { get; } = true;
-
         public bool IsInFireRange { get; private set; }
 
         public override bool IsInMeleeRange => IsInFireRange || base.IsInMeleeRange;

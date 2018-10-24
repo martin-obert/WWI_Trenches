@@ -10,7 +10,7 @@ namespace Assets.UI.Scripts
 
         private void Awake()
         {
-            _manager = InjectService.Instance.GetInstance<MenuManager>(manager =>
+            InjectService.Instance.GetInstance<MenuManager>(manager =>
             {
                 if (!_manager)
                     _manager = manager;

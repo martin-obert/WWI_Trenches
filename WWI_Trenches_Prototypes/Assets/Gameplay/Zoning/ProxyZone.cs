@@ -28,10 +28,6 @@ namespace Assets.Gameplay.Zoning
             sphereCollider.isTrigger = true;
             sphereCollider.center = Vector3.zero;
             sphereCollider.radius = RangeRadius;
-
-            var riggid = gameObject.AddComponent<Rigidbody>();
-            riggid.isKinematic = true;
-            riggid.useGravity = false;
         }
 
         private void OnTriggerEnter(Collider other)

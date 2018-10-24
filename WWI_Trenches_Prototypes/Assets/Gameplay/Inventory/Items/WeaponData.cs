@@ -21,5 +21,6 @@ namespace Assets.Gameplay.Inventory.Items
         public int ClipMaxSize;
 
         public BasicProjectile Projectile;
+        public bool IsRanged;
     }
 }

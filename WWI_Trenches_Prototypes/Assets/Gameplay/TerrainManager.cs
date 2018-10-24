@@ -19,12 +19,6 @@ namespace Assets.Gameplay
                 _currentTerrain = value; 
             }
         }
-
-        public void DestroyCurrentTerrain()
-        {
-            CurrentTerrain = null;
-        }
-
         void Start()
         {
             CreateSingleton(this);

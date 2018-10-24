@@ -17,14 +17,14 @@ namespace Assets.Gameplay.Inventory.Items
         [SerializeField]
         private ProxyZone _weaponMeleeProxyZoneRange;
 
-        public virtual bool IsRanged { get; } = false;
+        public bool IsRanged => _data.IsRanged;
 
         public bool IsStackable => false;
 
         public int Id => GetInstanceID();
 
         public IIdentificable Owner { get; protected set; }
-       
+
         public WeaponData Data => _data;
 
         public string Name => _name;
@@ -117,25 +117,26 @@ namespace Assets.Gameplay.Inventory.Items
         }
         public void Equip<TOwner>(TOwner owner) where TOwner : ICharacterProxy<TOwner>
         {
+            Debug.Log("Equiping" + Data.Name);
             gameObject.SetActive(true);
 
             Owner = owner;
 
-            RightHand.SetParent(owner.Components.SkeletonProxy.RightHandProxy.Palm, false);
+            transform.SetParent(owner.Components.SkeletonProxy.RightHandProxy.Palm, false);
+            transform.localPosition = Vector3.zero;
+            transform.rotation = Quaternion.identity;
+
+            RightHand = owner.Components.SkeletonProxy.RightHandProxy.Palm;
 
             if (!Data.IsSingleHanded)
             {
                 LeftHand = owner.Components.SkeletonProxy.LeftHandProxy.Palm;
             }
-            else
-            {
-                RightHand.Translate(Vector3.zero, Space.Self);
-                RightHand.Rotate(Vector3.zero, Space.Self);
-            }
         }
 
         public void Unequip<TOwner>(TOwner owner) where TOwner : ICharacterProxy<TOwner>
         {
+            Debug.Log("Unequiping " + Data.Name);
             LeftHand = null;
             RightHand = null;
             gameObject.SetActive(false);
