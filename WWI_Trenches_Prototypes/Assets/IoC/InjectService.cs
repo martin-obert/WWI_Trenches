@@ -11,7 +11,7 @@ namespace Assets.IoC
         Singleton
     }
 
-    public class InjectService : ScriptableObject
+    internal class InjectService : ScriptableObject
     {
         private static InjectService _instance;
 

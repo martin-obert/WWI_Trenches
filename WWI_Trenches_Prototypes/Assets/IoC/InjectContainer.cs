@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Assets.IoC
 {
-    public class InjectContainer
+    internal sealed class InjectContainer
     {
         public readonly IDictionary<Type, object> Singletons = new Dictionary<Type, object>();
 

@@ -1,7 +1,6 @@
 ﻿using Assets.Gameplay.Abstract;
 using Assets.Gameplay.Character;
 using Assets.Gameplay.Character.Implementation;
-using UnityEngine;
 
 namespace Assets.Gameplay
 {
@@ -9,14 +8,16 @@ namespace Assets.Gameplay
     {
         public ICharacterProxy<BasicCharacter> Character;
 
-        void Start()
+        protected override void OnAwakeHandle()
         {
             CreateSingleton(this);
+
         }
 
-        void OnDestroy()
+        protected override void OnDestroyHandle()
         {
             GCSingleton(this);
+
         }
     }
 }

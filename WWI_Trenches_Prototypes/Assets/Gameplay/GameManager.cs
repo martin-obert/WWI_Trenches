@@ -2,6 +2,7 @@
 using Assets.Gameplay.Abstract;
 using Assets.Gameplay.Character.Implementation;
 using Assets.Gameplay.Factories;
+using Assets.Gameplay.Tutorials;
 using Assets.TileGenerator;
 using UnityEditor;
 using UnityEngine;
@@ -20,36 +21,37 @@ namespace Assets.Gameplay
 
         [SerializeField] private bool _autoStart = false;
 
+        [SerializeField] private string _startingTutorial;
+
         private TerrainManager _terrainManager;
+
+        private TutorialManager _tutorialManager;
 
         public BasicCharacter CurrentPlayer { get; private set; }
 
         private CharacterFactory _characterFactory;
 
-        void Awake()
+        protected override void OnAwakeHandle()
         {
             Dependency<Bootstrapper>(bootstrapper => { _bootstrapper = bootstrapper; });
             Dependency<TerrainTileBuilder>(RegisterTerrainBuilder);
             Dependency<TerrainManager>(terrainManager => _terrainManager = terrainManager);
             Dependency<CharacterFactory>(factory => _characterFactory = factory);
-        }
-
-        void Start()
-        {
+            Dependency<TutorialManager>(manager => _tutorialManager = manager);
             CreateSingleton(this);
         }
 
-        void OnDestroy()
+        protected override void OnDestroyHandle()
         {
             GCSingleton(this);
         }
 
-        protected override void DependenciesResolved()
+        protected override void OnDependeciesResolved()
         {
-            if(_autoStart)
+            if (_autoStart)
                 StartLevel();
 
-            base.DependenciesResolved();
+            base.OnDependeciesResolved();
         }
 
         private void RegisterTerrainBuilder(TerrainTileBuilder builder)
@@ -82,23 +84,18 @@ namespace Assets.Gameplay
             args.BuildedTerrain.SpawnAtStart(CurrentPlayer.gameObject);
 
             CurrentPlayer.MoveTo(PlayerHelpers.GetEndPoint(CurrentPlayer.transform, args.BuildedTerrain));
-            
+
         }
 
         public void StartLevel()
         {
-            if (_bootstrapper == null)
-            {
-                Debug.LogError("No bootstrapper detected.");
-                return;
-            }
+            _tutorialManager.Play(_startingTutorial);
 
-            if (_bootstrapper != null && _bootstrapper.TerrainTilesPrefabs.Length > 0)
-                _terrainTileBuilder.TerrainTiles = _bootstrapper.TerrainTilesPrefabs;
+            _terrainTileBuilder.TerrainTiles = _bootstrapper.TerrainTilesPrefabs;
 
             var currentTerrain = _terrainTileBuilder.CreateTiledTerrain(_terrainWidth, _terrainHeight);
 
-            TerrainManager.Instance.CurrentTerrain = currentTerrain;
+            _terrainManager.CurrentTerrain = currentTerrain;
 
             _terrainTileBuilder.GenerateTerrainTiles(currentTerrain);
         }

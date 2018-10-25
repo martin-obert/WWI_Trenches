@@ -27,12 +27,13 @@ namespace Assets.Gameplay
 
         public RangedWeapon PlayerMainWeapon;
 
-        void OnEnable()
+
+        protected override void OnAwakeHandle()
         {
-           CreateSingleton(this);
+            CreateSingleton(this);
         }
 
-        void OnDestroy()
+        protected override void OnDestroyHandle()
         {
             GCSingleton(this);
         }

@@ -34,7 +34,7 @@ namespace Assets.UI.Scripts
             }
         }
 
-        private void Start()
+        protected override void OnAwakeHandle()
         {
             CreateSingleton(this);
             foreach (var menuController in _menuControllers)
@@ -45,7 +45,7 @@ namespace Assets.UI.Scripts
             StartCoroutine(DelayedSwitch(CurrentMenu));
         }
 
-        private void OnDestroy()
+        protected override void OnDestroyHandle()
         {
             GCSingleton(this);
         }

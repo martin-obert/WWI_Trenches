@@ -7,14 +7,14 @@ namespace Assets.Gameplay
 {
     public class ProjectilesManager : Singleton<ProjectilesManager>
     {
-        private IDictionary<int, IDictionary<int, IProjectile[]>> _characterWeaponProjectiles = new Dictionary<int, IDictionary<int, IProjectile[]>>();
+        private readonly IDictionary<int, IDictionary<int, IProjectile[]>> _characterWeaponProjectiles = new Dictionary<int, IDictionary<int, IProjectile[]>>();
 
-        void Start()
+        protected override void OnAwakeHandle()
         {
             CreateSingleton(this);
         }
 
-        void OnDestroy()
+        protected override void OnDestroyHandle()
         {
             foreach (var characterWeaponProjectile in _characterWeaponProjectiles)
             {

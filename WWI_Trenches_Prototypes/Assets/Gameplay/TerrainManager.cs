@@ -19,15 +19,16 @@ namespace Assets.Gameplay
                 _currentTerrain = value; 
             }
         }
-        void Start()
+
+        protected override void OnAwakeHandle()
         {
             CreateSingleton(this);
         }
 
-        void OnDestroy()
+        protected override void OnDestroyHandle()
         {
             GCSingleton(this);
-        }
 
+        }
     }
 }

@@ -1,15 +1,10 @@
 ﻿using Assets.Gameplay;
+using Assets.Gameplay.Abstract;
 using Assets.IoC;
-using UnityEngine;
 
-public class HUDButtons : MonoBehaviour
+public class HUDButtons : MonoBehaviorDependencyResolver
 {
     private GameManager _gameManager;
-
-    private void Start()
-    {
-        InjectService.Instance.GetInstance<GameManager>(manage => _gameManager = manage);
-    }
 
     public void CrawlToggle()
     {
@@ -25,5 +20,16 @@ public class HUDButtons : MonoBehaviour
     {
         _gameManager.CurrentPlayer.Aim();
         _gameManager.CurrentPlayer.Shoot();
+    }
+
+    protected override void OnAwakeHandle()
+    {
+        Dependency<GameManager>(manager => _gameManager = manager);
+        ResolveDependencies();
+    }
+
+    protected override void OnDestroyHandle()
+    {
+        
     }
 }

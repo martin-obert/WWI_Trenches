@@ -43,11 +43,6 @@ namespace Assets.TileGenerator
         public event TerrainBuilderEventHandler TerrainProgress;
         #endregion
 
-        void Start()
-        {
-            CreateSingleton(this);
-        }
-
         public TiledTerrain CreateTiledTerrain(int sizeX, int sizeY)
         {
 
@@ -212,6 +207,16 @@ namespace Assets.TileGenerator
         protected virtual void OnTerrainProgress(TerrainBuilderEventArgs args)
         {
             TerrainProgress?.Invoke(this, args);
+        }
+
+        protected override void OnAwakeHandle()
+        {
+            CreateSingleton(this);
+        }
+
+        protected override void OnDestroyHandle()
+        {
+            GCSingleton(this);
         }
     }
 

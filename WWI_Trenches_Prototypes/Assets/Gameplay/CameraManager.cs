@@ -17,28 +17,25 @@ namespace Assets.Gameplay
         private Vector3 _target = Vector3.zero;
 
         private PlayerController _player;
+
         private TerrainManager _terrainManager;
-        void Start()
+
+
+        protected override void OnAwakeHandle()
         {
             Dependency<PlayerController>(player => _player = player);
             Dependency<TerrainManager>(terrainManager => _terrainManager = terrainManager);
             CreateSingleton(this);
         }
 
-        void OnDestroy()
+        protected override void OnDestroyHandle()
         {
             GCSingleton(this);
         }
 
-        protected override void DependenciesResolved()
-        {
-            print("Dependencies resolved");
-            base.DependenciesResolved();
-        }
-
         void LateUpdate()
         {
-            if(!AreDependenciesResolved)
+            if (!AreDependenciesResolved)
                 return;
 
             if (!_camera)

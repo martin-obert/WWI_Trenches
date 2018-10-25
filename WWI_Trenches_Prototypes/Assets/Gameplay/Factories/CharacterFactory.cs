@@ -1,7 +1,6 @@
 ﻿using Assets.Gameplay.Abstract;
 using Assets.Gameplay.Character.Implementation;
 using Assets.IoC;
-using UnityEngine;
 
 namespace Assets.Gameplay.Factories
 {
@@ -9,13 +8,13 @@ namespace Assets.Gameplay.Factories
     {
         private Bootstrapper _bootstrapper;
 
-        void OnEnable()
+        protected override void OnAwakeHandle()
         {
+            Dependency<Bootstrapper>(x => _bootstrapper = x);
             CreateSingleton(this);
-            InjectService.Instance.GetInstance<Bootstrapper>(x => _bootstrapper = x);
         }
 
-        void OnDestroy()
+        protected override void OnDestroyHandle()
         {
             GCSingleton(this);
         }
