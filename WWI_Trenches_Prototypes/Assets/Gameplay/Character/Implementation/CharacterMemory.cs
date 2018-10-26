@@ -4,13 +4,28 @@ namespace Assets.Gameplay.Character.Implementation
 {
     public class CharacterMemory : ICharacterMemory<BasicCharacter>
     {
-        public event EventHandler<CharacterMemoryEventArgs> StateChanged;
+        public event EventHandler<CharacterMemoryStateEventArgs> StateChanged;
+        public event EventHandler<CharacterMemoryAttitudeEventArgs> AttitudeChanged;
 
-        private readonly CharacterMemoryEventArgs _args;
+        private readonly CharacterMemoryStateEventArgs _args;
+        private readonly CharacterMemoryAttitudeEventArgs _attitudeArgs;
 
         public CharacterMemory()
         {
-            _args = new CharacterMemoryEventArgs();
+            _args = new CharacterMemoryStateEventArgs();
+            _attitudeArgs = new CharacterMemoryAttitudeEventArgs();
+        }
+
+
+
+        public void ChangeAttitude(Attitude attitude)
+        {
+            if (attitude == _attitudeArgs.CurrentAttitude) return;
+
+            _attitudeArgs.LastAttitude = _attitudeArgs.CurrentAttitude;
+            _attitudeArgs.CurrentAttitude = attitude;
+
+            AttitudeChanged?.Invoke(this, _attitudeArgs);
         }
 
         public void ChangeStance(BasicStance stance)
@@ -24,8 +39,8 @@ namespace Assets.Gameplay.Character.Implementation
             StateChanged?.Invoke(this, _args);
         }
 
-        public BasicStance LastStance => _args.LastStance;
 
         public BasicStance CurrentStance => _args.CurrentStance;
+        public Attitude CurrentAttitude => _attitudeArgs.CurrentAttitude;
     }
 }

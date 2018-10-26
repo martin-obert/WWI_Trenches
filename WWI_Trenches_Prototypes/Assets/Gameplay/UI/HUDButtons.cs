@@ -18,7 +18,7 @@ public class HUDButtons : MonoBehaviorDependencyResolver
 
     public void Attack()
     {
-        _gameManager.CurrentPlayer.Aim();
+        _gameManager.CurrentPlayer.Crouch();
         _gameManager.CurrentPlayer.Shoot();
     }
 

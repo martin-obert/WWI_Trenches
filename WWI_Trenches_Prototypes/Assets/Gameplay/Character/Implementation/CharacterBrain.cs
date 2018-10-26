@@ -48,8 +48,6 @@ namespace Assets.Gameplay.Character.Implementation
 
                 if (orders != null && orders.Length > 0)
                 {
-                    Debug.Log("Execution started " + orders.Length);
-
                     foreach (var order in orders)
                     {
                         var playerOrder = order;
@@ -74,6 +72,7 @@ namespace Assets.Gameplay.Character.Implementation
                 break;
             }
 
+            _startingSequence = null;
             CurrentSequence = null;
         }
 

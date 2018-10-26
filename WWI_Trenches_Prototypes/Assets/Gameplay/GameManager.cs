@@ -59,7 +59,7 @@ namespace Assets.Gameplay
             if (_terrainTileBuilder && builder != _terrainTileBuilder)
             {
                 _terrainTileBuilder.TerrainProgress -= TerrainTileBuilderOnTerrainProgress;
-                Destroy(_terrainTileBuilder);
+                Destroy(_terrainTileBuilder.gameObject);
             }
 
             _terrainTileBuilder = builder;
@@ -79,11 +79,11 @@ namespace Assets.Gameplay
         {
             yield return new WaitForSecondsRealtime(1.5f);
 
-            CurrentPlayer = _characterFactory.CreatePlayerInstance();
+            //CurrentPlayer = _characterFactory.CreatePlayerInstance();
 
-            args.BuildedTerrain.SpawnAtStart(CurrentPlayer.gameObject);
+            //args.BuildedTerrain.SpawnAtStart(CurrentPlayer.gameObject);
 
-            CurrentPlayer.MoveTo(PlayerHelpers.GetEndPoint(CurrentPlayer.transform, args.BuildedTerrain));
+            //CurrentPlayer.MoveTo(PlayerHelpers.GetEndPoint(CurrentPlayer.transform, args.BuildedTerrain));
 
         }
 

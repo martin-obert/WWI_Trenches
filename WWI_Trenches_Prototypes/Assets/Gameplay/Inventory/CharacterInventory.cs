@@ -14,8 +14,8 @@ namespace Assets.Gameplay.Inventory
         void Unequip<TOwner>(TOwner owner) where TOwner : ICharacterProxy<TOwner>;
     }
 
-    
-    public class CharacterEquipment 
+
+    public class CharacterEquipment
     {
         public EquipableItemSlot<IWeapon> MainWeapon { get; }
 
@@ -45,6 +45,8 @@ namespace Assets.Gameplay.Inventory
                 return;
             }
 
+            Debug.Log("Item is registerie");
+
             if (e.PreviousItem != null)
             {
                 _projectilesManager.UnregisterWeapon(_ownerId.Value, e.PreviousItem);
@@ -52,7 +54,7 @@ namespace Assets.Gameplay.Inventory
 
             if (e.CurrentItem != null)
             {
-                _projectilesManager.RegisterWeapon(_ownerId.Value, e.PreviousItem);
+                _projectilesManager.RegisterWeapon(_ownerId.Value, e.CurrentItem);
             }
         }
 
@@ -63,6 +65,6 @@ namespace Assets.Gameplay.Inventory
     [CreateAssetMenu(fileName = "Character Inventory", menuName = "Character/Basic/Inventory")]
     public class CharacterInventory : ScriptableObject
     {
-        
+
     }
 }

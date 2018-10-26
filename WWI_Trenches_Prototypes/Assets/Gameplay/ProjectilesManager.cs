@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using Assets.Gameplay.Abstract;
 using Assets.Gameplay.Inventory.Items;
+using Assets.Gameplay.Projectiles;
+using UnityEngine;
 
 namespace Assets.Gameplay
 {
     public class ProjectilesManager : Singleton<ProjectilesManager>
     {
-        private readonly IDictionary<int, IDictionary<int, IProjectile[]>> _characterWeaponProjectiles = new Dictionary<int, IDictionary<int, IProjectile[]>>();
+        private ProjectileLogic _projectileLogic = new ProjectileLogic();
 
         protected override void OnAwakeHandle()
         {
@@ -16,57 +18,27 @@ namespace Assets.Gameplay
 
         protected override void OnDestroyHandle()
         {
-            foreach (var characterWeaponProjectile in _characterWeaponProjectiles)
-            {
-                characterWeaponProjectile.Value.Clear();
-            }
-
-            _characterWeaponProjectiles.Clear();
-
             GCSingleton(this);
         }
 
-        public void RegisterWeapon(int characterId, IWeapon weapon)
+        public void RegisterWeapon(int characterId,IWeapon weapon)
         {
-            var weaponId = weapon.Id;
-
-            IDictionary<int, IProjectile[]> weaponProjectiles;
-
-            if (!_characterWeaponProjectiles.TryGetValue(characterId, out weaponProjectiles))
-            {
-                _characterWeaponProjectiles.Add(characterId, weaponProjectiles = new Dictionary<int, IProjectile[]>());
-            }
-
-            IProjectile[] projectiles;
-
-            if (weaponProjectiles.TryGetValue(weaponId, out projectiles))
-                return;
-
-            projectiles = new IProjectile[weapon.Data.ClipMaxSize];
-
-            for (var i = 0; i < projectiles.Length; i++)
-            {
-                projectiles[i] = Instantiate(weapon.Data.Projectile, transform);
-                projectiles[i].ResetToStack();
-            }
-
-            weaponProjectiles.Add(weaponId, projectiles);
         }
 
         public void UnregisterWeapon(int characterId, IWeapon weapon)
         {
-            IDictionary<int, IProjectile[]> wepons;
-
-            if (!_characterWeaponProjectiles.TryGetValue(characterId, out wepons)) return;
-
-            wepons.Remove(weapon.Id);
         }
 
         public void ShootProjectile(RangedWeapon weapon)
         {
-            var dir = weapon.Target.GameObject.transform.position - weapon.ProjectileSpawnLocation;
+            if (weapon.Target != null)
+            {
+                var hitbox = weapon.Target.GameObject.GetComponent<CapsuleCollider>();
 
-            _characterWeaponProjectiles[weapon.Owner.Id][weapon.Id].FirstOrDefault(x => !x.IsFired)?.Shoot(weapon.ProjectileSpawnLocation, dir.normalized);
+                var dir = weapon.Target.GameObject.transform.position + hitbox.center - weapon.ProjectileSpawnLocation;
+                _projectileLogic.RayCastShot(weapon, weapon.ProjectileSpawnLocation, dir, weapon.Data.Damage);
+                //_characterWeaponProjectiles[weapon.Owner.Id][weapon.Id].FirstOrDefault(x => !x.IsFired)?.RayCastShot(weapon.Owner, weapon.ProjectileSpawnLocation, dir.normalized);
+            }
         }
     }
 }

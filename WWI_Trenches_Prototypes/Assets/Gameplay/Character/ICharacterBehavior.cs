@@ -4,12 +4,7 @@ namespace Assets.Gameplay.Character
 {
     public interface ICharacterBehavior<TCharacter>
     {
-        ISequenceExecutor RefreshStance(ISequenceExecutor sequenceExecutor, ICharacterMemory<TCharacter> memory);
+        ISequenceExecutor RefreshStance(ISequenceExecutor sequenceExecutor, BasicStance stance);
     }
 
-    public interface ICombatBehavior<TCharacter> : ICharacterBehavior<TCharacter>
-    {
-        ISequenceExecutor HideSelf(ISequenceExecutor sequenceExecutor);
-        ISequenceExecutor Aim(ISequenceExecutor sequenceExecutor);
-    }
 }

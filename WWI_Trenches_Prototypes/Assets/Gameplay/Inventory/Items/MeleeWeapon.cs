@@ -1,5 +1,6 @@
 ﻿using Assets.Gameplay.Character;
 using Assets.Gameplay.Zoning;
+using Assets.IoC;
 using UnityEngine;
 
 namespace Assets.Gameplay.Inventory.Items

@@ -27,9 +27,13 @@ namespace Assets.Gameplay.Character
         GameObject GameObject { get; }
 
         void GotHitMelee(IWeapon weapon);
-        void GotHitRanged(IProjectile projectile);
+
+        void GotHitRanged(IProjectileLogic projectileLogic);
+
+        ITargetable CurrentNemesis { get; set; }
 
         float Visibility { get; }
+
         CharacterAttributesContainer Attributes { get; }
     }
 }

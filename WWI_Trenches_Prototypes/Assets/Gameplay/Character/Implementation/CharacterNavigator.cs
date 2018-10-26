@@ -11,6 +11,7 @@ namespace Assets.Gameplay.Character.Implementation
         [SerializeField, Tooltip("Root object of current character, if empty, then set to this transform")]
         private Transform _rootObject;
 
+        private float internalSpeed = 0;
         [SerializeField]
         private NavigatorAttributes _attributes;
 
@@ -22,6 +23,7 @@ namespace Assets.Gameplay.Character.Implementation
                 _rootObject = transform;
 
             _attributes.Speed.Subscribe(SpeedChanged);
+            SpeedChanged(null, _attributes.Speed.Value());
         }
 
         void OnDestroy()
@@ -31,11 +33,12 @@ namespace Assets.Gameplay.Character.Implementation
 
         private void SpeedChanged(object sender, float f)
         {
-            _navMeshAgent.speed = f;
+            _navMeshAgent.speed = internalSpeed = f;
         }
 
         public void LockOn(Transform target)
         {
+            
             _rootObject.LookAt(target.position);
         }
 
@@ -57,7 +60,6 @@ namespace Assets.Gameplay.Character.Implementation
         public void Move(Vector3? position)
         {
             Destination = position;
-            print("Nav mesh destination " + Destination);
             if (!position.HasValue)
             {
                 Disable();
@@ -65,6 +67,8 @@ namespace Assets.Gameplay.Character.Implementation
             else
             {
                 Enable();
+                if (_navMeshAgent.destination != Destination.Value)
+                    _navMeshAgent.SetDestination(Destination.Value);
             }
         }
 
@@ -77,14 +81,17 @@ namespace Assets.Gameplay.Character.Implementation
 
         public void Disable()
         {
+            if (!_navMeshAgent.enabled) return;
+            _navMeshAgent.speed = 0;
             _navMeshAgent.enabled = false;
         }
 
         public void Enable()
         {
-            print("Enabling nav mesh");
-            _navMeshAgent.enabled = true;
+            if (_navMeshAgent.enabled) return;
 
+            _navMeshAgent.enabled = true;
+            _navMeshAgent.speed = internalSpeed;
             if (Destination.HasValue && _navMeshAgent.destination != Destination.Value)
                 _navMeshAgent.destination = Destination.Value;
         }

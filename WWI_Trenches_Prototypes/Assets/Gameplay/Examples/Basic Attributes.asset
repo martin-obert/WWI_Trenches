@@ -12,4 +12,6 @@ MonoBehaviour:
   m_Name: Basic Attributes
   m_EditorClassIdentifier: 
   _speed: {x: 0, y: 3, z: 4}
-  _health: {x: 0, y: 100, z: 100}
+  _health: {x: 0, y: 5, z: 100}
+  _visibility: {x: 0, y: 0, z: 0}
+  _noiseLevel: {x: 0, y: 0, z: 0}

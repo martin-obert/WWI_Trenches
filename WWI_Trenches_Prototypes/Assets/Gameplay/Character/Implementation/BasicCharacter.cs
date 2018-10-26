@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Gameplay.Instructions;
 using Assets.Gameplay.Inventory;
 using Assets.Gameplay.Inventory.Items;
 using Assets.Gameplay.Mechanics;
@@ -23,7 +24,7 @@ namespace Assets.Gameplay.Character.Implementation
         [SerializeField] private string _displayName;
 
         [SerializeField] private CharacterBehavior _behavior;
-        
+
         [SerializeField] private Animator _animator;
 
         [SerializeField] private CharacterAttributesContainer _attributesContainer;
@@ -48,7 +49,7 @@ namespace Assets.Gameplay.Character.Implementation
 
         public ICharacterBrain<BasicCharacter> Brain => _brain;
 
-        public ICombatBehavior<BasicCharacter> Behavior => _behavior;
+        public ICharacterBehavior<BasicCharacter> Behavior => _behavior;
 
         public ICharacterNavigator Navigator => _navigator;
 
@@ -76,33 +77,33 @@ namespace Assets.Gameplay.Character.Implementation
         void OnEnable()
         {
             _equipment = new CharacterEquipment();
+            _equipment.BindEquipment(this);
+
+            _enemyScanner.SubscribeTriggers(Inzone, Outzone);
+
+            _brain.Memory.StateChanged += MemoryOnStateChanged;
         }
 
         void Start()
         {
             InjectService.Instance.GetInstance<MechanicsManager>(manager => _mechanicsManager = manager);
-
-            _enemyScanner.SubscribeTriggers(Inzone, Outzone);
-
-            _brain.Memory.StateChanged += MemoryOnStateChanged;
-
-            _equipment.BindEquipment(this);
         }
 
+      
         void OnDestroy()
         {
             _brain.Memory.StateChanged -= MemoryOnStateChanged;
-
             _enemyScanner.UnsubscribeTriggers(Inzone, Outzone);
         }
 
-        void LateUpdate()
-        {
-            if (CurrentTarget != null)
-            {
-                _mechanicsManager.MechanicsResolver.ResolveThreat(CurrentTarget, this);
-            }
-        }
+        //void LateUpdate()
+        //{
+        //    if (CurrentTarget != null)
+        //    {
+        //        //todo: pridat game objects s mecha mana scriptem
+        //        //_mechanicsManager.MechanicsResolver.ResolveThreat(CurrentTarget, this);
+        //    }
+        //}
 
         void OnTriggerEnter(Collider other)
         {
@@ -122,29 +123,36 @@ namespace Assets.Gameplay.Character.Implementation
 
         private void Outzone(object sender, ProxyZone.ProxyZoneEvent e)
         {
-            CurrentTarget = e.Targetable.Value;
+            if (CurrentTarget == e.Targetable.Value)
+            {
+                CurrentTarget = null;
+                e.Targetable.Value.CurrentNemesis = null;
+            }
         }
 
         private void Inzone(object sender, ProxyZone.ProxyZoneEvent e)
         {
-            if (CurrentTarget == e.Targetable.Value)
+            if (e.Targetable.Value.CurrentNemesis == null && CurrentTarget == null)
             {
-                CurrentTarget = null;
+                CurrentTarget = e.Targetable.Value;
+                e.Targetable.Value.CurrentNemesis = this;
             }
+            
         }
-        private void MemoryOnStateChanged(object sender, CharacterMemoryEventArgs characterMemoryEventArgs)
+        private void MemoryOnStateChanged(object sender, CharacterMemoryStateEventArgs characterMemoryStateEventArgs)
         {
-            Behavior.RefreshStance(Brain, Brain.Memory).Execute(Components);
+            Behavior.RefreshStance(Brain, characterMemoryStateEventArgs.CurrentStance).Execute(Components);
         }
 
-        public void Aim()
+        public void Crouch()
         {
-            Behavior.Aim(Brain).Execute(Components);
+            Brain.Memory.ChangeStance(BasicStance.Crouching);
         }
 
         public void MoveTo(Vector3? point)
         {
             Navigator.Move(point);
+            Brain.Memory.ChangeStance(BasicStance.Running);
         }
 
         public void Stop()
@@ -172,10 +180,12 @@ namespace Assets.Gameplay.Character.Implementation
         {
             _mechanicsManager.MechanicsResolver.ResolveHit(weapon, this);
         }
-        public void GotHitRanged(IProjectile projectile)
+        public void GotHitRanged(IProjectileLogic projectileLogic)
         {
-            _mechanicsManager.MechanicsResolver.ResolveHit(projectile, this);
+            _mechanicsManager.MechanicsResolver.ResolveHit(projectileLogic, this);
         }
+
+        public ITargetable CurrentNemesis { get; set; }
 
         public void Crawl()
         {

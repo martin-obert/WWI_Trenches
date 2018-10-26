@@ -10,7 +10,7 @@ namespace Assets.Gameplay.Character
 
         IOrderArguments<TCharacter> Components { get; }
 
-        void Aim();
+        void Crouch();
 
         void MoveTo(Vector3? point);
 

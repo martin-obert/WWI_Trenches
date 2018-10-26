@@ -17,7 +17,6 @@ MonoBehaviour:
   MeleeRange: 0
   FireRange: 0
   MaxStack: 0
-  ClipMaxSize: 0
-  Projectile: {fileID: 114191814275923192, guid: 29cfce44e5b9d474f9477d23f7af6938,
-    type: 2}
+  ClipMaxSize: 3
   IsRanged: 1
+  Damage: 1

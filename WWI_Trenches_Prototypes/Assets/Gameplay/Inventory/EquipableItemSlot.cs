@@ -1,6 +1,7 @@
 ﻿using System;
 using Assets.Gameplay.Character;
 using Assets.Gameplay.Inventory.Items;
+using UnityEngine;
 
 namespace Assets.Gameplay.Inventory
 {
@@ -16,13 +17,30 @@ namespace Assets.Gameplay.Inventory
 
         public T Item => (T)StoredItem;
 
-        public void SetItem<TOwner>(T item,  TOwner owner) where TOwner: ICharacterProxy<TOwner>
+        public void SetItem<TOwner>(T item, TOwner owner) where TOwner : ICharacterProxy<TOwner>
         {
+            var hasChanged = (StoredItem == null && item != null) || (item == null && StoredItem != null) || item != null && StoredItem != null && item.Id != StoredItem.Id;
+
+            var temp = hasChanged ? StoredItem : null;
+
             StoredItem = item;
-            if (item != null)
+
+            if (Item != null && hasChanged)
             {
-                item.Equip(owner);
+                Item.Equip(owner);
             }
+
+            if (hasChanged)
+            {
+                Debug.Log("Item changed");
+                ItemChanged?.Invoke(this, new InventorySlotEventArgs
+                {
+                    CurrentItem = Item,
+                    PreviousItem = (T)temp
+                });
+            }
+
+
         }
     }
 }
