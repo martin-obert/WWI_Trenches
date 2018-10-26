@@ -55,6 +55,8 @@ public class IKTest : MonoBehaviour
 
             foreach (var basicCharacter in _squad)
             {
+                if (!basicCharacter)
+                    return;
                 basicCharacter.Crouch();
                 basicCharacter.Stop();
                 basicCharacter.Shoot();
