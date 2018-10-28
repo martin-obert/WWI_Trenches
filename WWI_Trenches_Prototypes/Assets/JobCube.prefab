@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 114366911027680222}
   - component: {fileID: 114896346505954596}
   - component: {fileID: 114474147337646588}
+  - component: {fileID: 136846141643102400}
   m_Layer: 0
   m_Name: JobCube
   m_TagString: Untagged
@@ -38,7 +39,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1381792571660240}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.2932084, y: 1.0997292, z: 1.9249051}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -73,6 +74,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SerializedData:
     Speed: 1
+    Name: 0
 --- !u!114 &114785343082686334
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -114,8 +116,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_SerializedData:
-    mesh: {fileID: 4300004, guid: 710f18654c23b2343ad226f2af1319f8, type: 3}
-    material: {fileID: 2100000, guid: c4756b7b790b73e44896d4492d38b96b, type: 2}
+    mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+    material: {fileID: 2100000, guid: 5426080130e6b44468405509fd248014, type: 3}
     subMesh: 0
     castShadows: 0
     receiveShadows: 0
+--- !u!136 &136846141643102400
+CapsuleCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1381792571660240}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.21
+  m_Height: 1.72
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.86, z: 0}
