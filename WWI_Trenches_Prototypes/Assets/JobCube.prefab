@@ -59,7 +59,7 @@ MonoBehaviour:
   m_SerializedData:
     Value:
       x: 0
-      y: 0
+      y: 10
       z: 0
 --- !u!114 &114474147337646588
 MonoBehaviour:
@@ -90,9 +90,9 @@ MonoBehaviour:
     Value:
       value:
         x: 0
-        y: 0
+        y: 0.13864785
         z: 0
-        w: 1
+        w: 0.9903418
 --- !u!114 &114809313139045484
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -116,7 +116,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_SerializedData:
-    mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+    mesh: {fileID: 4300000, guid: 5137ebb7eec75e146ae139e78c7bc725, type: 3}
     material: {fileID: 2100000, guid: 5426080130e6b44468405509fd248014, type: 3}
     subMesh: 0
     castShadows: 0
