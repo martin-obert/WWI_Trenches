@@ -18,6 +18,6 @@ namespace Assets.Gameplay.Character
 
         public BasicAttribute<float> PositionWeight { get; } = new BasicAttribute<float>("position_hand_ik", "Position Hand IK", 0, 0, 1);
 
-        public BasicAttribute<float> RotationWeight { get; } = new BasicAttribute<float>("rotation_hand_ik", "Rotation Hand IK", 0, 0, 1);
+        public BasicAttribute<float> RotationWeight { get; } = new BasicAttribute<float>("rotation_hand_ik", "Transforms Hand IK", 0, 0, 1);
     }
 }
