@@ -182,7 +182,32 @@ namespace Assets.JobTests
     }
 
 
+    public static class ArrayHelpers
+    {
+        public static float[] FlatOut(this float[,] array, int rows, int cols)
+        {
+            var output = new float[rows * cols];
 
+            for (var i = 0; i < cols; i++)
+            {
+                for (var j = 0; j < rows; j++)
+                {
+                    output[cols * i + j] = array[i, j];
+                }
+            }
+
+            return output;
+        }
+
+        public static float Find(this float[] array, int rowWidth, int row, int col)
+        {
+            return array[row * rowWidth + col];
+        }
+        public static float Find(this NativeArray<float> array, int rowWidth, int row, int col)
+        {
+            return array[row * rowWidth + col];
+        }
+    }
 
     public class MoveSystem : JobComponentSystem
     {
@@ -212,8 +237,8 @@ namespace Assets.JobTests
             {
                 position.Value = math.lerp(position.Value, position.Value + Dest, DeltaTime * Speed);
 
-                //position.Value.y = GetTerrainHeight(position.Value.x, position.Value.z, 1, hData, MapHeight, MapWidth);
-                position.Value.y = GetTerrainHeight(position.Value.x, position.Value.z, 1, hData, MapWidth, MapHeight);
+                position.Value.y = GetTerrainHeight(position.Value.x, position.Value.z, 1, hData, MapHeight, MapWidth) * 600;
+
             }
             public float GetTerrainHeight(float xPos, float zPos, float scaleFactor, NativeArray<float> heightData, int mapWidth, int mapHeight)
             {
@@ -225,10 +250,10 @@ namespace Assets.JobTests
                 int xPlusOne = x + 1;
                 int zPlusOne = z + 1;
 
-                float triZ0 = (heightData[x * mapHeight + z]);
-                float triZ1 = (heightData[xPlusOne * mapHeight + z]);
-                float triZ2 = (heightData[x * mapHeight + zPlusOne]);
-                float triZ3 = (heightData[xPlusOne * mapHeight + zPlusOne]);
+                float triZ0 = (heightData.Find(mapWidth, x, z));
+                float triZ1 = (heightData.Find(mapWidth, xPlusOne, z));
+                float triZ2 = (heightData.Find(mapWidth, x, zPlusOne));
+                float triZ3 = (heightData.Find(mapWidth, xPlusOne, zPlusOne));
 
                 float height = 0.0f;
                 float sqX = (xPos / scaleFactor) - x;
@@ -250,18 +275,20 @@ namespace Assets.JobTests
         }
 
         public static TerrainData TerrainData { get; set; }
-        public static float[] heightData { get; set; }
 
+        public static float[] heightData { get; set; }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            var data = new NativeArray<float>(heightData.Length, Allocator.TempJob);
+            data.CopyFrom(heightData);
             var job = new MovementJob
             {
                 DeltaTime = Time.deltaTime,
                 Speed = speed,
-                Dest = new float3(0, 0, 6),
+                Dest = new float3(0, 0, 0),
                 CursorPosition = Input.mousePosition,
-                hData = new NativeArray<float>(heightData, Allocator.TempJob),
+                hData = data,
                 MapHeight = TerrainData.heightmapHeight,
                 MapWidth = TerrainData.heightmapWidth
             };
@@ -318,16 +345,38 @@ namespace Assets.JobTests
     public class CharacterMove : MonoBehaviour
     {
         public GameObject prefab;
-        private int instanceCount = 10;
+        private int instanceCount = 1000;
         private EntityManager _manager;
         [SerializeField] private TerrainData _terrainData;
+        [SerializeField] private Terrain _terrain;
 
         void Start()
         {
+            //var testure = new Texture2D(_terrainData.heightmapWidth, _terrainData.heightmapHeight, TextureFormat.ARGB32,
+            //    false);
+
+            var heights = _terrainData.GetHeights(0, 0, _terrainData.heightmapWidth, _terrainData.heightmapHeight);
+
+            //for (int i = 0; i < _terrainData.heightmapWidth; i++)
+            //{
+            //    for (int j = 0; j < _terrainData.heightmapHeight; j++)
+            //    {
+            //        var color = new Vector4(heights[i, j], heights[i, j], heights[i, j], 1);
+            //        testure.SetPixel(i, j, color);
+            //    }
+            //}
+            //// Apply all SetPixel calls
+            //testure.Apply();
+
+            //var path = Path.Combine(Application.dataPath, "Resources", "height.png");
+
+
+            //byte[] pngData = testure.EncodeToPNG();
+            //File.WriteAllBytes(path, pngData);
+
+
             MoveSystem.TerrainData = _terrainData;
-            MoveSystem.heightData = _terrainData
-                .GetHeights(0, 0, _terrainData.heightmapWidth, _terrainData.heightmapHeight).Cast<float>().ToArray();
-            print(_terrainData.heightmapWidth + " " + _terrainData.heightmapHeight);
+            MoveSystem.heightData = heights.FlatOut(_terrainData.heightmapWidth, _terrainData.heightmapHeight);
 
             MoveSystem._position.Add(new float3(1, 1, 0));
 
@@ -359,7 +408,7 @@ namespace Assets.JobTests
             {
                 var entity = entities[i];
 
-                _manager.SetComponentData(entity, new Position { Value = new float3 { x = i } });
+                _manager.SetComponentData(entity, new Position { Value = new float3 { x = Random.Range(1, _terrainData.heightmapHeight - 1), z = Random.Range(1, _terrainData.heightmapWidth - 1) } });
 
                 _manager.SetComponentData(entity, new Rotation { Value = quaternion.identity });
 
