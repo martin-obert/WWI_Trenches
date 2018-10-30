@@ -210,144 +210,107 @@ namespace Assets.JobTests
         }
     }
 
-    //public class MoveSystem : JobComponentSystem
-    //{
-    //    public static int speed = 1;
+    public class MoveSystem : JobComponentSystem
+    {
+        public static int speed = 1;
 
-    //    public static List<float3> _position = new List<float3>();
+        public static List<float3> _position = new List<float3>();
 
-    //    [BurstCompile]
-    //    public struct MovementJob : IJobProcessComponentData<Position, MoveSpeedComponent, Rotation>
-    //    {
-    //        [ReadOnly] public float DeltaTime;
+        [BurstCompile]
+        public struct MovementJob : IJobProcessComponentData<Position, MoveSpeedComponent, Rotation>
+        {
+            [ReadOnly] public float DeltaTime;
 
-    //        [ReadOnly] public float Speed;
+            [ReadOnly] public float Speed;
 
-    //        [ReadOnly] public float3 Dest;
+            [ReadOnly] public float3 Dest;
 
-    //        [ReadOnly] public float3 CursorPosition;
+            [ReadOnly] public float3 CursorPosition;
 
-    //        [ReadOnly] private float _minLen;
+            [ReadOnly] private float _minLen;
 
-    //        [ReadOnly, DeallocateOnJobCompletion] public NativeArray<float> hData;
+            [ReadOnly, DeallocateOnJobCompletion] public NativeArray<float> hData;
 
-    //        [ReadOnly] public int MapWidth;
-    //        [ReadOnly] public int MapHeight;
-    //        [ReadOnly, DeallocateOnJobCompletion] public NativeArray<Vector3> normals;
+            [ReadOnly] public int MapWidth;
+            [ReadOnly] public int MapHeight;
+            [ReadOnly, DeallocateOnJobCompletion] public NativeArray<Vector3> normals;
 
-    //        public void Execute(ref Position position, ref MoveSpeedComponent move, ref Rotation rotation)
-    //        {
-    //            position.Value = math.lerp(position.Value, position.Value + Dest, DeltaTime * Speed);
+            public void Execute(ref Position position, ref MoveSpeedComponent move, ref Rotation rotation)
+            {
+                position.Value = math.lerp(position.Value, position.Value + Dest, DeltaTime * Speed);
 
-    //            position.Value.y = GetTerrainHeight(position.Value.z, position.Value.x, 0.9746588693957115f
-    //                                   , hData, MapHeight, MapWidth) * 600;
+                position.Value.y = GetTerrainHeight(position.Value.z, position.Value.x, 0.9746588693957115f
+                                       , hData, MapHeight, MapWidth) * 600;
 
-    //            // rotation.Value = Quaternion.FromToRotation(Vector3.up, GetNormal(normals, position.Value.z, position.Value.x, 0.9746588693957115f, MapWidth));
-    //        }
+                // rotation.Value = Quaternion.FromToRotation(Vector3.up, GetNormal(normals, position.Value.z, position.Value.x, 0.9746588693957115f, MapWidth));
+            }
+          
+            public float GetTerrainHeight(float xPos, float zPos, float scaleFactor, NativeArray<float> heightData, int mapWidth, int mapHeight)
+            {
+                // we first get the height of four points of the quad underneath the point
+                // Check to make sure this point is not off the map at all
+                int x = (int)(xPos / scaleFactor);
+                int z = (int)(zPos / scaleFactor);
 
-    //        /// <summary>
-    //        /// Gets the normal of a position on the heightmap.
-    //        /// </summary>
-    //        /// <param name="xPos">X position on the map</param>
-    //        /// <param name="zPos">Z position on the map</param>
-    //        /// <returns>Normal vector of this spot on the terrain</returns>
-    //        public Vector3 GetNormal(NativeArray<Vector3> normals, float xPos, float zPos, float scaleFactor, int rowWidth)
-    //        {
-    //            int x = (int)(xPos / scaleFactor);
-    //            int z = (int)(zPos / scaleFactor);
+                int xPlusOne = x + 1;
+                int zPlusOne = z + 1;
 
-    //            int xPlusOne = x + 1;
-    //            int zPlusOne = z + 1;
+                float triZ0 = (heightData.Find(mapWidth, x, z));
+                float triZ1 = (heightData.Find(mapWidth, xPlusOne, z));
+                float triZ2 = (heightData.Find(mapWidth, x, zPlusOne));
+                float triZ3 = (heightData.Find(mapWidth, xPlusOne, zPlusOne));
 
-    //            float3 triZ0 = (normals.Find(rowWidth, x, z));
-    //            float3 triZ1 = (normals.Find(rowWidth, xPlusOne, z));
-    //            float3 triZ2 = (normals.Find(rowWidth, x, zPlusOne));
-    //            float3 triZ3 = (normals.Find(rowWidth, xPlusOne, zPlusOne));
+                float height = 0.0f;
+                float sqX = (xPos / scaleFactor) - x;
+                float sqZ = (zPos / scaleFactor) - z;
+                if ((sqX + sqZ) < 1)
+                {
+                    height = triZ0;
+                    height += (triZ1 - triZ0) * sqX;
+                    height += (triZ2 - triZ0) * sqZ;
+                }
+                else
+                {
+                    height = triZ3;
+                    height += (triZ1 - triZ3) * (1.0f - sqZ);
+                    height += (triZ2 - triZ3) * (1.0f - sqX);
+                }
+                return height;
+            }
 
-    //            float3 avgNormal;
-    //            float sqX = (xPos / scaleFactor) - x;
-    //            float sqZ = (zPos / scaleFactor) - z;
-    //            if ((sqX + sqZ) < 1)
-    //            {
-    //                avgNormal = triZ0;
-    //                avgNormal += (triZ1 - triZ0) * sqX;
-    //                avgNormal += (triZ2 - triZ0) * sqZ;
-    //            }
-    //            else
-    //            {
-    //                avgNormal = triZ3;
-    //                avgNormal += (triZ1 - triZ3) * (1.0f - sqZ);
-    //                avgNormal += (triZ2 - triZ3) * (1.0f - sqX);
-    //            }
-    //            return avgNormal;
-    //        }
+        }
 
-    //        public float GetTerrainHeight(float xPos, float zPos, float scaleFactor, NativeArray<float> heightData, int mapWidth, int mapHeight)
-    //        {
-    //            // we first get the height of four points of the quad underneath the point
-    //            // Check to make sure this point is not off the map at all
-    //            int x = (int)(xPos / scaleFactor);
-    //            int z = (int)(zPos / scaleFactor);
+        public static TerrainData TerrainData { get; set; }
 
-    //            int xPlusOne = x + 1;
-    //            int zPlusOne = z + 1;
+        public static float[] heightData { get; set; }
+        public static Vector3[] Normals { get; set; }
 
-    //            float triZ0 = (heightData.Find(mapWidth, x, z));
-    //            float triZ1 = (heightData.Find(mapWidth, xPlusOne, z));
-    //            float triZ2 = (heightData.Find(mapWidth, x, zPlusOne));
-    //            float triZ3 = (heightData.Find(mapWidth, xPlusOne, zPlusOne));
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            var data = new NativeArray<float>(heightData.Length, Allocator.TempJob);
+            data.CopyFrom(heightData);
 
-    //            float height = 0.0f;
-    //            float sqX = (xPos / scaleFactor) - x;
-    //            float sqZ = (zPos / scaleFactor) - z;
-    //            if ((sqX + sqZ) < 1)
-    //            {
-    //                height = triZ0;
-    //                height += (triZ1 - triZ0) * sqX;
-    //                height += (triZ2 - triZ0) * sqZ;
-    //            }
-    //            else
-    //            {
-    //                height = triZ3;
-    //                height += (triZ1 - triZ3) * (1.0f - sqZ);
-    //                height += (triZ2 - triZ3) * (1.0f - sqX);
-    //            }
-    //            return height;
-    //        }
+            var normals = new NativeArray<Vector3>(Normals.Length, Allocator.TempJob);
+            normals.CopyFrom(Normals);
 
-    //    }
+            var job = new MovementJob
+            {
+                DeltaTime = Time.deltaTime,
+                Speed = speed,
+                Dest = new float3(0, 0, 0),
+                CursorPosition = Input.mousePosition,
+                hData = data,
+                MapHeight = TerrainData.heightmapHeight,
+                MapWidth = TerrainData.heightmapWidth,
+                normals = normals
+            };
 
-    //    public static TerrainData TerrainData { get; set; }
+            var handle = job.Schedule(this, inputDeps);
 
-    //    public static float[] heightData { get; set; }
-    //    public static Vector3[] Normals { get; set; }
+            return handle;
+        }
 
-    //    protected override JobHandle OnUpdate(JobHandle inputDeps)
-    //    {
-    //        var data = new NativeArray<float>(heightData.Length, Allocator.TempJob);
-    //        data.CopyFrom(heightData);
-
-    //        var normals = new NativeArray<Vector3>(Normals.Length, Allocator.TempJob);
-    //        normals.CopyFrom(Normals);
-
-    //        var job = new MovementJob
-    //        {
-    //            DeltaTime = Time.deltaTime,
-    //            Speed = speed,
-    //            Dest = new float3(0, 0, 0),
-    //            CursorPosition = Input.mousePosition,
-    //            hData = data,
-    //            MapHeight = TerrainData.heightmapHeight,
-    //            MapWidth = TerrainData.heightmapWidth,
-    //            normals = normals
-    //        };
-
-    //        var handle = job.Schedule(this, inputDeps);
-
-    //        return handle;
-    //    }
-
-    //}
+    }
 
     public class BakedAnimationWrapper
     {
@@ -355,65 +318,70 @@ namespace Assets.JobTests
     }
 
 
-    public class SelectSystem : JobComponentSystem
-    {
-        public struct Data
-        {
-            public readonly int Length;
+    //public class SelectSystem : JobComponentSystem
+    //{
+    //    public struct Data
+    //    {
+    //        public readonly int Length;
 
-            public ComponentDataArray<Position> Position;
-            [ReadOnly] public SharedComponentDataArray<MeshInstanceRenderer> Renderers;
-            //[ReadOnly] public readonly SharedComponentDataArray<MeshInstanceRenderer> Renderers;
-        }
+    //        [ReadOnly] public ComponentDataArray<Rotation> Rotations;
+    //        //[ReadOnly] public readonly SharedComponentDataArray<MeshInstanceRenderer> Renderers;
+    //    }
 
+    //    struct ApplyJob : IJobParallelFor
+    //    {
+    //        [ReadOnly] public int rotation;
+    //        [ReadOnly] public NativeArray<Rotation> Rotation;
+    //        public void Execute(int index)
+    //        {
+    //            var temo = Rotation[index];
+    //            temo.Value = quaternion.RotateY(rotation);
+    //        }
+    //    }
 
-        [Inject] public Data _data;
+    //    [Inject] public Data _data;
 
-        public static BakedAnimationWrapper Animation;
-        public static Terrain Terrain;
-        public static string Selected;
-        private int counter;
+    //    public static BakedAnimationWrapper Animation;
+    //    public static TerrainData TerrainData;
+    //    public static string Selected;
+    //    private int counter;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
-        {
-            inputDeps.Complete();
-            //for (int i = 0; i < _data.Length; i++)
-            //{
-            //    var position = _data.Position[i];
-            //    var normal =  TerrainData.GetInterpolatedNormal(position.Value.x, position.Value.z);
-            //    var rotation = _data.Rotation[i];
-            //    rotation.Value = rotation.Value.value * quaternion.RotateY(10).value;
-            //}
+    //    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    //    {
+    //        inputDeps.Complete();
+    //        //for (int i = 0; i < _data.Length; i++)
+    //        //{
+    //        //    var position = _data.Position[i];
+    //        //    var normal =  TerrainData.GetInterpolatedNormal(position.Value.x, position.Value.z);
+    //        //    var rotation = _data.Rotation[i];
+    //        //    rotation.Value = rotation.Value.value * quaternion.RotateY(10).value;
+    //        //}
 
-            counter++;
-            counter = counter >= Animation.Frames.Count ? 0 : counter;
+    //        counter++;
+    //        counter = counter >= Animation.Frames.Count ? 0 : counter;
 
-            for (int i = 0; i < _data.Length; i++)
-            {
-                var position = _data.Position[i];
-                var renderer = _data.Renderers[i];
-                position.Value.y = Terrain.SampleHeight(position.Value);
-                
-                position.Value += new float3(Random.Range(0, 500));
-                _data.Position[i] = position;
-            }
-
-            return inputDeps;
-
-
-            //for (int i = 0; i < _data.Length; i++)
-            //{
-            //    var renderer = _data.Renderers[i];
-
-            //    if (Animation != null && counter < Animation.Frames.Count)
-            //    {
-            //        renderer.mesh.SetVertices(Animation.Frames[counter]);
-            //    }
-            //}
+    //        Debug.Log(_data.Length);
+    //        return new ApplyJob
+    //        {
+    //            rotation = counter,
+    //            Rotation = _data.Rotations.GetChunkArray(0, _data.Length)
+    //        }.Schedule(_data.Length, _data.Length, inputDeps);
 
 
-        }
-    }
+
+    //        //for (int i = 0; i < _data.Length; i++)
+    //        //{
+    //        //    var renderer = _data.Renderers[i];
+
+    //        //    if (Animation != null && counter < Animation.Frames.Count)
+    //        //    {
+    //        //        renderer.mesh.SetVertices(Animation.Frames[counter]);
+    //        //    }
+    //        //}
+
+
+    //    }
+    //}
 
     public class CharacterMove : MonoBehaviour
     {
@@ -447,11 +415,11 @@ namespace Assets.JobTests
             //byte[] pngData = testure.EncodeToPNG();
             //File.WriteAllBytes(path, pngData);
 
-            SelectSystem.Terrain = _terrain;
-            
-            //MoveSystem.heightData = heights.FlatOut(_terrainData.heightmapWidth, _terrainData.heightmapHeight);
-            //MoveSystem.Normals = SetupTerrainNormals(0.97f, _terrainData.heightmapWidth, heights).FlatOut(_terrainData.heightmapWidth, _terrainData.heightmapWidth);
-            //MoveSystem._position.Add(new float3(1, 1, 0));
+
+           /* SelectSystem.TerrainData = */MoveSystem.TerrainData = _terrainData;
+            MoveSystem.heightData = heights.FlatOut(_terrainData.heightmapWidth, _terrainData.heightmapHeight);
+            MoveSystem.Normals = SetupTerrainNormals(0.97f, _terrainData.heightmapWidth, heights).FlatOut(_terrainData.heightmapWidth, _terrainData.heightmapWidth);
+            MoveSystem._position.Add(new float3(1, 1, 0));
 
             _manager = World.Active.GetOrCreateManager<EntityManager>();
 
@@ -461,10 +429,10 @@ namespace Assets.JobTests
 
                 var bake = serializer.Deserialize(file) as BakedAnimation;
 
-                SelectSystem.Animation = new BakedAnimationWrapper
-                {
-                    Frames = bake.FrameData.Select(x => x.Value.Select(y => new Vector3(y.X, y.Y, y.Z)).ToList()).ToList()
-                };
+                //SelectSystem.Animation = new BakedAnimationWrapper
+                //{
+                //    Frames = bake.FrameData.Select(x => x.Value.Select(y => new Vector3(y.X, y.Y, y.Z)).ToList()).ToList()
+                //};
             }
 
             Spawn();
@@ -536,12 +504,12 @@ namespace Assets.JobTests
         private string lastName;
         void Update()
         {
-            if (lastName != SelectSystem.Selected)
-            {
-                lastName = SelectSystem.Selected;
-                //var projected = Camera.main.projectionMatrix * Vector3.zero;
-                print(lastName);
-            }
+            //if (lastName != SelectSystem.Selected)
+            //{
+            //    lastName = SelectSystem.Selected;
+            //    //var projected = Camera.main.projectionMatrix * Vector3.zero;
+            //    print(lastName);
+            //}
         }
     }
 }
