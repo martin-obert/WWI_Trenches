@@ -1,98 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.Entities;
 using UnityEngine;
 
 namespace Assets.IoC
 {
-    public abstract class DependentJobComponentSystem : JobComponentSystem
-    {
-        private int _dependencies;
-        private List<Action> Dependencies;
-        protected void Depenecy<T>(Action<T> callback)
-        {
-            _dependencies++;
-            Dependencies.Add(() =>
-            {
-                Injection.Instance.Get<T>(o =>
-                {
-                    _dependencies--;
-
-                    callback(o);
-
-                    if (_dependencies <= 0)
-                    {
-                        OnDependenciesResolved();
-                    }
-                });
-            });
-        }
-
-        protected virtual void SetDependencies()
-        {
-
-        }
-
-        protected override void OnCreateManager()
-        {
-            SetDependencies();
-
-            foreach (var dependency in Dependencies)
-            {
-                dependency();
-            }
-        }
-
-        protected virtual void OnDependenciesResolved()
-        {
-
-        }
-    }
-
-    public abstract class DependentComponentSystem : ComponentSystem
-    {
-        private int _dependencies;
-        private List<Action> Dependencies;
-        protected void Depenecy<T>(Action<T> callback)
-        {
-            _dependencies++;
-            Dependencies.Add(() =>
-            {
-                Injection.Instance.Get<T>(o =>
-                {
-                    _dependencies--;
-
-                    callback(o);
-
-                    if (_dependencies <= 0)
-                    {
-                        OnDependenciesResolved();
-                    }
-                });
-            });
-        }
-
-        protected virtual void SetDependencies()
-        {
-
-        }
-
-        protected override void OnCreateManager()
-        {
-            SetDependencies();
-
-            foreach (var dependency in Dependencies)
-            {
-                dependency();
-            }
-        }
-
-        protected virtual void OnDependenciesResolved()
-        {
-
-        }
-    }
-
     public abstract class MonoBehaviorDependencyResolver : MonoBehaviour, IDependencyResolver
     {
         private readonly Stack<Action> _registerActions = new Stack<Action>();

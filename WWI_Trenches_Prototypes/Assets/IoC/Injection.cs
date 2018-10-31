@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Assets.IoC
 {
-    public sealed class Injection
+    public sealed class Injection : IDisposable
     {
         private readonly IDictionary<Type, object> _instances;
         private readonly IDictionary<Type, List<Action<object>>> _observers;
@@ -61,8 +61,21 @@ namespace Assets.IoC
             {
                 _instances.Add(type, instance);
             }
+
+            List<Action<object>> observers;
+            if (!_observers.TryGetValue(type, out observers)) return;
+
+            foreach (var observer in observers)
+            {
+                observer(instance);
+            }
         }
 
+        /// <summary>
+        /// Add new observer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="callback"></param>
         private void AddObserver<T>(Action<T> callback)
         {
             var type = typeof(T);
@@ -88,6 +101,21 @@ namespace Assets.IoC
             }
 
             internal static readonly Injection Injection = new Injection();
+        }
+
+        /// <summary>
+        /// Disposes all registered instances and unresolved observers
+        /// </summary>
+        public void Dispose()
+        {
+            _instances.Clear();
+
+            if (_observers.Count > 0)
+                foreach (var observer in _observers)
+                {
+                    observer.Value.Clear();
+                }
+            _observers.Clear();
         }
     }
 }
