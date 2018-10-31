@@ -293,6 +293,12 @@ namespace Assets.JobTests
             var normals = new NativeArray<Vector3>(Normals.Length, Allocator.TempJob);
             normals.CopyFrom(Normals);
 
+            //var group = ComponentGroups[_data.Length];
+
+
+            //group.SetFilter(new MeshInstanceRenderer{});
+            //var datas = group.GetComponentDataArray<Position>();
+
             var job = new MovementJob
             {
                 DeltaTime = Time.deltaTime,

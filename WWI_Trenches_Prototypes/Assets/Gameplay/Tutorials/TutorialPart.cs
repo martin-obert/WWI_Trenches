@@ -35,7 +35,7 @@ namespace Assets.Gameplay.Tutorials
 
         void Start()
         {
-            InjectService.Instance.GetInstance<TutorialManager>(manager => manager.AddPart(this));
+            Injection.Instance.Get<TutorialManager>(manager => manager.AddPart(this));
         }
 
         public void Continue()

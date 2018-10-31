@@ -11,12 +11,12 @@ namespace Assets.Gameplay.Tutorials
 
         public void InvokeFullfilled()
         {
-            InjectService.Instance.GetInstance<TutorialManager>(manager => manager.Play(_onFullfillTutorialPartId));
+            Injection.Instance.Get<TutorialManager>(manager => manager.Play(_onFullfillTutorialPartId));
         }
 
         public void InvokeFailed()
         {
-            InjectService.Instance.GetInstance<TutorialManager>(manager => manager.Play(_onFailTutorialPartId));
+            Injection.Instance.Get<TutorialManager>(manager => manager.Play(_onFailTutorialPartId));
         }
     }
 
