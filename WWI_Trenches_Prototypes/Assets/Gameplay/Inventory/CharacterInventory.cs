@@ -34,7 +34,7 @@ namespace Assets.Gameplay.Inventory
             MainWeapon = new EquipableItemSlot<IWeapon>();
             MainWeapon.ItemChanged += MainWeaponOnItemChanged;
 
-            InjectService.Instance.GetInstance<ProjectilesManager>(instance => _projectilesManager = instance);
+            Injection.Instance.Get<ProjectilesManager>(instance => _projectilesManager = instance);
         }
 
         private void MainWeaponOnItemChanged(object sender, EquipableItemSlot<IWeapon>.InventorySlotEventArgs e)

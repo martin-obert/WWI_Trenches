@@ -67,9 +67,9 @@ namespace Assets.IoC
             _dependencies++;
             _registerActions.Push(() =>
             {
-                InjectService.Instance.Observe<TDependency>(o =>
+                Injection.Instance.Get<TDependency>(o =>
                 {
-                    function(o as TDependency);
+                    function(o);
                     _dependencies--;
                     if (_dependencies <= 0)
                         DependenciesResolved();

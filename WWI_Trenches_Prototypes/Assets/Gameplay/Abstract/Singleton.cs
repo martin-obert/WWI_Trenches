@@ -16,7 +16,7 @@ namespace Assets.Gameplay.Abstract
 
             Instance = insntace;
 
-            InjectService.Instance.Register(insntace);
+            Injection.Instance.Register(insntace);
 
             ResolveDependencies();
         }
@@ -29,8 +29,6 @@ namespace Assets.Gameplay.Abstract
 
         public override void Dispose()
         {
-            InjectService.Instance.UnRegister<T>();
-
             Instance = null;
 
             base.Dispose();

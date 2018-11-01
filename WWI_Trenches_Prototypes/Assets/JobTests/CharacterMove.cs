@@ -244,7 +244,7 @@ namespace Assets.JobTests
 
                 // rotation.Value = Quaternion.FromToRotation(Vector3.up, GetNormal(normals, position.Value.z, position.Value.x, 0.9746588693957115f, MapWidth));
             }
-          
+
             public float GetTerrainHeight(float xPos, float zPos, float scaleFactor, NativeArray<float> heightData, int mapWidth, int mapHeight)
             {
                 // we first get the height of four points of the quad underneath the point
@@ -422,7 +422,8 @@ namespace Assets.JobTests
             //File.WriteAllBytes(path, pngData);
 
 
-           /* SelectSystem.TerrainData = */MoveSystem.TerrainData = _terrainData;
+            /* SelectSystem.TerrainData = */
+            MoveSystem.TerrainData = _terrainData;
             MoveSystem.heightData = heights.FlatOut(_terrainData.heightmapWidth, _terrainData.heightmapHeight);
             MoveSystem.Normals = SetupTerrainNormals(0.97f, _terrainData.heightmapWidth, heights).FlatOut(_terrainData.heightmapWidth, _terrainData.heightmapWidth);
             MoveSystem._position.Add(new float3(1, 1, 0));
@@ -490,9 +491,19 @@ namespace Assets.JobTests
 
             _manager.Instantiate(prefab, entities);
             var koef = 0.9746588693957115f;
-
+            var lastGroupId = 0;
             for (int i = 0; i < entities.Length; i++)
             {
+
+
+                var groupId = (int) (i / 10f);
+                if (groupId != lastGroupId)
+                {
+                    lastGroupId = groupId;
+                    print(groupId);
+                }
+
+
                 var entity = entities[i];
 
                 _manager.SetComponentData(entity, new Position { Value = new float3 { x = Random.Range(1, _terrainData.heightmapHeight - 1) * koef, z = Random.Range(1, _terrainData.heightmapWidth - 1) * koef } });
@@ -500,6 +511,11 @@ namespace Assets.JobTests
                 _manager.SetComponentData(entity, new Rotation { Value = quaternion.identity });
 
                 _manager.SetComponentData(entity, new MoveSpeedComponent { Speed = 1, Name = i });
+                _manager.SetComponentData(entity, new RangeProximityComponent() { Range = 3 });
+                _manager.SetComponentData(entity, new GroupComponent
+                {
+                    GroupId = groupId
+                });
 
 
             }
@@ -518,4 +534,80 @@ namespace Assets.JobTests
             //}
         }
     }
+
+    public class SelectSystem : JobComponentSystem
+    {
+        public static int SelectedGroup { get; private set; }
+
+        struct Data
+        {
+            public ComponentDataArray<Position> Positions;
+            public ComponentDataArray<RangeProximityComponent> Ranges;
+            public ComponentDataArray<GroupComponent> Groups;
+            public readonly int Length;
+        }
+
+        [Inject] private Data _data;
+
+        struct FilterJob : IJob
+        {
+            [ReadOnly] public ComponentDataArray<Position> UnitPositions;
+            [ReadOnly] public ComponentDataArray<RangeProximityComponent> RangeComponents;
+            [ReadOnly] public ComponentDataArray<GroupComponent> Groups;
+            public float3 CursorPosition;
+            [WriteOnly] public NativeArray<int> Selected;
+            public int Length;
+            public void Execute()
+            {
+                for (int index = 0; index < Length; index++)
+                {
+                    var range = RangeComponents[index];
+                    var unitPosition = UnitPositions[index];
+                    var dist = math.length(unitPosition.Value - CursorPosition);
+                    if (dist < range.Range)
+                    {
+                        Selected[0] = Groups[index].GroupId;
+                    }
+                }
+                
+            }
+
+        }
+
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            var position =  WorldCursor.Instance.GetTerrainCursorPosition();
+
+            if (!position.HasValue)
+                return base.OnUpdate(inputDeps);
+
+            inputDeps.Complete();
+
+
+            var result  = new NativeArray<int>(1, Allocator.TempJob);
+            var job = new FilterJob
+            {
+                Selected = result,
+                Groups = _data.Groups,
+                CursorPosition = position.Value,
+                RangeComponents = _data.Ranges,
+                UnitPositions = _data.Positions,
+                Length = _data.Length
+            };
+
+            var handle = job.Schedule(inputDeps);
+
+            handle.Complete();
+
+            var jobResult = result[0];
+
+            Debug.Log(jobResult);
+
+            result.Dispose();
+         
+            return base.OnUpdate(inputDeps);
+        }
+    }
+
+    
 }

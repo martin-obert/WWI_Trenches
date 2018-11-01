@@ -86,7 +86,7 @@ namespace Assets.Gameplay.Character.Implementation
 
         void Start()
         {
-            InjectService.Instance.GetInstance<MechanicsManager>(manager => _mechanicsManager = manager);
+            Injection.Instance.Get<MechanicsManager>(manager => _mechanicsManager = manager);
         }
 
       

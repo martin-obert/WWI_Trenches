@@ -28,7 +28,7 @@ namespace Assets.Gameplay
 
         public void SelectedHandler(BaseEventData data)
         {
-            InjectService.Instance.GetInstance<PlayerController>(player =>
+            Injection.Instance.Get<PlayerController>(player =>
             {
                 if (player)
                 {
