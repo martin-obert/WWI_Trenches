@@ -25,6 +25,8 @@ GameObject:
   - component: {fileID: 114896346505954596}
   - component: {fileID: 114474147337646588}
   - component: {fileID: 136846141643102400}
+  - component: {fileID: 114636500757359660}
+  - component: {fileID: 114454359028405582}
   m_Layer: 0
   m_Name: JobCube
   m_TagString: Untagged
@@ -61,6 +63,19 @@ MonoBehaviour:
       x: 0
       y: 10
       z: 0
+--- !u!114 &114454359028405582
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1381792571660240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4993b0da33802974ab30fd2cc8bbb7d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedData:
+    Range: 3
 --- !u!114 &114474147337646588
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -75,6 +90,19 @@ MonoBehaviour:
   m_SerializedData:
     Speed: 1
     Name: 0
+--- !u!114 &114636500757359660
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1381792571660240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff6522240444bbe498d589bbcbf7cfb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedData:
+    GroupId: 0
 --- !u!114 &114785343082686334
 MonoBehaviour:
   m_ObjectHideFlags: 1
