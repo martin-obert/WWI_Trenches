@@ -358,6 +358,8 @@ MonoBehaviour:
   prefab: {fileID: 1381792571660240, guid: bbba36ff6e348f04a8b4a814efd29919, type: 2}
   _terrainData: {fileID: 15600000, guid: c11bd95678b50da439542667fbc03466, type: 2}
   _terrain: {fileID: 1034686897}
+  Mesh: {fileID: 4300000, guid: d5c8109c87bfce94f8d696651e0d16ca, type: 3}
+  Material: {fileID: 2100000, guid: 59ec04e5687ad2c4c903b7fe7c273189, type: 2}
 --- !u!4 &1064674723
 Transform:
   m_ObjectHideFlags: 0

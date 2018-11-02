@@ -484,7 +484,8 @@ namespace Assets.JobTests
             return normals;
         }
 
-
+        public Mesh Mesh;
+        public Material Material;
         private void Spawn()
         {
             var entities = new NativeArray<Entity>(instanceCount, Allocator.Temp);
@@ -496,12 +497,12 @@ namespace Assets.JobTests
             {
 
 
-                var groupId = (int) (i / 10f);
-                if (groupId != lastGroupId)
-                {
-                    lastGroupId = groupId;
-                    print(groupId);
-                }
+                var groupId = (int)(i / 10f);
+                //if (groupId != lastGroupId)
+                //{
+                //    lastGroupId = groupId;
+                //    print(groupId);
+                //}
 
 
                 var entity = entities[i];
@@ -512,11 +513,6 @@ namespace Assets.JobTests
 
                 _manager.SetComponentData(entity, new MoveSpeedComponent { Speed = 1, Name = i });
                 _manager.SetComponentData(entity, new RangeProximityComponent() { Range = 3 });
-                _manager.SetComponentData(entity, new GroupComponent
-                {
-                    GroupId = groupId
-                });
-
 
             }
             entities.Dispose();
@@ -544,6 +540,9 @@ namespace Assets.JobTests
             public ComponentDataArray<Position> Positions;
             public ComponentDataArray<RangeProximityComponent> Ranges;
             public ComponentDataArray<GroupComponent> Groups;
+
+            [ReadOnly] public SharedComponentDataArray<MeshInstanceRenderer> Renderers;
+
             public readonly int Length;
         }
 
@@ -569,45 +568,72 @@ namespace Assets.JobTests
                         Selected[0] = Groups[index].GroupId;
                     }
                 }
-                
+
             }
 
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var position =  WorldCursor.Instance.GetTerrainCursorPosition();
-
-            if (!position.HasValue)
-                return base.OnUpdate(inputDeps);
-
-            inputDeps.Complete();
+            var position = WorldCursor.Instance.GetTerrainCursorPosition();
 
 
-            var result  = new NativeArray<int>(1, Allocator.TempJob);
-            var job = new FilterJob
+
+            if (position.HasValue)
             {
-                Selected = result,
-                Groups = _data.Groups,
-                CursorPosition = position.Value,
-                RangeComponents = _data.Ranges,
-                UnitPositions = _data.Positions,
-                Length = _data.Length
-            };
+                inputDeps.Complete();
 
-            var handle = job.Schedule(inputDeps);
+                var result = new NativeArray<int>(1, Allocator.TempJob);
+                var job = new FilterJob
+                {
+                    Selected = result,
+                    Groups = _data.Groups,
+                    CursorPosition = position.Value,
+                    RangeComponents = _data.Ranges,
+                    UnitPositions = _data.Positions,
+                    Length = _data.Length
+                };
 
-            handle.Complete();
+                var handle = job.Schedule(inputDeps);
 
-            var jobResult = result[0];
+                handle.Complete();
 
-            Debug.Log(jobResult);
+                var jobResult = result[0];
 
-            result.Dispose();
-         
+                result.Dispose();
+            }
+            for (int i = 0; i < _data.Length; i++)
+            {
+
+                var renderer = _data.Renderers[i];
+
+                renderer.material.SetFloat("_Selection_Color", i > 5000 ? 1 : 0);
+            }
+
+            //data.Renderers[0].SetFloat("_Selection_Color", 0);
+
             return base.OnUpdate(inputDeps);
+        }
+
+    }
+
+    public class RenderSystem : ComponentSystem
+    {
+        struct Data
+        {
+            [ReadOnly] public SharedComponentDataArray<MeshInstanceRenderer> Renderers;
+            public readonly int Length;
+        }
+
+        [Inject] private Data _data;
+
+        protected override void OnUpdate()
+        {
+            for (int i = 0; i < _data.Length; i++)
+            {
+                
+            }
         }
     }
 
-    
 }

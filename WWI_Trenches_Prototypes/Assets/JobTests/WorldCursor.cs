@@ -14,8 +14,6 @@ namespace Assets.JobTests
 
             if (rayHit.collider != Terrain.activeTerrain.GetComponent<TerrainCollider>()) return null;
 
-            print(rayHit.point);
-
             return rayHit.point;
         }
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Transforms;
 
 namespace Assets.IoC
 {
@@ -29,6 +31,12 @@ namespace Assets.IoC
 
         protected virtual void SetDependencies()
         {
+            var chunk = GetArchetypeChunkComponentType<Position>();
+            var chunkarray = EntityManager.CreateArchetypeChunkArray(new EntityArchetypeQuery
+            {
+
+            }, Allocator.Temp);
+
 
         }
 
