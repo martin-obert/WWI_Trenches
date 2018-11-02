@@ -2,7 +2,7 @@
 
 namespace Assets.JobTests
 {
-    public class GroupComponentWrapper : ComponentDataWrapper<GroupComponent>
+    public class GroupComponentWrapper : SharedComponentDataWrapper<GroupComponent>
     {
 
     }
