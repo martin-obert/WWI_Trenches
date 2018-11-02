@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
+using Assets.Gameplay.Components;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -13,7 +15,9 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Experimental.Animations;
+using UnityEngine.Experimental.PlayerLoop;
 using UnityEngine.Jobs;
 using UnityEngine.Rendering;
 using Camera = UnityEngine.Camera;
@@ -617,21 +621,79 @@ namespace Assets.JobTests
 
     }
 
+    [UpdateAfter(typeof(MeshInstanceRendererSystem))]
     public class RenderSystem : ComponentSystem
     {
-        struct Data
+        private Matrix4x4[] _transforms = new Matrix4x4[1023];
+        private MaterialPropertyBlock _selectedMaterialPropertyBlock;
+
+        // This is the ugly bit, necessary until Graphics.DrawMeshInstanced supports NativeArrays pulling the data in from a job.
+        private static unsafe void CopyMatrices(ComponentDataArray<LocalToWorld> transforms, int beginIndex, int length, Matrix4x4[] outMatrices)
         {
-            [ReadOnly] public SharedComponentDataArray<MeshInstanceRenderer> Renderers;
-            public readonly int Length;
+            // @TODO: This is using unsafe code because the Unity DrawInstances API takes a Matrix4x4[] instead of NativeArray.
+            // We want to use the ComponentDataArray.CopyTo method
+            // because internally it uses memcpy to copy the data,
+            // if the nativeslice layout matches the layout of the component data. It's very fast...
+            fixed (Matrix4x4* matricesPtr = outMatrices)
+            {
+                Assert.AreEqual(sizeof(Matrix4x4), sizeof(LocalToWorld));
+                var matricesSlice = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<LocalToWorld>(matricesPtr, sizeof(Matrix4x4), length);
+                #if ENABLE_UNITY_COLLECTIONS_CHECKS
+                NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref matricesSlice, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
+                #endif
+
+                transforms.CopyTo(matricesSlice, beginIndex);
+            }
+
         }
 
-        [Inject] private Data _data;
+        private List<CustomMeshRenderer> _meshRenderers = new List<CustomMeshRenderer>(10);
+
+        private ComponentGroup _renderGroup;
+
+        protected override void OnCreateManager()
+        {
+            _renderGroup = GetComponentGroup(typeof(CustomMeshRenderer), typeof(GroupComponent), typeof(LocalToWorld));
+            _selectedMaterialPropertyBlock = new MaterialPropertyBlock();
+            _selectedMaterialPropertyBlock.SetFloat("_Selection_Color", 1);
+        }
 
         protected override void OnUpdate()
         {
-            for (int i = 0; i < _data.Length; i++)
+
+            EntityManager.GetAllUniqueSharedComponentData(_meshRenderers);
+           
+            foreach (var customMeshRenderer in _meshRenderers)
             {
-                
+                RenderGroup(customMeshRenderer, true);
+
+                RenderGroup(customMeshRenderer, false);
+            }
+        }
+
+        private void RenderGroup(CustomMeshRenderer customMeshRenderer, bool isSelected)
+        {
+            _renderGroup.SetFilter(new GroupComponent { IsSelected = isSelected });
+
+            var transforms = _renderGroup.GetComponentDataArray<LocalToWorld>();
+
+            DrawChunk(transforms, customMeshRenderer);
+        }
+
+
+        private void DrawChunk(ComponentDataArray<LocalToWorld> transforms, CustomMeshRenderer renderer)
+        {
+            int beginIndex = 0;
+
+            while (beginIndex < transforms.Length)
+            {
+                int length = math.min(_transforms.Length, transforms.Length - beginIndex);
+
+                CopyMatrices(transforms, beginIndex, length, _transforms);
+
+                Graphics.DrawMeshInstanced(renderer.Mesh, renderer.SubMesh, renderer.Material, _transforms, length, _selectedMaterialPropertyBlock , renderer.CastShadows, renderer.ReceiveShadows);
+
+                beginIndex += length;
             }
         }
     }
