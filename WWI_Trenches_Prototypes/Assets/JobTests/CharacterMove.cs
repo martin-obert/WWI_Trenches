@@ -72,9 +72,9 @@
 //                    foreach (Capture capture in i)
 //                    {
 //                        var temp = 0;
-//                        if (!int.TryParse(capture.Value, out temp))
+//                        if (!int.TryParse(capture.Radius, out temp))
 //                        {
-//                            throw new FormatException("Indice has bad format " + capture.Value);
+//                            throw new FormatException("Indice has bad format " + capture.Radius);
 //                        }
 //                        indices.Add(temp);
 //                    }
@@ -82,9 +82,9 @@
 
 //                if (match.Groups["vertices"].Success)
 //                {
-//                    var xR = SanitizeFormat(match.Groups["x"].Value);
-//                    var yR = SanitizeFormat(match.Groups["y"].Value);
-//                    var zR = SanitizeFormat(match.Groups["z"].Value);
+//                    var xR = SanitizeFormat(match.Groups["x"].Radius);
+//                    var yR = SanitizeFormat(match.Groups["y"].Radius);
+//                    var zR = SanitizeFormat(match.Groups["z"].Radius);
 
 //                    float x, y, z;
 
@@ -137,27 +137,31 @@
 //        }
 //    }
 
-//    public class ObjAnimationBakedFrame
-//    {
-//        public List<Vector3> Vertices { get; set; }
-//        public List<int> Indices { get; set; }
-//    }
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 
-//    [Serializable]
-//    public class BakedAnimation
-//    {
-//        public int TotalFrames;
-//        public Dictionary<int, Vec3Seri[]> FrameData;
-//        public int VerticesPerFrame { get; set; }
-//    }
+public class ObjAnimationBakedFrame
+{
+    public List<Vector3> Vertices { get; set; }
+    public List<int> Indices { get; set; }
+}
 
-//    [Serializable]
-//    public class Vec3Seri
-//    {
-//        public float X { get; set; }
-//        public float Y { get; set; }
-//        public float Z { get; set; }
-//    }
+[Serializable]
+public class BakedAnimation
+{
+    public int TotalFrames;
+    public Dictionary<int, Vec3Seri[]> FrameData;
+    public int VerticesPerFrame { get; set; }
+}
+
+[Serializable]
+public class Vec3Seri
+{
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+}
 
 
 
@@ -173,7 +177,7 @@
 
 //            var data = new BakedAnimation
 //            {
-//                FrameData = ObjHelper.ParseAnimations(directory).ToDictionary(x => x.Key, y => y.Value.Select(z => new Vec3Seri { X = z.x, Y = z.y, Z = z.z }).ToArray()),
+//                FrameData = ObjHelper.ParseAnimations(directory).ToDictionary(x => x.Key, y => y.Radius.Select(z => new Vec3Seri { X = z.x, Y = z.y, Z = z.z }).ToArray()),
 //                TotalFrames = files.Length,
 //                VerticesPerFrame = 0
 //            };
@@ -241,12 +245,12 @@
 
 //            public void Execute(ref Position position, ref MoveSpeedComponent move, ref Rotation rotation)
 //            {
-//                position.Value = math.lerp(position.Value, position.Value + Dest, DeltaTime * Speed);
+//                position.Radius = math.lerp(position.Radius, position.Radius + Dest, DeltaTime * Speed);
 
-//                position.Value.y = GetTerrainHeight(position.Value.z, position.Value.x, 0.9746588693957115f
+//                position.Radius.y = GetTerrainHeight(position.Radius.z, position.Radius.x, 0.9746588693957115f
 //                                       , hData, MapHeight, MapWidth) * 600;
 
-//                // rotation.Value = Quaternion.FromToRotation(Vector3.up, GetNormal(normals, position.Value.z, position.Value.x, 0.9746588693957115f, MapWidth));
+//                // rotation.Radius = Quaternion.FromToRotation(Vector3.up, GetNormal(normals, position.Radius.z, position.Radius.x, 0.9746588693957115f, MapWidth));
 //            }
 
 //            public float GetTerrainHeight(float xPos, float zPos, float scaleFactor, NativeArray<float> heightData, int mapWidth, int mapHeight)
@@ -345,7 +349,7 @@
 //    //        public void Execute(int index)
 //    //        {
 //    //            var temo = Rotation[index];
-//    //            temo.Value = quaternion.RotateY(rotation);
+//    //            temo.Radius = quaternion.RotateY(rotation);
 //    //        }
 //    //    }
 
@@ -362,9 +366,9 @@
 //    //        //for (int i = 0; i < _data.Length; i++)
 //    //        //{
 //    //        //    var position = _data.Position[i];
-//    //        //    var normal =  TerrainData.GetInterpolatedNormal(position.Value.x, position.Value.z);
+//    //        //    var normal =  TerrainData.GetInterpolatedNormal(position.Radius.x, position.Radius.z);
 //    //        //    var rotation = _data.Rotation[i];
-//    //        //    rotation.Value = rotation.Value.value * quaternion.RotateY(10).value;
+//    //        //    rotation.Radius = rotation.Radius.value * quaternion.RotateY(10).value;
 //    //        //}
 
 //    //        counter++;
@@ -442,7 +446,7 @@
 
 //                //SelectSystem.Animation = new BakedAnimationWrapper
 //                //{
-//                //    Frames = bake.FrameData.Select(x => x.Value.Select(y => new Vector3(y.X, y.Y, y.Z)).ToList()).ToList()
+//                //    Frames = bake.FrameData.Select(x => x.Radius.Select(y => new Vector3(y.X, y.Y, y.Z)).ToList()).ToList()
 //                //};
 //            }
 
@@ -512,12 +516,12 @@
 
 //                var entity = entities[i];
 
-//                _manager.SetComponentData(entity, new Position { Value = new float3 { x = Random.Range(1, _terrainData.heightmapHeight - 1) * koef, z = Random.Range(1, _terrainData.heightmapWidth - 1) * koef } });
+//                _manager.SetComponentData(entity, new Position { Radius = new float3 { x = Random.Range(1, _terrainData.heightmapHeight - 1) * koef, z = Random.Range(1, _terrainData.heightmapWidth - 1) * koef } });
 
-//                _manager.SetComponentData(entity, new Rotation { Value = quaternion.identity });
+//                _manager.SetComponentData(entity, new Rotation { Radius = quaternion.identity });
 
 //                _manager.SetComponentData(entity, new MoveSpeedComponent { Speed = 1, Name = i });
-//                _manager.SetComponentData(entity, new RangeProximityComponent() { Range = 3 });
+//                _manager.SetComponentData(entity, new RangeProximity() { Range = 3 });
 
 //            }
 //            entities.Dispose();
@@ -543,7 +547,7 @@
 //        struct Data
 //        {
 //            public ComponentDataArray<Position> Positions;
-//            public ComponentDataArray<RangeProximityComponent> Ranges;
+//            public ComponentDataArray<RangeProximity> Ranges;
 //            public ComponentDataArray<GroupComponent> Groups;
 
 //            [ReadOnly] public SharedComponentDataArray<MeshInstanceRenderer> Renderers;
@@ -556,7 +560,7 @@
 //        struct FilterJob : IJob
 //        {
 //            [ReadOnly] public ComponentDataArray<Position> UnitPositions;
-//            [ReadOnly] public ComponentDataArray<RangeProximityComponent> RangeComponents;
+//            [ReadOnly] public ComponentDataArray<RangeProximity> RangeComponents;
 //            [ReadOnly] public ComponentDataArray<GroupComponent> Groups;
 //            public float3 CursorPosition;
 //            [WriteOnly] public NativeArray<int> Selected;
@@ -567,10 +571,10 @@
 //                {
 //                    var range = RangeComponents[index];
 //                    var unitPosition = UnitPositions[index];
-//                    var dist = math.length(unitPosition.Value - CursorPosition);
+//                    var dist = math.length(unitPosition.Radius - CursorPosition);
 //                    if (dist < range.Range)
 //                    {
-//                        Selected[0] = Groups[index].GroupId;
+//                        Selected[0] = Groups[index].Id;
 //                    }
 //                }
 
@@ -593,7 +597,7 @@
 //                {
 //                    Selected = result,
 //                    Groups = _data.Groups,
-//                    CursorPosition = position.Value,
+//                    CursorPosition = position.Radius,
 //                    RangeComponents = _data.Ranges,
 //                    UnitPositions = _data.Positions,
 //                    Length = _data.Length
@@ -662,7 +666,7 @@
 //        {
 
 //            EntityManager.GetAllUniqueSharedComponentData(_meshRenderers);
-           
+
 //            foreach (var customMeshRenderer in _meshRenderers)
 //            {
 //                RenderGroup(customMeshRenderer, true);

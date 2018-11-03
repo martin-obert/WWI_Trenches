@@ -1,15 +1,13 @@
 ﻿using System;
 using Unity.Entities;
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace Assets.JobTests
 {
-  
-
     [Serializable]
-    public struct Group : ISharedComponentData
+    public struct UnitRenderer : ISharedComponentData
     {
-        public int Id;
+        public Mesh Mesh;
+        public Material Material;
     }
 }

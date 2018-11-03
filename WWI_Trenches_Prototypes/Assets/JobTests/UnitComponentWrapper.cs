@@ -2,8 +2,8 @@
 
 namespace Assets.JobTests
 {
-    public class UnitComponentWrapper : SharedComponentDataWrapper<Unit>
-    {
+    //public class UnitComponentWrapper : SharedComponentDataWrapper<UnitPart>
+    //{
 
-    }
+    //}
 }

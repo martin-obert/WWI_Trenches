@@ -2,8 +2,5 @@
 
 namespace Assets.JobTests
 {
-    public class RangeProximityComponentWrapper : ComponentDataWrapper<RangeProximityComponent>
-    {
-
-    }
+  
 }
