@@ -77,7 +77,7 @@ namespace Assets.JobTests
                     _manager.AddComponentData(part, new Destination { Value = unitDestination });
                     _manager.AddComponentData(part, new Health { Value = 100 });
 
-                    _manager.AddComponentData(part, new XnaBoundingSphere { Radius = 2f, Center = new float3(0, 1.7f, 0) });
+                    _manager.AddComponentData(part, new XnaBoundingSphere { Radius = 2f, Offset = new float3(0, 1.7f, 0) });
 
                 }
 
@@ -236,12 +236,10 @@ namespace Assets.JobTests
             public readonly int Length;
             [ReadOnly] public SharedComponentDataArray<Group> Units;
             [ReadOnly] public ComponentDataArray<XnaBoundingSphere> Ranges;
-            [ReadOnly] public ComponentDataArray<Position> Positions;
         }
 
         struct FilterJob : IJob
         {
-            [ReadOnly] public ComponentDataArray<Position> Positions;
             [ReadOnly] public ComponentDataArray<XnaBoundingSphere> Ranges;
             [ReadOnly] public SharedComponentDataArray<Group> Group;
 
@@ -255,13 +253,8 @@ namespace Assets.JobTests
             {
                 for (int i = 0; i < Lenght; i++)
                 {
-                    var position = Positions[i];
                     var range = Ranges[i];
-                    //var sphere = new XnaBoundingSphere
-                    //{
-                    //    Center = position.Value + range.Center,
-                    //    Radius = range.Radius
-                    //};
+                   
                     var sphere = range;
                     if (Ray.Intersects(sphere) != null)
                     {
@@ -291,7 +284,6 @@ namespace Assets.JobTests
 
                 var job = new FilterJob
                 {
-                    Positions = _data.Positions,
                     Result = result,
                     Group = _data.Units,
                     Ranges = _data.Ranges,
@@ -345,7 +337,7 @@ namespace Assets.JobTests
             {
 
                 var sphere = Spheres[index];
-                sphere.Center = Positions[index].Value;
+                sphere.Position = Positions[index].Value + sphere.Offset;
                 Spheres[index] = sphere;
             }
         }

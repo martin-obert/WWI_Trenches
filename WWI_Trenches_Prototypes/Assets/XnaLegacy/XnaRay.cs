@@ -173,7 +173,7 @@ namespace Assets.XnaLegacy
         public static void Intersects(this XnaRay ray, ref XnaBoundingSphere sphere, out float? result)
         {
             // Find the vector between where the ray starts the the sphere's centre
-            float3 difference = sphere.Center - ray.Position;
+            float3 difference = sphere.Position - ray.Position;
 
 
             float differenceLengthSquared = math.lengthsq(difference);

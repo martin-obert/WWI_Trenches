@@ -11,7 +11,8 @@ namespace Assets.XnaLegacy
     {
         #region Public Fields
 
-        public float3 Center;
+        public float3 Position;
+        public float3 Offset;
         public float Radius;
 
         #endregion Public Fields
@@ -26,11 +27,11 @@ namespace Assets.XnaLegacy
         }
         public override string ToString()
         {
-            return string.Format(CultureInfo.CurrentCulture, "{{Center:{0} Radius:{1}}}", this.Center.ToString(), this.Radius.ToString());
+            return string.Format(CultureInfo.CurrentCulture, "{{Position:{0} Radius:{1}}}", this.Position.ToString(), this.Radius.ToString());
         }
         public bool Equals(XnaBoundingSphere other)
         {
-            return Center.Equals(other.Center) && Math.Abs(this.Radius - other.Radius) < .0000001f;
+            return Position.Equals(other.Position) && Math.Abs(this.Radius - other.Radius) < .0000001f;
         }
         public override bool Equals(object obj)
         {
@@ -41,7 +42,7 @@ namespace Assets.XnaLegacy
         }
         public override int GetHashCode()
         {
-            return this.Center.GetHashCode() + this.Radius.GetHashCode();
+            return this.Position.GetHashCode() + this.Radius.GetHashCode();
         }
     }
 
@@ -51,13 +52,14 @@ namespace Assets.XnaLegacy
         public static XnaBoundingSphere Transform(this XnaBoundingSphere self, Matrix4x4 matrix)
         {
             XnaBoundingSphere sphere = new XnaBoundingSphere();
-            sphere.Center = math.transform(matrix, self.Center);
+            sphere.Position = math.transform(matrix, self.Position);
             sphere.Radius = self.Radius * (math.sqrt(math.max(((matrix.m00 * matrix.m00) + (matrix.m01 * matrix.m01)) + (matrix.m02 * matrix.m02), math.max(((matrix.m10 * matrix.m10) + (matrix.m11 * matrix.m11)) + (matrix.m12 * matrix.m12), ((matrix.m20 * matrix.m20) + (matrix.m21 * matrix.m21)) + (matrix.m22 * matrix.m22)))));
             return sphere;
         }
         public static void Transform(this XnaBoundingSphere self, ref Matrix4x4 matrix, out XnaBoundingSphere result)
         {
-            result.Center = math.transform(matrix, self.Center);
+            result = new XnaBoundingSphere();
+            result.Position = math.transform(matrix, self.Position);
             result.Radius = self.Radius * math.sqrt(math.max(matrix.m00 * matrix.m00 + matrix.m01 * matrix.m01 + matrix.m02 * matrix.m02, math.max(matrix.m10 * matrix.m10 + matrix.m11 * matrix.m11 + matrix.m12 * matrix.m12, matrix.m20 * matrix.m20 + matrix.m21 * matrix.m21 + matrix.m22 * matrix.m22)));
         }
         public static ContainmentType Contains(this XnaBoundingSphere self, XnaBoundingBox box)
@@ -79,23 +81,23 @@ namespace Assets.XnaLegacy
             //check if the distance from sphere center to cube face < radius
             float dmin = 0;
 
-            if (self.Center.x < box.Min.x)
-                dmin += (self.Center.x - box.Min.x) * (self.Center.x - box.Min.x);
+            if (self.Position.x < box.Min.x)
+                dmin += (self.Position.x - box.Min.x) * (self.Position.x - box.Min.x);
 
-            else if (self.Center.x > box.Max.x)
-                dmin += (self.Center.x - box.Max.x) * (self.Center.x - box.Max.x);
+            else if (self.Position.x > box.Max.x)
+                dmin += (self.Position.x - box.Max.x) * (self.Position.x - box.Max.x);
 
-            if (self.Center.y < box.Min.y)
-                dmin += (self.Center.y - box.Min.y) * (self.Center.y - box.Min.y);
+            if (self.Position.y < box.Min.y)
+                dmin += (self.Position.y - box.Min.y) * (self.Position.y - box.Min.y);
 
-            else if (self.Center.y > box.Max.y)
-                dmin += (self.Center.y - box.Max.y) * (self.Center.y - box.Max.y);
+            else if (self.Position.y > box.Max.y)
+                dmin += (self.Position.y - box.Max.y) * (self.Position.y - box.Max.y);
 
-            if (self.Center.z < box.Min.z)
-                dmin += (self.Center.z - box.Min.z) * (self.Center.z - box.Min.z);
+            if (self.Position.z < box.Min.z)
+                dmin += (self.Position.z - box.Min.z) * (self.Position.z - box.Min.z);
 
-            else if (self.Center.z > box.Max.z)
-                dmin += (self.Center.z - box.Max.z) * (self.Center.z - box.Max.z);
+            else if (self.Position.z > box.Max.z)
+                dmin += (self.Position.z - box.Max.z) * (self.Position.z - box.Max.z);
 
             if (dmin <= self.Radius * self.Radius)
                 return ContainmentType.Intersects;
@@ -137,7 +139,7 @@ namespace Assets.XnaLegacy
         }
         public static ContainmentType Contains(this XnaBoundingSphere self, XnaBoundingSphere sphere)
         {
-            double val = math.distance(sphere.Center, self.Center);
+            double val = math.distance(sphere.Position, self.Position);
 
             if (val > sphere.Radius + self.Radius)
                 return ContainmentType.Disjoint;
@@ -154,7 +156,7 @@ namespace Assets.XnaLegacy
         }
         public static ContainmentType Contains(this XnaBoundingSphere self, float3 point)
         {
-            double distance = math.distance(point, self.Center);
+            double distance = math.distance(point, self.Position);
 
             if (distance > self.Radius)
                 return ContainmentType.Disjoint;
@@ -185,7 +187,7 @@ namespace Assets.XnaLegacy
         {
             return new XnaBoundingSphere
             {
-                Center = center,
+                Position = center,
                 Radius = radius
             };
         }
@@ -230,7 +232,7 @@ namespace Assets.XnaLegacy
         public static XnaBoundingSphere CreateMerged(this XnaBoundingSphere self, XnaBoundingSphere original, XnaBoundingSphere additional)
         {
 
-            float3 ocenterToaCenter = additional.Center - original.Center;
+            float3 ocenterToaCenter = additional.Position - original.Position;
             float distance = math.length(ocenterToaCenter);
             if (distance <= original.Radius + additional.Radius)//intersect
             {
@@ -246,7 +248,7 @@ namespace Assets.XnaLegacy
             ocenterToaCenter = ocenterToaCenter + (((leftRadius - Rightradius) / (2 * math.length(ocenterToaCenter))) * ocenterToaCenter);//oCenterToResultCenter
 
             XnaBoundingSphere result = new XnaBoundingSphere();
-            result.Center = original.Center + ocenterToaCenter;
+            result.Position = original.Position + ocenterToaCenter;
             result.Radius = (leftRadius + Rightradius) / 2;
             return result;
         }
@@ -271,7 +273,7 @@ namespace Assets.XnaLegacy
         }
         public static bool Intersects(this XnaBoundingSphere self, XnaBoundingSphere sphere)
         {
-            double val = math.distance(sphere.Center, self.Center);
+            double val = math.distance(sphere.Position, self.Position);
             if (val > sphere.Radius + self.Radius)
                 return false;
             return true;
@@ -282,7 +284,7 @@ namespace Assets.XnaLegacy
         }
         public static PlaneIntersectionType Intersects(this XnaBoundingSphere self, XnaPlane plane)
         {
-            double distance = math.dot(plane.Normal, self.Center) + plane.D;
+            double distance = math.dot(plane.Normal, self.Position) + plane.D;
             if (distance > self.Radius)
                 return PlaneIntersectionType.Front;
             if (distance < -self.Radius)

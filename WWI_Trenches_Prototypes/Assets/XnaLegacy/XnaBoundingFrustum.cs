@@ -176,7 +176,7 @@ namespace Assets.XnaLegacy
             double dist;
             result = ContainmentType.Contains;
 
-            dist = math.dot(self.Bottom.Normal, sphere.Center);
+            dist = math.dot(self.Bottom.Normal, sphere.Position);
             dist += self.Bottom.D;
             if (dist > sphere.Radius)
             {
@@ -186,7 +186,7 @@ namespace Assets.XnaLegacy
             if (Math.Abs(dist) < sphere.Radius)
                 result = ContainmentType.Intersects;
 
-            dist = math.dot(self.Top.Normal, sphere.Center);
+            dist = math.dot(self.Top.Normal, sphere.Position);
             dist += self.Top.D;
             if (dist > sphere.Radius)
             {
@@ -196,7 +196,7 @@ namespace Assets.XnaLegacy
             if (Math.Abs(dist) < sphere.Radius)
                 result = ContainmentType.Intersects;
 
-            dist = math.dot(self.Near.Normal, sphere.Center);
+            dist = math.dot(self.Near.Normal, sphere.Position);
             dist += self.Near.D;
             if (dist > sphere.Radius)
             {
@@ -206,7 +206,7 @@ namespace Assets.XnaLegacy
             if (Math.Abs(dist) < sphere.Radius)
                 result = ContainmentType.Intersects;
 
-            dist = math.dot(self.Far.Normal, sphere.Center);
+            dist = math.dot(self.Far.Normal, sphere.Position);
             dist += self.Far.D;
             if (dist > sphere.Radius)
             {
@@ -216,7 +216,7 @@ namespace Assets.XnaLegacy
             if (Math.Abs(dist) < sphere.Radius)
                 result = ContainmentType.Intersects;
 
-            dist = math.dot(self.Left.Normal, sphere.Center);
+            dist = math.dot(self.Left.Normal, sphere.Position);
             dist += self.Left.D;
             if (dist > sphere.Radius)
             {
@@ -226,7 +226,7 @@ namespace Assets.XnaLegacy
             if (Math.Abs(dist) < sphere.Radius)
                 result = ContainmentType.Intersects;
 
-            dist = math.dot(self.Right.Normal, sphere.Center);
+            dist = math.dot(self.Right.Normal, sphere.Position);
             dist += self.Right.D;
             if (dist > sphere.Radius)
             {

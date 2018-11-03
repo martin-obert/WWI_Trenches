@@ -117,28 +117,28 @@ namespace Assets.XnaLegacy
         }
         public static ContainmentType Contains(this XnaBoundingBox self, XnaBoundingSphere sphere)
         {
-            if (sphere.Center.x - self.Min.x > sphere.Radius
-                && sphere.Center.y - self.Min.y > sphere.Radius
-                && sphere.Center.z - self.Min.z > sphere.Radius
-                && self.Max.x - sphere.Center.x > sphere.Radius
-                && self.Max.y - sphere.Center.y > sphere.Radius
-                && self.Max.z - sphere.Center.z > sphere.Radius)
+            if (sphere.Position.x - self.Min.x > sphere.Radius
+                && sphere.Position.y - self.Min.y > sphere.Radius
+                && sphere.Position.z - self.Min.z > sphere.Radius
+                && self.Max.x - sphere.Position.x > sphere.Radius
+                && self.Max.y - sphere.Position.y > sphere.Radius
+                && self.Max.z - sphere.Position.z > sphere.Radius)
                 return ContainmentType.Contains;
 
             double dmin = 0;
 
-            if (sphere.Center.x - self.Min.x <= sphere.Radius)
-                dmin += (sphere.Center.x - self.Min.x) * (sphere.Center.x - self.Min.x);
-            else if (self.Max.x - sphere.Center.x <= sphere.Radius)
-                dmin += (sphere.Center.x - self.Max.x) * (sphere.Center.x - self.Max.x);
-            if (sphere.Center.y - self.Min.y <= sphere.Radius)
-                dmin += (sphere.Center.y - self.Min.y) * (sphere.Center.y - self.Min.y);
-            else if (self.Max.y - sphere.Center.y <= sphere.Radius)
-                dmin += (sphere.Center.y - self.Max.y) * (sphere.Center.y - self.Max.y);
-            if (sphere.Center.z - self.Min.z <= sphere.Radius)
-                dmin += (sphere.Center.z - self.Min.z) * (sphere.Center.z - self.Min.z);
-            else if (self.Max.z - sphere.Center.z <= sphere.Radius)
-                dmin += (sphere.Center.z - self.Max.z) * (sphere.Center.z - self.Max.z);
+            if (sphere.Position.x - self.Min.x <= sphere.Radius)
+                dmin += (sphere.Position.x - self.Min.x) * (sphere.Position.x - self.Min.x);
+            else if (self.Max.x - sphere.Position.x <= sphere.Radius)
+                dmin += (sphere.Position.x - self.Max.x) * (sphere.Position.x - self.Max.x);
+            if (sphere.Position.y - self.Min.y <= sphere.Radius)
+                dmin += (sphere.Position.y - self.Min.y) * (sphere.Position.y - self.Min.y);
+            else if (self.Max.y - sphere.Position.y <= sphere.Radius)
+                dmin += (sphere.Position.y - self.Max.y) * (sphere.Position.y - self.Max.y);
+            if (sphere.Position.z - self.Min.z <= sphere.Radius)
+                dmin += (sphere.Position.z - self.Min.z) * (sphere.Position.z - self.Min.z);
+            else if (self.Max.z - sphere.Position.z <= sphere.Radius)
+                dmin += (sphere.Position.z - self.Max.z) * (sphere.Position.z - self.Max.z);
 
             if (dmin <= sphere.Radius * sphere.Radius)
                 return ContainmentType.Intersects;
@@ -212,7 +212,7 @@ namespace Assets.XnaLegacy
         public static XnaBoundingBox CreateFromSphere(this XnaBoundingBox self, XnaBoundingSphere sphere)
         {
             float3 vector1 = new float3(sphere.Radius, sphere.Radius, sphere.Radius);
-            return FromMinMax(sphere.Center - vector1, sphere.Center + vector1);
+            return FromMinMax(sphere.Position - vector1, sphere.Position + vector1);
         }
         public static void CreateFromSphere(this XnaBoundingBox self, ref XnaBoundingSphere sphere, out XnaBoundingBox result)
         {
@@ -304,30 +304,30 @@ namespace Assets.XnaLegacy
         }
         public static bool Intersects(this XnaBoundingBox self, XnaBoundingSphere sphere)
         {
-            if (sphere.Center.x - self.Min.x > sphere.Radius
-                && sphere.Center.y - self.Min.y > sphere.Radius
-                && sphere.Center.z - self.Min.z > sphere.Radius
-                && self.Max.x - sphere.Center.x > sphere.Radius
-                && self.Max.y - sphere.Center.y > sphere.Radius
-                && self.Max.z - sphere.Center.z > sphere.Radius)
+            if (sphere.Position.x - self.Min.x > sphere.Radius
+                && sphere.Position.y - self.Min.y > sphere.Radius
+                && sphere.Position.z - self.Min.z > sphere.Radius
+                && self.Max.x - sphere.Position.x > sphere.Radius
+                && self.Max.y - sphere.Position.y > sphere.Radius
+                && self.Max.z - sphere.Position.z > sphere.Radius)
                 return true;
 
             double dmin = 0;
 
-            if (sphere.Center.x - self.Min.x <= sphere.Radius)
-                dmin += (sphere.Center.x - self.Min.x) * (sphere.Center.x - self.Min.x);
-            else if (self.Max.x - sphere.Center.x <= sphere.Radius)
-                dmin += (sphere.Center.x - self.Max.x) * (sphere.Center.x - self.Max.x);
+            if (sphere.Position.x - self.Min.x <= sphere.Radius)
+                dmin += (sphere.Position.x - self.Min.x) * (sphere.Position.x - self.Min.x);
+            else if (self.Max.x - sphere.Position.x <= sphere.Radius)
+                dmin += (sphere.Position.x - self.Max.x) * (sphere.Position.x - self.Max.x);
 
-            if (sphere.Center.y - self.Min.y <= sphere.Radius)
-                dmin += (sphere.Center.y - self.Min.y) * (sphere.Center.y - self.Min.y);
-            else if (self.Max.y - sphere.Center.y <= sphere.Radius)
-                dmin += (sphere.Center.y - self.Max.y) * (sphere.Center.y - self.Max.y);
+            if (sphere.Position.y - self.Min.y <= sphere.Radius)
+                dmin += (sphere.Position.y - self.Min.y) * (sphere.Position.y - self.Min.y);
+            else if (self.Max.y - sphere.Position.y <= sphere.Radius)
+                dmin += (sphere.Position.y - self.Max.y) * (sphere.Position.y - self.Max.y);
 
-            if (sphere.Center.z - self.Min.z <= sphere.Radius)
-                dmin += (sphere.Center.z - self.Min.z) * (sphere.Center.z - self.Min.z);
-            else if (self.Max.z - sphere.Center.z <= sphere.Radius)
-                dmin += (sphere.Center.z - self.Max.z) * (sphere.Center.z - self.Max.z);
+            if (sphere.Position.z - self.Min.z <= sphere.Radius)
+                dmin += (sphere.Position.z - self.Min.z) * (sphere.Position.z - self.Min.z);
+            else if (self.Max.z - sphere.Position.z <= sphere.Radius)
+                dmin += (sphere.Position.z - self.Max.z) * (sphere.Position.z - self.Max.z);
 
             if (dmin <= sphere.Radius * sphere.Radius)
                 return true;
