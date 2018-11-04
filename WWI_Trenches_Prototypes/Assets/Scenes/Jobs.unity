@@ -318,6 +318,8 @@ MonoBehaviour:
   UnitsCount: 20
   mesh: {fileID: 4300000, guid: d5c8109c87bfce94f8d696651e0d16ca, type: 3}
   material: {fileID: 2100000, guid: 59ec04e5687ad2c4c903b7fe7c273189, type: 2}
+  barMaterial: {fileID: 2100000, guid: 7bfb614c1ca929e48adc97949bb72012, type: 2}
+  barMaterial2: {fileID: 2100000, guid: b95917ecdc35d0c49819b6df86afa5ce, type: 2}
 --- !u!4 &516755712
 Transform:
   m_ObjectHideFlags: 0

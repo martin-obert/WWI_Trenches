@@ -155,24 +155,27 @@ namespace Assets.JobTests
             {
                 var position = positions[i];
                 var health = healths[i];
-                availibleHealth[i] = CreateHealtMatrix(position.Value, new float3(0, 15, 0), health.Value);
+                availibleHealth[i] = CreateHealtMatrix(position.Value, health.Value, 5);
 
-                unavailibleHealth[i] = CreateHealtMatrix(position.Value + new float3(100 - health.Value, 0, 0), new float3(0, 15, 0), 100 - health.Value);
+                unavailibleHealth[i] = CreateHealtMatrix(position.Value, 100 - health.Value, 5, 100 - health.Value);
             }
 
-
             //var projection = Camera.main.worldToCameraMatrix * Camera.main.projectionMatrix.inverse;
-
             Graphics.DrawMeshInstanced(_barMesh, 0, BarMeshMaterial, availibleHealth);
             Graphics.DrawMeshInstanced(_barMesh, 0, BarMeshMaterial2, unavailibleHealth);
 
         }
 
-        private Matrix4x4 CreateHealtMatrix(float3 position, float3 offset, float health)
+        private Vector3 GetLook(float3 position)
         {
-            return Matrix4x4.TRS(position + offset,
-                  Quaternion.LookRotation(((Vector3)position - Camera.main.transform.position).normalized, Vector3.up),
-                  Vector3.one) * Matrix4x4.Scale(new Vector3(health, 1));
+            return ((Vector3)position - Camera.main.transform.position).normalized;
+        }
+        private Matrix4x4 CreateHealtMatrix(Vector3 position, float health, float upOffset, float? leftOffset = null)
+        {
+            var vector = GetLook(position);
+            return Matrix4x4.TRS(position + (Vector3.up * upOffset),
+                  Quaternion.LookRotation(vector),
+                  Vector3.one) * (leftOffset.HasValue ? Matrix4x4.Translate(vector * leftOffset.Value) : Matrix4x4.identity) * Matrix4x4.Scale(new Vector3(health, 1));
         }
 
     }
