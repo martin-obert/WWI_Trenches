@@ -24,14 +24,14 @@ namespace Assets.JobTests
         private EntityManager _manager;
         public Mesh mesh;
         public Material material;
+        public Material barMaterial;
+        public Material barMaterial2;
         void Start()
         {
             _manager = World.Active.GetOrCreateManager<EntityManager>();
-            //_greenTexture = new Texture2D(1, 1);
-            //_greenTexture.SetPixel(0, 0, Color.green);
-            //_greenTexture.Apply();
-            //HealthDrawSystem.HealthTexture = _greenTexture;
 
+            HealthDrawSystem.BarMeshMaterial = barMaterial;
+            HealthDrawSystem.BarMeshMaterial2 = barMaterial2;
         }
 
         private int GroupId = 1;
@@ -89,59 +89,114 @@ namespace Assets.JobTests
 
     }
 
-    //[UpdateAfter(typeof(PreLateUpdate.ParticleSystemBeginUpdateAll))]
-    //[ExecuteInEditMode]
-    //public class HealthDrawSystem : ComponentSystem
-    //{
-    //    public static Texture2D HealthTexture;
-    //    private Matrix4x4 _worldToScreen;
-    //    private int ScreenWidth;
-    //    private int ScreenHeight;
-    //    private Mesh _barMesh;
+    [UpdateAfter(typeof(PreLateUpdate.ParticleSystemBeginUpdateAll))]
+    [ExecuteInEditMode]
+    public class HealthDrawSystem : ComponentSystem
+    {
+        private Matrix4x4 _worldToScreen;
+        private Mesh _barMesh;
+        private ComponentGroup _group;
+        public static Material BarMeshMaterial2;
 
-    //    protected override void OnCreateManager()
-    //    {
-    //        _barMesh = new Mesh { vertices = new Vector3[4] };
+        protected override void OnCreateManager()
+        {
+            var vertices = new Vector3[]
+            {
+                new Vector3(0,1),
+                new Vector3(1,1),
+                new Vector3(0,0),
+                new Vector3(1,0)
+            };
 
-    //        _barMesh.vertices[0] = new Vector3(0, 0, 0);
-    //        _barMesh.vertices[1] = new Vector3(0, 1, 0);
-    //        _barMesh.vertices[2] = new Vector3(1, 0, 0);
-    //        _barMesh.vertices[3] = new Vector3(1, 1, 0);
-    //        _barMesh.SetIndices(new[]
-    //        {
-    //            0,1,2,0,2,3
-    //        }, MeshTopology.Triangles, 0);
+            var indices = new[] { 0, 1, 2, 2, 1, 3 };
+            _barMesh = new Mesh
+            {
+                vertices = vertices,
+                triangles = indices
+            };
+            _group = GetComponentGroup(typeof(Group), typeof(Position), typeof(Health));
+        }
 
-    //        ScreenHeight = Screen.width;
-    //        ScreenHeight = Screen.height;
-    //    }
+        //struct Data
+        //{
+        //    [ReadOnly] public ComponentDataArray<Health> Health;
+        //    [ReadOnly] public ComponentDataArray<Position> Positions;
+        //    [ReadOnly] public SharedComponentDataArray<Group> Groups;
+        //    public readonly int Length;
+        //}
 
-    //    struct Data
-    //    {
-    //        [ReadOnly] public ComponentDataArray<Health> Health;
-    //        [ReadOnly] public ComponentDataArray<Position> Positions;
-    //        [ReadOnly] public ComponentDataArray<HealthDisplayPosition> HealthDisplayPositions;
-    //        public readonly int Length;
-    //    }
+        public static Material BarMeshMaterial;
 
-    //    [Inject] private Data _data;
-    //    protected override void OnUpdate()
-    //    {
 
-    //        if (HealthTexture == null)
-    //            return;
-    //        _worldToScreen = Camera.main.projectionMatrix * Camera.main.worldToCameraMatrix;
-    //        for (int i = 0; i < _data.Length; i++)
-    //        {
-    //            var health = _data.Health[i];
-    //            var healthPosition = _data.HealthDisplayPositions[i];
-    //            var position = _data.Positions[i];
-    //            var drawposition = math.transform(_worldToScreen, position.Value);
-    //            //Graphics.DrawTexture(new Rect(0,0, 1, 1), HealthTexture);
-    //            Graphics.DrawMesh(_barMesh, Matrix4x4.identity, ,0);
-    //        }
-    //    }
-    //}
+
+        //[Inject] private Data _data;
+
+        private List<Group> groupsUniqed = new List<Group>(10);
+
+        protected override void OnUpdate()
+        {
+            //EntityManager.GetAllUniqueSharedComponentData(groupsUniqed);
+            //for (int i = 0; i < groupsUniqed.Count; i++)
+            //{
+            //    if(groupsUniqed[i].Id != SelectionSystem.SelectedGroup)
+            //        continue;
+
+            //}
+            if (SelectionSystem.SelectedGroup <= 0)
+                return;
+
+            _group.SetFilter(new Group { Id = SelectionSystem.SelectedGroup });
+            var positions = _group.GetComponentDataArray<Position>();
+            var healths = _group.GetComponentDataArray<Health>();
+            var availibleHealth = new Matrix4x4[math.min(positions.Length, healths.Length)];
+            var unavailibleHealth = new Matrix4x4[math.min(positions.Length, healths.Length)];
+
+            for (int i = 0; i < positions.Length && i < healths.Length; i++)
+            {
+                var position = positions[i];
+                var health = healths[i];
+                availibleHealth[i] = CreateHealtMatrix(position.Value, new float3(0, 15, 0), health.Value);
+
+                unavailibleHealth[i] = CreateHealtMatrix(position.Value + new float3(100 - health.Value, 0, 0), new float3(0, 15, 0), 100 - health.Value);
+            }
+
+
+            //var projection = Camera.main.worldToCameraMatrix * Camera.main.projectionMatrix.inverse;
+
+            Graphics.DrawMeshInstanced(_barMesh, 0, BarMeshMaterial, availibleHealth);
+            Graphics.DrawMeshInstanced(_barMesh, 0, BarMeshMaterial2, unavailibleHealth);
+
+        }
+
+        private Matrix4x4 CreateHealtMatrix(float3 position, float3 offset, float health)
+        {
+            return Matrix4x4.TRS(position + offset,
+                  Quaternion.LookRotation(((Vector3)position - Camera.main.transform.position).normalized, Vector3.up),
+                  Vector3.one) * Matrix4x4.Scale(new Vector3(health, 1));
+        }
+
+    }
+
+    public class HealthDecayTestSystem : ComponentSystem
+    {
+        struct Data
+        {
+            public ComponentDataArray<Health> Healths;
+            public readonly int Length;
+        }
+
+        [Inject] private Data _data;
+        protected override void OnUpdate()
+        {
+            for (int i = 0; i < _data.Length; i++)
+            {
+                var health = _data.Healths[i];
+                health.Value -= 6 * Time.deltaTime;
+                health.Value = health.Value < 0 ? 100 : health.Value;
+                _data.Healths[i] = health;
+            }
+        }
+    }
 
 
     [UpdateAfter(typeof(PreLateUpdate.ParticleSystemBeginUpdateAll))]
@@ -254,7 +309,7 @@ namespace Assets.JobTests
                 for (int i = 0; i < Lenght; i++)
                 {
                     var range = Ranges[i];
-                   
+
                     var sphere = range;
                     if (Ray.Intersects(sphere) != null)
                     {
