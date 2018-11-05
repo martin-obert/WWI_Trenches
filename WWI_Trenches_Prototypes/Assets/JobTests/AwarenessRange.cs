@@ -23,10 +23,11 @@ namespace Assets.JobTests
 
     }
 
-
+    //Todo: neni tohle redundantni v ramci weapony?
     [Serializable]
     public struct Target : IComponentData
     {
-
+        public Entity Entity;
     }
+
 }

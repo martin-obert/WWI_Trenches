@@ -375,7 +375,6 @@ namespace Assets.JobTests
         {
             var position = _group.GetComponentDataArray<LocalToWorld>();
 
-
             int beginIndex = 0;
 
             while (beginIndex < position.Length)
@@ -729,26 +728,75 @@ namespace Assets.JobTests
 
         struct Data
         {
-
+            [ReadOnly] public ComponentDataArray<Target> UnitsHavingTarget;
+            [ReadOnly] public ComponentDataArray<WeaponPrototype> Weapons;
+            public ComponentDataArray<Position> Positions;
+            [ReadOnly] public EntityArray Entities;
+            [ReadOnly] public ComponentDataArray<Speed> Speeds;
+            public readonly int Length;
         }
+
+        [Inject] private Data _data;
 
         protected override void OnUpdate()
         {
+            for (int i = 0; i < _data.Length; i++)
+            {
+                var weapon = _data.Weapons[i];
+
+                var target = _data.UnitsHavingTarget[i];
+
+                var position = _data.Positions[i];
+
+                var speed = _data.Speeds[i];
+
+                if (!EntityManager.Exists(target.Entity))
+                {
+                    continue;
+                }
+
+
+
+                var targetPosition = EntityManager.GetComponentData<Position>(target.Entity);
+
+                if (math.distance(targetPosition.Value, position.Value) <= weapon.Range)
+                {
+                    PostUpdateCommands.RemoveComponent<Target>(_data.Entities[i]);
+                    PostUpdateCommands.DestroyEntity(target.Entity);
+                }
+                else
+                {
+                    var dir = math.normalize(targetPosition.Value - position.Value);
+                    position.Value += dir * speed.Value;
+                    _data.Positions[i] = position;
+
+                }
+            }
+
         }
     }
-
+    [UpdateAfter(typeof(AttackSystem))]
     public class TargetingSystem : ComponentSystem
     {
         struct Data
         {
             [ReadOnly] public ComponentDataArray<Enemy> Enemies;
-            [ReadOnly] public SharedComponentDataArray<Group> Groups;
+            [ReadOnly] public EntityArray Entities;
             [ReadOnly] public ComponentDataArray<XnaBoundingSphere> Spheres;
             public readonly int Length;
         }
 
         [Inject] private Data _data;
-        
+
+        private EndFrameBarrier _barrier;
+
+        private ComponentGroup _selectedComponentGroup;
+
+        protected override void OnCreateManager()
+        {
+            _selectedComponentGroup = GetComponentGroup(typeof(Group), typeof(Selected), typeof(WeaponPrototype));
+        }
+
         protected override void OnUpdate()
         {
             if (!Input.GetKey(KeyCode.A) || !Input.GetMouseButtonDown((int)MouseButton.RightMouse))
@@ -760,10 +808,21 @@ namespace Assets.JobTests
             for (int i = 0; i < _data.Length; i++)
             {
                 var shpere = _data.Spheres[i];
+
                 var enemy = _data.Enemies[i];
+
                 if (xnaRay.Intersects(shpere) != null)
                 {
-                    Debug.Log("Attack " + enemy);
+                    var entities = _selectedComponentGroup.GetEntityArray();
+
+                    for (int j = 0; j < entities.Length; j++)
+                    {
+                        if (EntityManager.HasComponent<Destination>(entities[j]))
+                            PostUpdateCommands.RemoveComponent<Destination>(entities[j]);
+
+                        PostUpdateCommands.AddComponent(entities[j], new Target { Entity = _data.Entities[i] });
+                    }
+                    Debug.Log("Attack " + entities.Length);
                     //Todo: set attack
                     return;
                 }
