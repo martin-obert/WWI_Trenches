@@ -521,7 +521,7 @@ public class Vec3Seri
 //                _manager.SetComponentData(entity, new Rotation { Radius = quaternion.identity });
 
 //                _manager.SetComponentData(entity, new MoveSpeedComponent { Speed = 1, Name = i });
-//                _manager.SetComponentData(entity, new RangeProximity() { Range = 3 });
+//                _manager.SetComponentData(entity, new AwarenessRange() { Range = 3 });
 
 //            }
 //            entities.Dispose();
@@ -547,7 +547,7 @@ public class Vec3Seri
 //        struct Data
 //        {
 //            public ComponentDataArray<Position> Positions;
-//            public ComponentDataArray<RangeProximity> Ranges;
+//            public ComponentDataArray<AwarenessRange> Ranges;
 //            public ComponentDataArray<GroupComponent> Groups;
 
 //            [ReadOnly] public SharedComponentDataArray<MeshInstanceRenderer> Renderers;
@@ -560,7 +560,7 @@ public class Vec3Seri
 //        struct FilterJob : IJob
 //        {
 //            [ReadOnly] public ComponentDataArray<Position> UnitPositions;
-//            [ReadOnly] public ComponentDataArray<RangeProximity> RangeComponents;
+//            [ReadOnly] public ComponentDataArray<AwarenessRange> RangeComponents;
 //            [ReadOnly] public ComponentDataArray<GroupComponent> Groups;
 //            public float3 CursorPosition;
 //            [WriteOnly] public NativeArray<int> Selected;

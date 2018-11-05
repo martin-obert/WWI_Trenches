@@ -17,7 +17,7 @@ namespace Assets.JobTests
     public class SystemsTests : MonoBehaviour
     {
         private Texture2D _greenTexture;
-
+        public AudioClip Clip;
         public GameObject Cu;
         public GameObject UnitPartPrefab;
         public int UnitsCount = 10;
@@ -26,19 +26,47 @@ namespace Assets.JobTests
         public Material material;
         public Material barMaterial;
         public Material barMaterial2;
+        public AudioSource AudioSource;
+
         void Start()
         {
             _manager = World.Active.GetOrCreateManager<EntityManager>();
 
             HealthDrawSystem.BarMeshMaterial = barMaterial;
             HealthDrawSystem.BarMeshMaterial2 = barMaterial2;
+            NavigationSystem.AudioClip = Clip;
+            NavigationSystem.Audio = AudioSource;
+
+            var enemiesArray = new NativeArray<Entity>(UnitsCount, Allocator.Temp);
+            _manager.Instantiate(UnitPartPrefab, enemiesArray);
+            for (int i = 0; i < UnitsCount; i++)
+            {
+                var part = enemiesArray[i];
+                _manager.AddSharedComponentData(part, new Group { Id = GroupId });
+                _manager.AddSharedComponentData(part, new UnitRenderer
+                {
+                    Mesh = mesh,
+                    Material = material
+                }); ;
+                _manager.AddComponentData(part, new LocalToWorld { Value = UnitPartPrefab.transform.localToWorldMatrix });
+                _manager.AddComponentData(part, new Position { Value = new Vector3(UnityEngine.Random.Range(-150, 150), 0, UnityEngine.Random.Range(-150, 150)) });
+                _manager.AddComponentData(part, new Rotation { Value = Quaternion.identity });
+                _manager.AddComponentData(part, new Speed { Value = .1f });
+                _manager.AddComponentData(part, new Health { Value = 100, Max = 100 });
+                _manager.AddComponentData(part, new Enemy { });
+
+                _manager.AddComponentData(part, new XnaBoundingSphere { Radius = 2f, Offset = new float3(0, 1.7f, 0) });
+            }
+            GroupId++;
+
+            enemiesArray.Dispose();
         }
 
         private int GroupId = 1;
 
         void Update()
         {
-            if (Input.GetMouseButtonDown((int)MouseButton.LeftMouse))
+            if (Input.GetMouseButtonDown((int)MouseButton.RightMouse))
             {
                 var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -59,8 +87,7 @@ namespace Assets.JobTests
 
                 _manager.Instantiate(UnitPartPrefab, unitParts);
 
-                var unitDestination = new Vector3(UnityEngine.Random.Range(0, 60), 0,
-                    UnityEngine.Random.Range(0, 60));
+                var unitDestination = Vector3.zero;
 
                 for (int i = 0; i < unitParts.Length; i++)
                 {
@@ -70,12 +97,22 @@ namespace Assets.JobTests
                     {
                         Mesh = mesh,
                         Material = material
-                    }); ;
+                    });
+
                     _manager.AddComponentData(part, new LocalToWorld { Value = UnitPartPrefab.transform.localToWorldMatrix });
+
                     _manager.AddComponentData(part, new Position { Value = new Vector3(0, 0, UnityEngine.Random.Range(0, UnitsCount)) });
+
                     _manager.AddComponentData(part, new Rotation { Value = Quaternion.identity });
+
                     _manager.AddComponentData(part, new Destination { Value = unitDestination });
+
+                    _manager.AddComponentData(part, new Speed { Value = .1f });
+
                     _manager.AddComponentData(part, new Health { Value = 100, Max = 100 });
+
+                    _manager.AddComponentData(part, new WeaponPrototype { Range = 20 });
+
                     //_manager.AddComponentData(part, new Selected {  });
 
                     _manager.AddComponentData(part, new XnaBoundingSphere { Radius = 2f, Offset = new float3(0, 1.7f, 0) });
@@ -86,7 +123,10 @@ namespace Assets.JobTests
 
                 GroupId++;
             }
+
         }
+
+
 
     }
 
@@ -125,6 +165,9 @@ namespace Assets.JobTests
 
         protected override void OnUpdate()
         {
+            if (!Input.GetKey(KeyCode.LeftAlt)) return;
+
+
             var positions = _group.GetComponentDataArray<Position>();
 
             var healths = _group.GetComponentDataArray<Health>();
@@ -160,7 +203,7 @@ namespace Assets.JobTests
         private Matrix4x4 CreateHealtMatrix(Vector3 position, float health, float upOffset, float? leftOffset = null)
         {
             var vector = GetLookNorm(position);
-            return Matrix4x4.TRS(position + (Vector3.up * upOffset),
+            return Matrix4x4.TRS(position + Vector3.up * upOffset,
                   Quaternion.LookRotation(vector),
                   Vector3.one) * (leftOffset.HasValue ? Matrix4x4.Translate(Vector3.right * leftOffset.Value) : Matrix4x4.identity) * Matrix4x4.Scale(new Vector3(health, Size.y));
         }
@@ -308,6 +351,7 @@ namespace Assets.JobTests
 
         protected override void OnUpdate()
         {
+
             EntityManager.GetAllUniqueSharedComponentData(_instancedRenderers);
 
             for (var i = 0; i < _instancedRenderers.Count; i++)
@@ -346,7 +390,6 @@ namespace Assets.JobTests
             }
         }
     }
-
     public class UnSelectionSystem : JobComponentSystem
     {
         struct Data
@@ -380,10 +423,14 @@ namespace Assets.JobTests
 
         [Inject] private EndFrameBarrier _selectBarrier;
 
+        private JobHandle handle;
+
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             if (Input.GetMouseButtonDown((int)MouseButton.LeftMouse))
             {
+                handle.Complete();
+
                 var job = new UnSelectionJob
                 {
                     CommandBuffer = _selectBarrier.CreateCommandBuffer(),
@@ -392,7 +439,8 @@ namespace Assets.JobTests
                     Lenght = _data.Length,
                 };
 
-                job.Schedule(inputDeps).Complete();
+                handle = job.Schedule(inputDeps);
+                handle.Complete();
             }
 
             return inputDeps;
@@ -406,35 +454,67 @@ namespace Assets.JobTests
         {
             public readonly int Length;
             [ReadOnly] public ComponentDataArray<XnaBoundingSphere> Ranges;
-            [ReadOnly] public SubtractiveComponent<Selected> Selections;
+            [ReadOnly] public SharedComponentDataArray<Group> Group;
+            [ReadOnly] public SubtractiveComponent<Enemy> Selections;
             [ReadOnly] public EntityArray Entities;
         }
 
-        struct SelectionJob : IJob
+        struct RayCastJob : IJob
         {
             [ReadOnly] public ComponentDataArray<XnaBoundingSphere> Spheres;
 
-            [ReadOnly] public EntityArray Entities;
+            [ReadOnly] public SharedComponentDataArray<Group> Groups;
 
+            [WriteOnly] public NativeList<int> SelectedUnit;
+
+            public XnaRay Ray;
+
+            public int SelectionMode;
+
+            public void Execute()
+            {
+                for (int i = 0; i < Spheres.Length; i++)
+                {
+                    var sphere = Spheres[i];
+
+                    if (Ray.Intersects(sphere) != null)
+                    {
+                        //Todo: enums
+                        if (SelectionMode == 0)
+                        {
+                            for (int j = 0; j < Groups.Length; j++)
+                            {
+                                if (Groups[j].Id == Groups[i].Id)
+                                {
+                                    SelectedUnit.Add(j);
+
+                                }
+                            }
+                        }
+                        else
+                        {
+                            SelectedUnit.Add(i);
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+
+        struct SelectJob : IJob
+        {
+            [ReadOnly] public EntityArray Entities;
             [ReadOnly] public EntityCommandBuffer CommandBuffer;
 
             public int Lenght;
 
-            public XnaRay Ray;
-
-            private int HasSet;
+            [ReadOnly] public NativeList<int> SelectedUnits;
 
             public void Execute()
             {
-                for (int i = 0; i < Lenght; i++)
+                for (int i = 0; i < SelectedUnits.Length; i++)
                 {
-                    var sphere = Spheres[i];
-
-                    if (Ray.Intersects(sphere) != null && HasSet == 0)
-                    {
-                        HasSet = 1;
-                        CommandBuffer.AddComponent(Entities[i], new Selected());
-                    }
+                    CommandBuffer.AddComponent(Entities[SelectedUnits[i]], new Selected());
                 }
             }
         }
@@ -443,28 +523,55 @@ namespace Assets.JobTests
 
         [Inject] private EndFrameBarrier _selectBarrier;
 
+        private JobHandle handle;
+
+        //private ComponentGroup _group;
+
+        //protected override void OnCreateManager()
+        //{
+        //    _group = GetComponentGroup(typeof(Group), typeof(Selected));
+        //}
+
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             if (Input.GetMouseButtonDown((int)MouseButton.LeftMouse))
             {
+                handle.Complete();
+
                 var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
                 var xnaRay = new XnaRay
                 {
                     Position = ray.origin,
                     Direction = ray.direction
                 };
 
+                var selectedUnits = new NativeList<int>(50, Allocator.Temp);
 
-                var job = new SelectionJob
+                var selectionMode = Input.GetKey(KeyCode.LeftControl) ? 1 : 0;
+
+                var rayCastHandle = new RayCastJob
                 {
-                    CommandBuffer = _selectBarrier.CreateCommandBuffer(),
-                    Entities = _data.Entities,
+                    Ray = xnaRay,
+                    Groups = _data.Group,
                     Spheres = _data.Ranges,
-                    Lenght = _data.Length,
-                    Ray = xnaRay
-                };
+                    SelectionMode = selectionMode,
+                    SelectedUnit = selectedUnits
+                }.Schedule(inputDeps);
 
-                job.Schedule(inputDeps).Complete();
+
+
+                handle = new SelectJob
+                {
+                    SelectedUnits = selectedUnits,
+                    Entities = _data.Entities,
+                    Lenght = _data.Length,
+                    CommandBuffer = _selectBarrier.CreateCommandBuffer()
+                }.Schedule(rayCastHandle);
+
+                handle.Complete();
+
+                selectedUnits.Dispose();
             }
 
             return inputDeps;
@@ -508,62 +615,69 @@ namespace Assets.JobTests
         }
     }
 
+    [UpdateAfter(typeof(SelectionSystem))]
+    public class NavigationSystem : ComponentSystem
+    {
+        struct Data
+        {
+            [ReadOnly] public ComponentDataArray<Selected> SelectedUnits;
+            public ComponentDataArray<Destination> Destinations;
+            [ReadOnly] public ComponentDataArray<XnaBoundingSphere> Spheres;
+            public readonly int Length;
+        }
 
-    //public class NavigationSystem : ComponentSystem
-    //{
-    //    struct Data
-    //    {
-    //        [ReadOnly] public SharedComponentDataArray<UnitPart> Units;
-    //        public ComponentDataArray<Destination> Destinations;
-    //        public readonly int Length;
-    //    }
 
+        [Inject] private Data _data;
 
-    //    [Inject] private Data _data;
+        protected override void OnCreateManager()
+        {
 
-    //    private List<UnitPart> _units = new List<UnitPart>(10);
+        }
 
-    //    private ComponentGroup _group;
+        private int _rows = 5;
+        private int _cols = 5;
+        public static AudioSource Audio;
+        public static AudioClip AudioClip;
+        protected override void OnUpdate()
+        {
+            if (!Input.GetMouseButtonDown((int)MouseButton.RightMouse))
+            {
+                return;
+            }
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (!Physics.Raycast(ray, out hit))
+            {
+                return;
+            }
 
-    //    protected override void OnCreateManager()
-    //    {
-    //        _group = GetComponentGroup(typeof(UnitPart), typeof(Destination));
+            float3 click = hit.point;
 
-    //    }
+            for (int i = 0; i < _rows; i++)
+            {
+                for (int j = 0; j < _cols; j++)
+                {
+                    var flatted = i * _rows + j;
+                    if (flatted >= _data.Length)
+                        goto End;
 
-    //    protected override void OnUpdate()
-    //    {
-    //        if (Input.GetKeyDown(KeyCode.Escape))
-    //        {
-    //            EntityManager.GetAllUniqueSharedComponentData(_units);
+                    var destination = _data.Destinations[flatted];
+                    var sphere = _data.Spheres[flatted];
+                    destination.Value = click + new float3(j + sphere.Radius, 0, i);
+                    _data.Destinations[flatted] = destination;
+                }
+            }
 
-    //            foreach (var unit in _units)
-    //            {
-    //                _group.SetFilter(new UnitPart { UnitId = unit.UnitId });
-
-    //                var data = _group.GetComponentDataArray<Destination>();
-
-    //                var newdestination = new Vector3(UnityEngine.Random.Range(0, 359),
-    //                    UnityEngine.Random.Range(0, 359), UnityEngine.Random.Range(0, 359));
-
-    //                for (int i = 0; i < data.Length; i++)
-    //                {
-    //                    var destination = data[i];
-    //                    destination.Radius = newdestination;
-    //                    data[i] = destination;
-    //                }
-    //            }
-    //        }
-
-    //    }
-    //}
+            End:;
+        }
+    }
 
     public class MoveSystem : ComponentSystem
     {
         struct Data
         {
             public ComponentDataArray<Position> Positions;
-            public ComponentDataArray<Rotation> Rot;
+            [ReadOnly] public ComponentDataArray<Speed> Speeds;
             [ReadOnly] public ComponentDataArray<Destination> Destinations;
             public readonly int Length;
         }
@@ -574,8 +688,9 @@ namespace Assets.JobTests
         struct MoveJob : IJob
         {
             public ComponentDataArray<Position> Positions;
-            public ComponentDataArray<Rotation> Rot;
+
             [ReadOnly] public ComponentDataArray<Destination> Destinations;
+            [ReadOnly] public ComponentDataArray<Speed> Speeds;
 
             public int Length;
 
@@ -583,13 +698,10 @@ namespace Assets.JobTests
             {
                 for (int i = 0; i < Length; i++)
                 {
-                    var position = Positions[i];
-                    position.Value += math.normalize((Destinations[i].Value) - position.Value) * .05f;
-                    Positions[i] = position;
 
-                    var rot = Rot[i];
-                    rot.Value *= Quaternion.Euler(0, 1, 0);
-                    Rot[i] = rot;
+                    var position = Positions[i];
+                    position.Value += math.normalize(Destinations[i].Value - position.Value) * Speeds[i].Value;
+                    Positions[i] = position;
                 }
             }
         }
@@ -603,12 +715,60 @@ namespace Assets.JobTests
             {
                 Positions = _data.Positions,
                 Destinations = _data.Destinations,
-                Rot = _data.Rot,
+                Speeds = _data.Speeds,
                 Length = _data.Length
             };
 
             handle = job.Schedule();
             handle.Complete();
+        }
+    }
+
+    public class AttackSystem : ComponentSystem
+    {
+
+        struct Data
+        {
+
+        }
+
+        protected override void OnUpdate()
+        {
+        }
+    }
+
+    public class TargetingSystem : ComponentSystem
+    {
+        struct Data
+        {
+            [ReadOnly] public ComponentDataArray<Enemy> Enemies;
+            [ReadOnly] public SharedComponentDataArray<Group> Groups;
+            [ReadOnly] public ComponentDataArray<XnaBoundingSphere> Spheres;
+            public readonly int Length;
+        }
+
+        [Inject] private Data _data;
+        
+        protected override void OnUpdate()
+        {
+            if (!Input.GetKey(KeyCode.A) || !Input.GetMouseButtonDown((int)MouseButton.RightMouse))
+                return;
+
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            var xnaRay = new XnaRay { Position = ray.origin, Direction = ray.direction };
+            for (int i = 0; i < _data.Length; i++)
+            {
+                var shpere = _data.Spheres[i];
+                var enemy = _data.Enemies[i];
+                if (xnaRay.Intersects(shpere) != null)
+                {
+                    Debug.Log("Attack " + enemy);
+                    //Todo: set attack
+                    return;
+                }
+            }
+
         }
     }
 

@@ -13,11 +13,11 @@ namespace Assets.JobTests
         public float Max;
     }
 
-    //[Serializable]
-    //public struct HealthDisplayPosition : IComponentData
-    //{
-    //    public Matrix4x4 Value;
-    //}
+    [Serializable]
+    public struct Speed : IComponentData
+    {
+        public float Value;
+    }
 
     [Serializable]
     public struct Destination : IComponentData
