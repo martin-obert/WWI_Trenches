@@ -75,7 +75,7 @@ namespace Assets.JobTests
                     _manager.AddComponentData(part, new Position { Value = new Vector3(0, 0, UnityEngine.Random.Range(0, UnitsCount)) });
                     _manager.AddComponentData(part, new Rotation { Value = Quaternion.identity });
                     _manager.AddComponentData(part, new Destination { Value = unitDestination });
-                    _manager.AddComponentData(part, new Health { Value = 100 });
+                    _manager.AddComponentData(part, new Health { Value = 100, Max = 100 });
 
                     _manager.AddComponentData(part, new XnaBoundingSphere { Radius = 2f, Offset = new float3(0, 1.7f, 0) });
 
@@ -116,48 +116,40 @@ namespace Assets.JobTests
             };
             _group = GetComponentGroup(typeof(Group), typeof(Position), typeof(Health));
         }
-
-        //struct Data
-        //{
-        //    [ReadOnly] public ComponentDataArray<Health> Health;
-        //    [ReadOnly] public ComponentDataArray<Position> Positions;
-        //    [ReadOnly] public SharedComponentDataArray<Group> Groups;
-        //    public readonly int Length;
-        //}
-
         public static Material BarMeshMaterial;
 
+        private float3 Size = new float3(15, 1, 0);
 
 
-        //[Inject] private Data _data;
-
-        private List<Group> groupsUniqed = new List<Group>(10);
 
         protected override void OnUpdate()
         {
-            //EntityManager.GetAllUniqueSharedComponentData(groupsUniqed);
-            //for (int i = 0; i < groupsUniqed.Count; i++)
-            //{
-            //    if(groupsUniqed[i].Id != SelectionSystem.SelectedGroup)
-            //        continue;
-
-            //}
             if (SelectionSystem.SelectedGroup <= 0)
                 return;
 
             _group.SetFilter(new Group { Id = SelectionSystem.SelectedGroup });
+
             var positions = _group.GetComponentDataArray<Position>();
+
             var healths = _group.GetComponentDataArray<Health>();
+
             var availibleHealth = new Matrix4x4[math.min(positions.Length, healths.Length)];
+
             var unavailibleHealth = new Matrix4x4[math.min(positions.Length, healths.Length)];
 
             for (int i = 0; i < positions.Length && i < healths.Length; i++)
             {
                 var position = positions[i];
-                var health = healths[i];
-                availibleHealth[i] = CreateHealtMatrix(position.Value, health.Value, 5);
 
-                unavailibleHealth[i] = CreateHealtMatrix(position.Value, 100 - health.Value, 5, 100 - health.Value);
+                var health = healths[i];
+
+                var healthAvailibleClamped = (health.Value / health.Max) * Size.x;
+                var healthUnAvailibleClamped = Size.x - healthAvailibleClamped;
+
+
+                availibleHealth[i] = CreateHealtMatrix(position.Value - Size / 2, healthAvailibleClamped, 5);
+
+                unavailibleHealth[i] = CreateHealtMatrix(position.Value - Size / 2, -healthUnAvailibleClamped, 5, Size.x);
             }
 
             //var projection = Camera.main.worldToCameraMatrix * Camera.main.projectionMatrix.inverse;
@@ -166,40 +158,40 @@ namespace Assets.JobTests
 
         }
 
-        private Vector3 GetLook(float3 position)
+        private Vector3 GetLookNorm(float3 position)
         {
             return ((Vector3)position - Camera.main.transform.position).normalized;
         }
         private Matrix4x4 CreateHealtMatrix(Vector3 position, float health, float upOffset, float? leftOffset = null)
         {
-            var vector = GetLook(position);
+            var vector = GetLookNorm(position);
             return Matrix4x4.TRS(position + (Vector3.up * upOffset),
                   Quaternion.LookRotation(vector),
-                  Vector3.one) * (leftOffset.HasValue ? Matrix4x4.Translate(vector * leftOffset.Value) : Matrix4x4.identity) * Matrix4x4.Scale(new Vector3(health, 1));
+                  Vector3.one) * (leftOffset.HasValue ? Matrix4x4.Translate(Vector3.right * leftOffset.Value) : Matrix4x4.identity) * Matrix4x4.Scale(new Vector3(health, Size.y));
         }
 
     }
 
-    public class HealthDecayTestSystem : ComponentSystem
-    {
-        struct Data
-        {
-            public ComponentDataArray<Health> Healths;
-            public readonly int Length;
-        }
+    //public class HealthDecayTestSystem : ComponentSystem
+    //{
+    //    struct Data
+    //    {
+    //        public ComponentDataArray<Health> Healths;
+    //        public readonly int Length;
+    //    }
 
-        [Inject] private Data _data;
-        protected override void OnUpdate()
-        {
-            for (int i = 0; i < _data.Length; i++)
-            {
-                var health = _data.Healths[i];
-                health.Value -= 6 * Time.deltaTime;
-                health.Value = health.Value < 0 ? 100 : health.Value;
-                _data.Healths[i] = health;
-            }
-        }
-    }
+    //    [Inject] private Data _data;
+    //    protected override void OnUpdate()
+    //    {
+    //        for (int i = 0; i < _data.Length; i++)
+    //        {
+    //            var health = _data.Healths[i];
+    //            health.Value -= 6 * Time.deltaTime;
+    //            health.Value = health.Value < 0 ? 100 : health.Value;
+    //            _data.Healths[i] = health;
+    //        }
+    //    }
+    //}
 
 
     [UpdateAfter(typeof(PreLateUpdate.ParticleSystemBeginUpdateAll))]
@@ -242,7 +234,6 @@ namespace Assets.JobTests
 
         protected override void OnUpdate()
         {
-
             EntityManager.GetAllUniqueSharedComponentData(_instancedRenderers);
 
             for (var i = 0; i < _instancedRenderers.Count; i++)
@@ -264,6 +255,7 @@ namespace Assets.JobTests
 
                 RenderGroup(instancedRenderer);
             }
+
             _instancedRenderers.Clear();
         }
 
