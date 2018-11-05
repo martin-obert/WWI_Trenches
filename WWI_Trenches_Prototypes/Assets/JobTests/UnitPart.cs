@@ -1,7 +1,6 @@
 ﻿using System;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace Assets.JobTests
 {
@@ -12,4 +11,14 @@ namespace Assets.JobTests
     {
         public int Id;
     }
+
+    /// <summary>
+    /// Tag component
+    /// </summary>
+    [Serializable]
+    public struct Selected : IComponentData
+    {
+        
+    }
+
 }

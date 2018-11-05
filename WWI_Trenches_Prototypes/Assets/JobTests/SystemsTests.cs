@@ -76,6 +76,7 @@ namespace Assets.JobTests
                     _manager.AddComponentData(part, new Rotation { Value = Quaternion.identity });
                     _manager.AddComponentData(part, new Destination { Value = unitDestination });
                     _manager.AddComponentData(part, new Health { Value = 100, Max = 100 });
+                    //_manager.AddComponentData(part, new Selected {  });
 
                     _manager.AddComponentData(part, new XnaBoundingSphere { Radius = 2f, Offset = new float3(0, 1.7f, 0) });
 
@@ -114,7 +115,7 @@ namespace Assets.JobTests
                 vertices = vertices,
                 triangles = indices
             };
-            _group = GetComponentGroup(typeof(Group), typeof(Position), typeof(Health));
+            _group = GetComponentGroup(typeof(Selected), typeof(Position), typeof(Health));
         }
         public static Material BarMeshMaterial;
 
@@ -124,11 +125,6 @@ namespace Assets.JobTests
 
         protected override void OnUpdate()
         {
-            if (SelectionSystem.SelectedGroup <= 0)
-                return;
-
-            _group.SetFilter(new Group { Id = SelectionSystem.SelectedGroup });
-
             var positions = _group.GetComponentDataArray<Position>();
 
             var healths = _group.GetComponentDataArray<Health>();
@@ -152,7 +148,6 @@ namespace Assets.JobTests
                 unavailibleHealth[i] = CreateHealtMatrix(position.Value - Size / 2, -healthUnAvailibleClamped, 5, Size.x);
             }
 
-            //var projection = Camera.main.worldToCameraMatrix * Camera.main.projectionMatrix.inverse;
             Graphics.DrawMeshInstanced(_barMesh, 0, BarMeshMaterial, availibleHealth);
             Graphics.DrawMeshInstanced(_barMesh, 0, BarMeshMaterial2, unavailibleHealth);
 
@@ -225,7 +220,7 @@ namespace Assets.JobTests
 
         protected override void OnCreateManager()
         {
-            _group = GetComponentGroup(typeof(Group), typeof(UnitRenderer), typeof(LocalToWorld));
+            _group = GetComponentGroup(typeof(Selected), typeof(UnitRenderer), typeof(LocalToWorld));
             _materialPropertyBlock = new MaterialPropertyBlock();
         }
         private readonly Matrix4x4[] _matrices = new Matrix4x4[1023];
@@ -244,12 +239,6 @@ namespace Assets.JobTests
                     continue;
 
                 _group.ResetFilter();
-
-                _materialPropertyBlock.SetFloat("_Selection_Color", 0);
-
-                RenderGroup(instancedRenderer);
-
-                _group.SetFilter(new Group { Id = SelectionSystem.SelectedGroup });
 
                 _materialPropertyBlock.SetFloat("_Selection_Color", 1);
 
@@ -279,46 +268,182 @@ namespace Assets.JobTests
         }
     }
 
-    public class SelectionSystem : ComponentSystem
+    [UpdateAfter(typeof(PreLateUpdate.ParticleSystemBeginUpdateAll))]
+    [ExecuteInEditMode]
+    public class SelectedUnitRenderSystem : ComponentSystem
+    {
+
+        private List<UnitRenderer> _instancedRenderers = new List<UnitRenderer>(10);
+
+        // This is the ugly bit, necessary until Graphics.DrawMeshInstanced supports NativeArrays pulling the data in from a job.
+        private static unsafe void CopyMatrices(ComponentDataArray<LocalToWorld> transforms, int beginIndex, int length, Matrix4x4[] outMatrices)
+        {
+            // @TODO: This is using unsafe code because the Unity DrawInstances API takes a Matrix4x4[] instead of NativeArray.
+            // We want to use the ComponentDataArray.CopyTo method
+            // because internally it uses memcpy to copy the data,
+            // if the nativeslice layout matches the layout of the component data. It's very fast...
+            fixed (Matrix4x4* matricesPtr = outMatrices)
+            {
+                Assert.AreEqual(sizeof(Matrix4x4), sizeof(LocalToWorld));
+                var matricesSlice = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<LocalToWorld>(matricesPtr, sizeof(Matrix4x4), length);
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+                NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref matricesSlice, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
+#endif
+
+                transforms.CopyTo(matricesSlice, beginIndex);
+            }
+
+        }
+
+        private ComponentGroup _group;
+
+        protected override void OnCreateManager()
+        {
+            _group = GetComponentGroup(ComponentType.Subtractive<Selected>(), typeof(UnitRenderer), typeof(LocalToWorld));
+            _materialPropertyBlock = new MaterialPropertyBlock();
+        }
+        private readonly Matrix4x4[] _matrices = new Matrix4x4[1023];
+
+        private MaterialPropertyBlock _materialPropertyBlock;
+
+        protected override void OnUpdate()
+        {
+            EntityManager.GetAllUniqueSharedComponentData(_instancedRenderers);
+
+            for (var i = 0; i < _instancedRenderers.Count; i++)
+            {
+                var instancedRenderer = _instancedRenderers[i];
+
+                if (instancedRenderer.Mesh == null)
+                    continue;
+
+                _group.ResetFilter();
+
+                _materialPropertyBlock.SetFloat("_Selection_Color", 0);
+
+                RenderGroup(instancedRenderer);
+            }
+
+            _instancedRenderers.Clear();
+        }
+
+        private void RenderGroup(UnitRenderer instancedRenderer)
+        {
+            var position = _group.GetComponentDataArray<LocalToWorld>();
+
+
+            int beginIndex = 0;
+
+            while (beginIndex < position.Length)
+            {
+                var length = math.min(_matrices.Length, position.Length - beginIndex);
+
+                CopyMatrices(position, beginIndex, length, _matrices);
+
+                Graphics.DrawMeshInstanced(instancedRenderer.Mesh, 0, instancedRenderer.Material, _matrices, length, _materialPropertyBlock);
+
+                beginIndex += length;
+            }
+        }
+    }
+
+    public class UnSelectionSystem : JobComponentSystem
     {
         struct Data
         {
             public readonly int Length;
-            [ReadOnly] public SharedComponentDataArray<Group> Units;
-            [ReadOnly] public ComponentDataArray<XnaBoundingSphere> Ranges;
+            [ReadOnly] public ComponentDataArray<Selected> Selections;
+            [ReadOnly] public EntityArray Entities;
         }
 
-        struct FilterJob : IJob
+        struct UnSelectionJob : IJob
         {
-            [ReadOnly] public ComponentDataArray<XnaBoundingSphere> Ranges;
-            [ReadOnly] public SharedComponentDataArray<Group> Group;
+            [ReadOnly] public ComponentDataArray<Selected> Selected;
 
-            [WriteOnly] public NativeArray<int> Result;
+            [ReadOnly] public EntityArray Entities;
+
+            [ReadOnly] public EntityCommandBuffer CommandBuffer;
 
             public int Lenght;
-
-            public XnaRay Ray;
 
             public void Execute()
             {
                 for (int i = 0; i < Lenght; i++)
                 {
-                    var range = Ranges[i];
 
-                    var sphere = range;
-                    if (Ray.Intersects(sphere) != null)
+                    CommandBuffer.RemoveComponent<Selected>(Entities[i]);
+                }
+            }
+        }
+
+        [Inject] private Data _data;
+
+        [Inject] private EndFrameBarrier _selectBarrier;
+
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            if (Input.GetMouseButtonDown((int)MouseButton.LeftMouse))
+            {
+                var job = new UnSelectionJob
+                {
+                    CommandBuffer = _selectBarrier.CreateCommandBuffer(),
+                    Entities = _data.Entities,
+                    Selected = _data.Selections,
+                    Lenght = _data.Length,
+                };
+
+                job.Schedule(inputDeps).Complete();
+            }
+
+            return inputDeps;
+        }
+    }
+
+    [UpdateAfter(typeof(UnSelectionSystem))]
+    public class SelectionSystem : JobComponentSystem
+    {
+        struct Data
+        {
+            public readonly int Length;
+            [ReadOnly] public ComponentDataArray<XnaBoundingSphere> Ranges;
+            [ReadOnly] public SubtractiveComponent<Selected> Selections;
+            [ReadOnly] public EntityArray Entities;
+        }
+
+        struct SelectionJob : IJob
+        {
+            [ReadOnly] public ComponentDataArray<XnaBoundingSphere> Spheres;
+
+            [ReadOnly] public EntityArray Entities;
+
+            [ReadOnly] public EntityCommandBuffer CommandBuffer;
+
+            public int Lenght;
+
+            public XnaRay Ray;
+
+            private int HasSet;
+
+            public void Execute()
+            {
+                for (int i = 0; i < Lenght; i++)
+                {
+                    var sphere = Spheres[i];
+
+                    if (Ray.Intersects(sphere) != null && HasSet == 0)
                     {
-                        Result[0] = Group[i].Id;
-                        return;
+                        HasSet = 1;
+                        CommandBuffer.AddComponent(Entities[i], new Selected());
                     }
                 }
             }
         }
 
         [Inject] private Data _data;
-        public static int SelectedGroup;
-        public JobHandle handle;
-        protected override void OnUpdate()
+
+        [Inject] private EndFrameBarrier _selectBarrier;
+
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             if (Input.GetMouseButtonDown((int)MouseButton.LeftMouse))
             {
@@ -328,45 +453,21 @@ namespace Assets.JobTests
                     Position = ray.origin,
                     Direction = ray.direction
                 };
-                handle.Complete();
 
-                var result = new NativeArray<int>(1, Allocator.TempJob);
 
-                var job = new FilterJob
+                var job = new SelectionJob
                 {
-                    Result = result,
-                    Group = _data.Units,
-                    Ranges = _data.Ranges,
+                    CommandBuffer = _selectBarrier.CreateCommandBuffer(),
+                    Entities = _data.Entities,
+                    Spheres = _data.Ranges,
                     Lenght = _data.Length,
                     Ray = xnaRay
                 };
 
-                handle = job.Schedule();
-
-                handle.Complete();
-
-                SelectedGroup = result[0];
-
-                Debug.Log("Selected " + result[0]);
-
-                result.Dispose();
+                job.Schedule(inputDeps).Complete();
             }
 
-            if (Input.GetKeyDown(KeyCode.Alpha1))
-            {
-                SelectedGroup = 1;
-            }
-
-            if (Input.GetKeyDown(KeyCode.Alpha2))
-            {
-                SelectedGroup = 2;
-            }
-
-            if (Input.GetKeyDown(KeyCode.Alpha3))
-            {
-                SelectedGroup = 3;
-            }
-
+            return inputDeps;
         }
     }
 
