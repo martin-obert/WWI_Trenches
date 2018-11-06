@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Assets.XnaLegacy;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -20,13 +19,19 @@ namespace Assets.JobTests
         public AudioClip Clip;
         public GameObject Cu;
         public GameObject UnitPartPrefab;
+
         public int UnitsCount = 10;
         private EntityManager _manager;
         public Mesh mesh;
+
         public Material material;
         public Material barMaterial;
         public Material barMaterial2;
         public AudioSource AudioSource;
+
+        public Mesh meshTestDiff;
+        public Material materialTestDiff;
+
 
         void Start()
         {
@@ -47,12 +52,18 @@ namespace Assets.JobTests
                 {
                     Mesh = mesh,
                     Material = material
-                }); ;
+                });
+
                 _manager.AddComponentData(part, new LocalToWorld { Value = UnitPartPrefab.transform.localToWorldMatrix });
+
                 _manager.AddComponentData(part, new Position { Value = new Vector3(UnityEngine.Random.Range(-150, 150), 0, UnityEngine.Random.Range(-150, 150)) });
+
                 _manager.AddComponentData(part, new Rotation { Value = Quaternion.identity });
+
                 _manager.AddComponentData(part, new Speed { Value = .1f });
+
                 _manager.AddComponentData(part, new Health { Value = 100, Max = 100 });
+
                 _manager.AddComponentData(part, new Enemy { });
 
                 _manager.AddComponentData(part, new XnaBoundingSphere { Radius = 2f, Offset = new float3(0, 1.7f, 0) });
@@ -113,9 +124,11 @@ namespace Assets.JobTests
 
                     _manager.AddComponentData(part, new WeaponPrototype { Range = 20 });
 
-                    //_manager.AddComponentData(part, new Selected {  });
+                    _manager.AddComponentData(part, new Target { Entity = Entity.Null });
 
                     _manager.AddComponentData(part, new XnaBoundingSphere { Radius = 2f, Offset = new float3(0, 1.7f, 0) });
+
+                    _manager.AddComponentData(part, new UnitStance { Value = 1 });
 
                 }
 
@@ -210,26 +223,114 @@ namespace Assets.JobTests
 
     }
 
-    //public class HealthDecayTestSystem : ComponentSystem
-    //{
-    //    struct Data
-    //    {
-    //        public ComponentDataArray<Health> Healths;
-    //        public readonly int Length;
-    //    }
+    public class UnitStanceUpdateSystem : ComponentSystem
+    {
+        struct Data
+        {
+            public ComponentDataArray<Target> UnitsHavingTargets;
 
-    //    [Inject] private Data _data;
-    //    protected override void OnUpdate()
-    //    {
-    //        for (int i = 0; i < _data.Length; i++)
-    //        {
-    //            var health = _data.Healths[i];
-    //            health.Value -= 6 * Time.deltaTime;
-    //            health.Value = health.Value < 0 ? 100 : health.Value;
-    //            _data.Healths[i] = health;
-    //        }
-    //    }
-    //}
+            [ReadOnly] public ComponentDataArray<Selected> SelectedUnits;
+            [ReadOnly] public ComponentDataArray<AwarenessRange> AwarnessRanges;
+            [ReadOnly] public ComponentDataArray<Position> Positions;
+            [ReadOnly] public ComponentDataArray<UnitStance> Stances;
+
+            public readonly int Length;
+        }
+
+        [Inject] private Data _data;
+        private ComponentGroup _enemyGroup;
+
+        protected override void OnCreateManager()
+        {
+            _enemyGroup = GetComponentGroup(typeof(Enemy), typeof(Position));
+        }
+
+        struct ChangeStanceJob : IJobParallelFor
+        {
+            public ComponentDataArray<UnitStance> Stances;
+
+            public int NewStance;
+
+            public void Execute(int index)
+            {
+                var stance = Stances[index];
+
+                stance.Value = NewStance;
+
+                Stances[index] = stance;
+            }
+        }
+
+        struct CheckAwarnessJob : IJobParallelFor
+        {
+            public EntityCommandBuffer BarrierEntityCommandBuffer;
+
+            public ComponentDataArray<Position> EnemyPositions;
+            public EntityArray Enemies;
+
+            public ComponentDataArray<Target> UnitsHavingTargets;
+            [ReadOnly] public ComponentDataArray<AwarenessRange> Ranges;
+            [ReadOnly] public ComponentDataArray<UnitStance> Stances;
+            [ReadOnly] public ComponentDataArray<Position> UnitPositions;
+
+
+            public void Execute(int index)
+            {
+                var stance = Stances[index];
+                var target = UnitsHavingTargets[index];
+                if (stance.Value != 1 || target.Entity != Entity.Null) return;
+
+                var awareness = Ranges[index];
+
+                var unitPosition = UnitPositions[index];
+
+                for (int i = 0; i < EnemyPositions.Length; i++)
+                {
+                    var enemyPosition = EnemyPositions[i];
+
+                    if (!(math.distance(enemyPosition.Value, unitPosition.Value) <= awareness.Value)) continue;
+
+                    target.Entity = Enemies[i];
+
+                    UnitsHavingTargets[index] = target;
+
+                    return;
+                }
+            }
+        }
+
+        private JobHandle handle;
+        [Inject] private EndFrameBarrier Barrier;
+        protected override void OnUpdate()
+        {
+            handle.Complete();
+
+            if (Input.GetKey(KeyCode.Alpha1) || Input.GetKey(KeyCode.Alpha2))
+            {
+                handle = new ChangeStanceJob
+                {
+                    Stances = _data.Stances,
+                    NewStance = Input.GetKey(KeyCode.Alpha1) ? 1 : 0
+                }.Schedule(_data.Length, 64);
+
+                handle.Complete();
+            }
+
+
+            handle = new CheckAwarnessJob
+            {
+                Stances = _data.Stances,
+                UnitPositions = _data.Positions,
+                UnitsHavingTargets = _data.UnitsHavingTargets,
+                BarrierEntityCommandBuffer = PostUpdateCommands,
+                Ranges = _data.AwarnessRanges,
+                Enemies = _enemyGroup.GetEntityArray(),
+                EnemyPositions = _enemyGroup.GetComponentDataArray<Position>()
+            }.Schedule(_data.Length, 64);
+
+            handle.Complete();
+        }
+    }
 
 
     [UpdateAfter(typeof(PreLateUpdate.ParticleSystemBeginUpdateAll))]
@@ -619,9 +720,11 @@ namespace Assets.JobTests
     {
         struct Data
         {
-            [ReadOnly] public ComponentDataArray<Selected> SelectedUnits;
             public ComponentDataArray<Destination> Destinations;
+
+            [ReadOnly] public ComponentDataArray<Selected> SelectedUnits;
             [ReadOnly] public ComponentDataArray<XnaBoundingSphere> Spheres;
+            [ReadOnly] public EntityArray Entities;
             public readonly int Length;
         }
 
@@ -661,8 +764,13 @@ namespace Assets.JobTests
                         goto End;
 
                     var destination = _data.Destinations[flatted];
+
+                    PostUpdateCommands.SetComponent(_data.Entities[flatted], new Target { Entity = Entity.Null });
+
                     var sphere = _data.Spheres[flatted];
+
                     destination.Value = click + new float3(j + sphere.Radius, 0, i);
+
                     _data.Destinations[flatted] = destination;
                 }
             }
@@ -723,20 +831,29 @@ namespace Assets.JobTests
         }
     }
 
-    public class AttackSystem : ComponentSystem
+
+
+    public class TargetSystem : ComponentSystem
     {
 
         struct Data
         {
-            [ReadOnly] public ComponentDataArray<Target> UnitsHavingTarget;
+            [ReadOnly] public ComponentDataArray<Destination> Destinations;
+
             [ReadOnly] public ComponentDataArray<WeaponPrototype> Weapons;
+
             public ComponentDataArray<Position> Positions;
+
+            public ComponentDataArray<Target> UnitsHavingTarget;
+
             [ReadOnly] public EntityArray Entities;
-            [ReadOnly] public ComponentDataArray<Speed> Speeds;
+
             public readonly int Length;
         }
 
         [Inject] private Data _data;
+
+        //Todo: this is jobable process since we could check target.entity for entity.null
 
         protected override void OnUpdate()
         {
@@ -748,34 +865,37 @@ namespace Assets.JobTests
 
                 var position = _data.Positions[i];
 
-                var speed = _data.Speeds[i];
 
                 if (!EntityManager.Exists(target.Entity))
                 {
                     continue;
                 }
 
-
+                var destination = _data.Destinations[i];
 
                 var targetPosition = EntityManager.GetComponentData<Position>(target.Entity);
 
                 if (math.distance(targetPosition.Value, position.Value) <= weapon.Range)
                 {
-                    PostUpdateCommands.RemoveComponent<Target>(_data.Entities[i]);
+                    destination.Value = position.Value;
+
                     PostUpdateCommands.DestroyEntity(target.Entity);
+
+                    target.Entity = Entity.Null;
+
+                    _data.UnitsHavingTarget[i] = target;
                 }
                 else
                 {
-                    var dir = math.normalize(targetPosition.Value - position.Value);
-                    position.Value += dir * speed.Value;
-                    _data.Positions[i] = position;
-
+                    destination.Value = targetPosition.Value;
                 }
-            }
 
+                _data.Destinations[i] = destination;
+            }
         }
     }
-    [UpdateAfter(typeof(AttackSystem))]
+
+    [UpdateAfter(typeof(TargetSystem))]
     public class TargetingSystem : ComponentSystem
     {
         struct Data
@@ -809,21 +929,14 @@ namespace Assets.JobTests
             {
                 var shpere = _data.Spheres[i];
 
-                var enemy = _data.Enemies[i];
-
                 if (xnaRay.Intersects(shpere) != null)
                 {
                     var entities = _selectedComponentGroup.GetEntityArray();
 
                     for (int j = 0; j < entities.Length; j++)
                     {
-                        if (EntityManager.HasComponent<Destination>(entities[j]))
-                            PostUpdateCommands.RemoveComponent<Destination>(entities[j]);
-
-                        PostUpdateCommands.AddComponent(entities[j], new Target { Entity = _data.Entities[i] });
+                        PostUpdateCommands.SetComponent(entities[j], new Target { Entity = _data.Entities[i] });
                     }
-                    Debug.Log("Attack " + entities.Length);
-                    //Todo: set attack
                     return;
                 }
             }

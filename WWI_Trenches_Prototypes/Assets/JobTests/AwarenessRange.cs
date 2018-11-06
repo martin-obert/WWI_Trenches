@@ -11,6 +11,13 @@ namespace Assets.JobTests
     }
 
     [Serializable]
+    public struct UnitStance : IComponentData
+    {
+        //Todo: To Enum
+        public int Value;
+    }
+
+    [Serializable]
     public struct WeaponPrototype : IComponentData
     {
         public float Range;
@@ -22,6 +29,8 @@ namespace Assets.JobTests
     {
 
     }
+
+   
 
     //Todo: neni tohle redundantni v ramci weapony?
     [Serializable]
