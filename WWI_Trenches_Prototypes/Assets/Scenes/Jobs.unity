@@ -323,6 +323,8 @@ MonoBehaviour:
   barMaterial: {fileID: 2100000, guid: 7bfb614c1ca929e48adc97949bb72012, type: 2}
   barMaterial2: {fileID: 2100000, guid: b95917ecdc35d0c49819b6df86afa5ce, type: 2}
   AudioSource: {fileID: 516755713}
+  meshTestDiff: {fileID: 4300000, guid: 5137ebb7eec75e146ae139e78c7bc725, type: 3}
+  materialTestDiff: {fileID: 10756, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &516755712
 Transform:
   m_ObjectHideFlags: 0

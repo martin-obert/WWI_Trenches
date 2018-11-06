@@ -129,6 +129,7 @@ namespace Assets.JobTests
                     _manager.AddComponentData(part, new XnaBoundingSphere { Radius = 2f, Offset = new float3(0, 1.7f, 0) });
 
                     _manager.AddComponentData(part, new UnitStance { Value = 1 });
+                    _manager.AddComponentData(part, new AwarenessRange { Value = 500 });
 
                 }
 
@@ -137,13 +138,60 @@ namespace Assets.JobTests
                 GroupId++;
             }
 
+            if (Input.GetKeyDown(KeyCode.KeypadEnter))
+
+            {
+
+                var unitParts = new NativeArray<Entity>(UnitsCount, Allocator.Temp);
+
+                _manager.Instantiate(UnitPartPrefab, unitParts);
+
+                var unitDestination = Vector3.zero;
+
+                for (int i = 0; i < unitParts.Length; i++)
+                {
+                    var part = unitParts[i];
+                    _manager.AddSharedComponentData(part, new Group { Id = GroupId });
+                    _manager.AddSharedComponentData(part, new UnitRenderer
+                    {
+                        Mesh = meshTestDiff,
+                        Material = materialTestDiff
+                    });
+
+                    _manager.AddComponentData(part, new LocalToWorld { Value = UnitPartPrefab.transform.localToWorldMatrix });
+
+                    _manager.AddComponentData(part, new Position { Value = new Vector3(0, 0, UnityEngine.Random.Range(0, UnitsCount)) });
+
+                    _manager.AddComponentData(part, new Rotation { Value = Quaternion.identity });
+
+                    _manager.AddComponentData(part, new Destination { Value = unitDestination });
+
+                    _manager.AddComponentData(part, new Speed { Value = .1f });
+
+                    _manager.AddComponentData(part, new Health { Value = 100, Max = 100 });
+
+                    _manager.AddComponentData(part, new WeaponPrototype { Range = 20 });
+
+                    _manager.AddComponentData(part, new Target { Entity = Entity.Null });
+
+                    _manager.AddComponentData(part, new XnaBoundingSphere { Radius = 2f, Offset = new float3(0, 1.7f, 0) });
+
+                    _manager.AddComponentData(part, new UnitStance { Value = 1 });
+                    _manager.AddComponentData(part, new AwarenessRange { Value = 500 });
+
+                }
+
+                unitParts.Dispose();
+
+                GroupId++;
+            }
         }
 
 
 
     }
 
-    [UpdateAfter(typeof(PreLateUpdate.ParticleSystemBeginUpdateAll))]
+    [UpdateAfter(typeof(SelectedUnitRenderSystem))]
     [ExecuteInEditMode]
     public class HealthDrawSystem : ComponentSystem
     {
@@ -232,7 +280,7 @@ namespace Assets.JobTests
             [ReadOnly] public ComponentDataArray<Selected> SelectedUnits;
             [ReadOnly] public ComponentDataArray<AwarenessRange> AwarnessRanges;
             [ReadOnly] public ComponentDataArray<Position> Positions;
-            [ReadOnly] public ComponentDataArray<UnitStance> Stances;
+            public ComponentDataArray<UnitStance> Stances;
 
             public readonly int Length;
         }
@@ -247,7 +295,7 @@ namespace Assets.JobTests
 
         struct ChangeStanceJob : IJobParallelFor
         {
-            public ComponentDataArray<UnitStance> Stances;
+            public NativeArray<UnitStance> Stances;
 
             public int NewStance;
 
@@ -263,12 +311,12 @@ namespace Assets.JobTests
 
         struct CheckAwarnessJob : IJobParallelFor
         {
-            public EntityCommandBuffer BarrierEntityCommandBuffer;
+            //public EntityCommandBuffer BarrierEntityCommandBuffer;
 
-            public ComponentDataArray<Position> EnemyPositions;
+            [ReadOnly] public ComponentDataArray<Position> EnemyPositions;
             public EntityArray Enemies;
 
-            public ComponentDataArray<Target> UnitsHavingTargets;
+            public NativeArray<Target> UnitsHavingTargets;
             [ReadOnly] public ComponentDataArray<AwarenessRange> Ranges;
             [ReadOnly] public ComponentDataArray<UnitStance> Stances;
             [ReadOnly] public ComponentDataArray<Position> UnitPositions;
@@ -303,32 +351,47 @@ namespace Assets.JobTests
         [Inject] private EndFrameBarrier Barrier;
         protected override void OnUpdate()
         {
+            if(_data.Length == 0) return;
+
             handle.Complete();
+
+            var enemies = _enemyGroup.GetEntityArray();
 
             if (Input.GetKey(KeyCode.Alpha1) || Input.GetKey(KeyCode.Alpha2))
             {
+                var stances = _data.Stances.ToNativeArray(Allocator.TempJob);
+
                 handle = new ChangeStanceJob
                 {
-                    Stances = _data.Stances,
+                    Stances = stances,
                     NewStance = Input.GetKey(KeyCode.Alpha1) ? 1 : 0
                 }.Schedule(_data.Length, 64);
 
                 handle.Complete();
+                
+                stances.CopyToAndDispose(_data.Stances);
+                Debug.Log(enemies.Length);
             }
 
+
+            var array = _data.UnitsHavingTargets.ToNativeArray(Allocator.TempJob);
+            
 
             handle = new CheckAwarnessJob
             {
                 Stances = _data.Stances,
                 UnitPositions = _data.Positions,
-                UnitsHavingTargets = _data.UnitsHavingTargets,
-                BarrierEntityCommandBuffer = PostUpdateCommands,
+                UnitsHavingTargets = array,
+                //BarrierEntityCommandBuffer = PostUpdateCommands,
                 Ranges = _data.AwarnessRanges,
-                Enemies = _enemyGroup.GetEntityArray(),
+                Enemies = enemies,
                 EnemyPositions = _enemyGroup.GetComponentDataArray<Position>()
             }.Schedule(_data.Length, 64);
-
             handle.Complete();
+
+            array.CopyToAndDispose(_data.UnitsHavingTargets);
+
+
         }
     }
 
@@ -412,7 +475,7 @@ namespace Assets.JobTests
         }
     }
 
-    [UpdateAfter(typeof(PreLateUpdate.ParticleSystemBeginUpdateAll))]
+    [UpdateAfter(typeof(UnitRenderSystem))]
     [ExecuteInEditMode]
     public class SelectedUnitRenderSystem : ComponentSystem
     {
@@ -838,15 +901,13 @@ namespace Assets.JobTests
 
         struct Data
         {
-            [ReadOnly] public ComponentDataArray<Destination> Destinations;
+             public ComponentDataArray<Destination> Destinations;
 
             [ReadOnly] public ComponentDataArray<WeaponPrototype> Weapons;
 
-            public ComponentDataArray<Position> Positions;
+            [ReadOnly] public ComponentDataArray<Position> Positions;
 
             public ComponentDataArray<Target> UnitsHavingTarget;
-
-            [ReadOnly] public EntityArray Entities;
 
             public readonly int Length;
         }
@@ -944,4 +1005,35 @@ namespace Assets.JobTests
         }
     }
 
+}
+
+public static class ArrayHelpers
+{
+    public static void CopyWholeTo<T>(this ComponentDataArray<T> data, NativeArray<T> destination) where T : struct, IComponentData
+    {
+        data.CopyTo(destination);
+    }
+
+    public static NativeArray<T> ToNativeArray<T>(this ComponentDataArray<T> data, Allocator allocator) where T : struct, IComponentData
+    {
+        var result = new NativeArray<T>(data.Length, allocator);
+
+        data.CopyTo(result);
+
+        return result;
+    }
+
+    public static void CopyTo<T>(this NativeArray<T> source, ComponentDataArray<T> destination, bool dispose = false) where T : struct, IComponentData
+    {
+        for (int i = 0; i < source.Length; i++)
+        {
+            destination[i] = source[i];
+        }
+        if (dispose)
+            source.Dispose();
+    }
+    public static void CopyToAndDispose<T>(this NativeArray<T> source, ComponentDataArray<T> destination) where T : struct, IComponentData
+    {
+        CopyTo(source, destination, true);
+    }
 }
