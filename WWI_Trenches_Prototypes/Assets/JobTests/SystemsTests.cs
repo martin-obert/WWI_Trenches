@@ -425,11 +425,17 @@ namespace Assets.JobTests
 
         }
 
-        private ComponentGroup _group;
+        //private ComponentGroup _group;
+        private ComponentGroup _groupA;
+        private ComponentGroup _groupB;
 
         protected override void OnCreateManager()
         {
-            _group = GetComponentGroup(typeof(UnitRenderer), typeof(LocalToWorld));
+            //_group = GetComponentGroup(typeof(UnitRenderer), typeof(LocalToWorld));
+
+            _groupA = GetComponentGroup(typeof(UnitRenderer), typeof(LocalToWorld), typeof(Selected));
+
+            _groupB = GetComponentGroup(typeof(UnitRenderer), typeof(LocalToWorld), ComponentType.Subtractive<Selected>());
 
             _materialPropertyBlock = new MaterialPropertyBlock();
         }
@@ -441,6 +447,10 @@ namespace Assets.JobTests
         {
             EntityManager.GetAllUniqueSharedComponentData(_instancedRenderers);
 
+           
+
+           
+
             for (var i = 0; i < _instancedRenderers.Count; i++)
             {
                 var instancedRenderer = _instancedRenderers[i];
@@ -448,21 +458,36 @@ namespace Assets.JobTests
                 if (instancedRenderer.Mesh == null)
                     continue;
 
-                _group.SetFilter(instancedRenderer);
+                _groupA.SetFilter(instancedRenderer);
 
                 _materialPropertyBlock.SetFloat("_Selection_Color", 1);
 
-                RenderGroup(instancedRenderer);
+                var matricesA = _groupA.GetComponentDataArray<LocalToWorld>();
+
+                RenderGroup(instancedRenderer, matricesA);
+            }
+
+            for (var i = 0; i < _instancedRenderers.Count; i++)
+            {
+                var instancedRenderer = _instancedRenderers[i];
+
+                if (instancedRenderer.Mesh == null)
+                    continue;
+
+                _groupB.SetFilter(instancedRenderer);
+
+                _materialPropertyBlock.SetFloat("_Selection_Color", 0);
+
+                var matricesB = _groupB.GetComponentDataArray<LocalToWorld>();
+
+                RenderGroup(instancedRenderer, matricesB);
             }
 
             _instancedRenderers.Clear();
         }
 
-        private void RenderGroup(UnitRenderer instancedRenderer)
+        private void RenderGroup(UnitRenderer instancedRenderer, ComponentDataArray<LocalToWorld> position)
         {
-            var position = _group.GetComponentDataArray<LocalToWorld>();
-
-
             int beginIndex = 0;
 
             while (beginIndex < position.Length)
