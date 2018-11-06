@@ -19,6 +19,7 @@ namespace Assets.JobTests
         public AudioClip Clip;
         public GameObject Cu;
         public GameObject UnitPartPrefab;
+        public GameObject UnitPartPrefab2;
 
         public int UnitsCount = 10;
         private EntityManager _manager;
@@ -144,7 +145,7 @@ namespace Assets.JobTests
 
                 var unitParts = new NativeArray<Entity>(UnitsCount, Allocator.Temp);
 
-                _manager.Instantiate(UnitPartPrefab, unitParts);
+                _manager.Instantiate(UnitPartPrefab2, unitParts);
 
                 var unitDestination = Vector3.zero;
 
@@ -177,6 +178,7 @@ namespace Assets.JobTests
                     _manager.AddComponentData(part, new XnaBoundingSphere { Radius = 2f, Offset = new float3(0, 1.7f, 0) });
 
                     _manager.AddComponentData(part, new UnitStance { Value = 1 });
+
                     _manager.AddComponentData(part, new AwarenessRange { Value = 500 });
 
                 }
@@ -191,7 +193,7 @@ namespace Assets.JobTests
 
     }
 
-    [UpdateAfter(typeof(SelectedUnitRenderSystem))]
+    //[UpdateAfter(typeof(SelectedUnitRenderSystem))]
     [ExecuteInEditMode]
     public class HealthDrawSystem : ComponentSystem
     {
@@ -427,7 +429,8 @@ namespace Assets.JobTests
 
         protected override void OnCreateManager()
         {
-            _group = GetComponentGroup(typeof(Selected), typeof(UnitRenderer), typeof(LocalToWorld));
+            _group = GetComponentGroup(typeof(UnitRenderer), typeof(LocalToWorld));
+
             _materialPropertyBlock = new MaterialPropertyBlock();
         }
         private readonly Matrix4x4[] _matrices = new Matrix4x4[1023];
@@ -445,7 +448,7 @@ namespace Assets.JobTests
                 if (instancedRenderer.Mesh == null)
                     continue;
 
-                _group.ResetFilter();
+                _group.SetFilter(instancedRenderer);
 
                 _materialPropertyBlock.SetFloat("_Selection_Color", 1);
 
@@ -475,84 +478,84 @@ namespace Assets.JobTests
         }
     }
 
-    [UpdateAfter(typeof(UnitRenderSystem))]
-    [ExecuteInEditMode]
-    public class SelectedUnitRenderSystem : ComponentSystem
-    {
+//    [UpdateAfter(typeof(UnitRenderSystem))]
+//    [ExecuteInEditMode]
+//    public class SelectedUnitRenderSystem : ComponentSystem
+//    {
 
-        private List<UnitRenderer> _instancedRenderers = new List<UnitRenderer>(10);
+//        private List<UnitRenderer> _instancedRenderers = new List<UnitRenderer>(10);
 
-        // This is the ugly bit, necessary until Graphics.DrawMeshInstanced supports NativeArrays pulling the data in from a job.
-        private static unsafe void CopyMatrices(ComponentDataArray<LocalToWorld> transforms, int beginIndex, int length, Matrix4x4[] outMatrices)
-        {
-            // @TODO: This is using unsafe code because the Unity DrawInstances API takes a Matrix4x4[] instead of NativeArray.
-            // We want to use the ComponentDataArray.CopyTo method
-            // because internally it uses memcpy to copy the data,
-            // if the nativeslice layout matches the layout of the component data. It's very fast...
-            fixed (Matrix4x4* matricesPtr = outMatrices)
-            {
-                Assert.AreEqual(sizeof(Matrix4x4), sizeof(LocalToWorld));
-                var matricesSlice = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<LocalToWorld>(matricesPtr, sizeof(Matrix4x4), length);
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-                NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref matricesSlice, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
-#endif
+//        // This is the ugly bit, necessary until Graphics.DrawMeshInstanced supports NativeArrays pulling the data in from a job.
+//        private static unsafe void CopyMatrices(ComponentDataArray<LocalToWorld> transforms, int beginIndex, int length, Matrix4x4[] outMatrices)
+//        {
+//            // @TODO: This is using unsafe code because the Unity DrawInstances API takes a Matrix4x4[] instead of NativeArray.
+//            // We want to use the ComponentDataArray.CopyTo method
+//            // because internally it uses memcpy to copy the data,
+//            // if the nativeslice layout matches the layout of the component data. It's very fast...
+//            fixed (Matrix4x4* matricesPtr = outMatrices)
+//            {
+//                Assert.AreEqual(sizeof(Matrix4x4), sizeof(LocalToWorld));
+//                var matricesSlice = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<LocalToWorld>(matricesPtr, sizeof(Matrix4x4), length);
+//#if ENABLE_UNITY_COLLECTIONS_CHECKS
+//                NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref matricesSlice, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
+//#endif
 
-                transforms.CopyTo(matricesSlice, beginIndex);
-            }
+//                transforms.CopyTo(matricesSlice, beginIndex);
+//            }
 
-        }
+//        }
 
-        private ComponentGroup _group;
+//        private ComponentGroup _group;
 
-        protected override void OnCreateManager()
-        {
-            _group = GetComponentGroup(ComponentType.Subtractive<Selected>(), typeof(UnitRenderer), typeof(LocalToWorld));
-            _materialPropertyBlock = new MaterialPropertyBlock();
-        }
-        private readonly Matrix4x4[] _matrices = new Matrix4x4[1023];
+//        protected override void OnCreateManager()
+//        {
+//            _group = GetComponentGroup(ComponentType.Subtractive<Selected>(), typeof(UnitRenderer), typeof(LocalToWorld));
+//            _materialPropertyBlock = new MaterialPropertyBlock();
+//        }
+//        private readonly Matrix4x4[] _matrices = new Matrix4x4[1023];
 
-        private MaterialPropertyBlock _materialPropertyBlock;
+//        private MaterialPropertyBlock _materialPropertyBlock;
 
-        protected override void OnUpdate()
-        {
+//        protected override void OnUpdate()
+//        {
 
-            EntityManager.GetAllUniqueSharedComponentData(_instancedRenderers);
+//            EntityManager.GetAllUniqueSharedComponentData(_instancedRenderers);
 
-            for (var i = 0; i < _instancedRenderers.Count; i++)
-            {
-                var instancedRenderer = _instancedRenderers[i];
+//            for (var i = 0; i < _instancedRenderers.Count; i++)
+//            {
+//                var instancedRenderer = _instancedRenderers[i];
 
-                if (instancedRenderer.Mesh == null)
-                    continue;
+//                if (instancedRenderer.Mesh == null)
+//                    continue;
 
-                _group.ResetFilter();
+//                _group.ResetFilter();
 
-                _materialPropertyBlock.SetFloat("_Selection_Color", 0);
+//                _materialPropertyBlock.SetFloat("_Selection_Color", 0);
 
-                RenderGroup(instancedRenderer);
-            }
+//                RenderGroup(instancedRenderer);
+//            }
 
-            _instancedRenderers.Clear();
-        }
+//            _instancedRenderers.Clear();
+//        }
 
-        private void RenderGroup(UnitRenderer instancedRenderer)
-        {
-            var position = _group.GetComponentDataArray<LocalToWorld>();
+//        private void RenderGroup(UnitRenderer instancedRenderer)
+//        {
+//            var position = _group.GetComponentDataArray<LocalToWorld>();
 
-            int beginIndex = 0;
+//            int beginIndex = 0;
 
-            while (beginIndex < position.Length)
-            {
-                var length = math.min(_matrices.Length, position.Length - beginIndex);
+//            while (beginIndex < position.Length)
+//            {
+//                var length = math.min(_matrices.Length, position.Length - beginIndex);
 
-                CopyMatrices(position, beginIndex, length, _matrices);
+//                CopyMatrices(position, beginIndex, length, _matrices);
 
-                Graphics.DrawMeshInstanced(instancedRenderer.Mesh, 0, instancedRenderer.Material, _matrices, length, _materialPropertyBlock);
+//                Graphics.DrawMeshInstanced(instancedRenderer.Mesh, 0, instancedRenderer.Material, _matrices, length, _materialPropertyBlock);
 
-                beginIndex += length;
-            }
-        }
-    }
+//                beginIndex += length;
+//            }
+//        }
+//    }
     public class UnSelectionSystem : JobComponentSystem
     {
         struct Data
