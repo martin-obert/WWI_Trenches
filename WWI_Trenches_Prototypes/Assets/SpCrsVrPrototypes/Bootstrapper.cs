@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using Assets.IoC;
 using Assets.ObjAnimations;
+using Assets.SpCrsVrPrototypes.ComponentDatas;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Rendering;
+using Random = UnityEngine.Random;
 
 namespace Assets.SpCrsVrPrototypes
 {
@@ -18,11 +21,19 @@ namespace Assets.SpCrsVrPrototypes
     public class Bootstrapper : MonoBehaviorDependencyResolver, IBootstrapper
     {
         [SerializeField]
-       private GameObject _unit;
+        private GameObject _unit;
+
+        [SerializeField] private Material _material;
+        
+
 
         [SerializeField] public ObjAnimationSo[] Animation;
 
-        public IReadOnlyDictionary<int, ObjAnimationSo> ObjAnimations { get; private set; }
+        public IReadOnlyDictionary<int, Mesh[]> ObjAnimations { get; private set; }
+
+        public Material TempMaterial => _material;
+        public Mesh TempMash;
+
         public string SelectionColorName;
 
         public void GetBasicUnitArchetypeAsync(EntityManager manager, Action<EntityArchetype> callback)
@@ -31,7 +42,8 @@ namespace Assets.SpCrsVrPrototypes
             {
                 typeof(Position),
                 typeof(Rotation),
-                typeof(Scale)
+                typeof(Scale),
+                typeof(AnimatedMeshRenderer)
             };
 
             var result = manager.CreateArchetype(componentTypes);
@@ -50,24 +62,62 @@ namespace Assets.SpCrsVrPrototypes
                 manager.SetComponentData(entity, new Rotation { Value = rotation });
 
                 manager.SetComponentData(entity, new Scale { Value = scale });
-                
+                manager.SetComponentData(entity, new AnimatedMeshRenderer
+                {
+                    DeltaTime = Random.Range(0, 1000)/1000f,
+                    AnimationId = 0,
+                    CastShadows = (int) ShadowCastingMode.On,
+                    FrameCount = 10,
+                    FrameIndex = 0,
+                    RepeatCount = 0,
+                    FrameRate = 24
+                });
+
                 callback?.Invoke(entity);
             });
         }
 
+        //protected override void RegisterSelf(Injection injection)
+        //{
+        //    injection.Register(this);
+        //}
+
+        //protected override void UnregisterSelf(Injection injection)
+        //{
+        //    injection.Unregister(this);
+        //}
+
         protected override void OnAwakeHandle()
         {
-            var objAnimation = new Dictionary<int, ObjAnimationSo>();
+
+            var objAnimation = new Dictionary<int, Mesh[]>();
 
             var counter = 0;
 
-            foreach (var objAnimationSo in objAnimation)
+            foreach (var objAnimationSo in Animation)
             {
-                objAnimation.Add(counter, objAnimationSo.Value);
+                var mesh = objAnimationSo.ToMesh();
+                objAnimation.Add(counter, mesh);
+                counter++;
             }
 
             ObjAnimations = objAnimation;
+
+            var entityManager = World.Active.GetOrCreateManager<EntityManager>();
+
+            for (int i = 0; i < TestCount; i++)
+            {
+                var k = i;
+                GetBasicUnitArchetypeAsync(entityManager,
+                    archetype =>
+                    {
+                        GetBasicUnit(entityManager, new Vector3(k,0,0), quaternion.identity, Vector3.one);
+                    });
+            }
+
         }
+
+        public int TestCount = 100;
 
         protected override void OnDestroyHandle()
         {

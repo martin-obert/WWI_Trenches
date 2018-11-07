@@ -14,16 +14,18 @@ namespace Assets.IoC
 
         void Awake()
         {
-            Injection.Instance.Register(this);
             OnAwakeHandle();
+            Injection.Instance.Register(GetType(), this, false);
         }
 
         void OnDestroy()
         {
+            Injection.Instance.Unregister(GetType());
             OnDestroyHandle();
             Dispose();
         }
-
+        
+       
         /// <summary>
         /// All dependencies has been resolved.
         /// </summary>

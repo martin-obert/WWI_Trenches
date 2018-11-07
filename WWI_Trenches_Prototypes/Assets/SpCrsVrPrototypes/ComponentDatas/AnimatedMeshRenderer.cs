@@ -1,7 +1,5 @@
 ﻿using System;
 using Unity.Entities;
-using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace Assets.SpCrsVrPrototypes.ComponentDatas
 {
@@ -18,8 +16,8 @@ namespace Assets.SpCrsVrPrototypes.ComponentDatas
 
         public int FrameCount;
 
-        public Material Material;
+        public int FrameRate;
 
-        public ShadowCastingMode CastShadows;
+        public int CastShadows;
     }
 }

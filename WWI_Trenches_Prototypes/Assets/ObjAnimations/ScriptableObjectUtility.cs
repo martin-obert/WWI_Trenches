@@ -11,17 +11,13 @@ namespace Assets.ObjAnimations
         /// </summary>
         public static void CreateAsset<T>(this T asset, string path, string name) where T : ScriptableObject
         {
-
-            if (path == "")
+            if (path.StartsWith(Application.dataPath))
             {
-                path = "Assets";
-            }
-            else if (Path.GetExtension(path) != "")
-            {
-                path = path.Replace(Path.GetFileName(AssetDatabase.GetAssetPath(Selection.activeObject)), "");
+                path = "Assets" + path.Substring(Application.dataPath.Length);
             }
 
-            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + "/New " + name + ".asset");
+            
+            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath("Assets/Resources/New_" + name.Replace(" ", "_") + ".asset");
 
             AssetDatabase.CreateAsset(asset, assetPathAndName);
 

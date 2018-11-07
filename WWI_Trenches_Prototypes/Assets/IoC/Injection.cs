@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Assets.IoC
 {
@@ -18,23 +19,17 @@ namespace Assets.IoC
 
         public void Get<T>(Action<T> resolveCallback)
         {
-            object result;
-            if (!_instances.TryGetValue(typeof(T), out result))
-            {
-                AddObserver(resolveCallback);
-            }
-            else
-            {
-                resolveCallback((T)result);
-            }
+            var type = typeof(T);
+            Get(type, o => resolveCallback((T)o));
         }
 
         public void Get(Type type, Action<object> resolveCallback)
         {
             object result;
+
             if (!_instances.TryGetValue(type, out result))
             {
-                AddObserver(resolveCallback);
+                AddObserver(type, resolveCallback);
             }
             else
             {
@@ -42,10 +37,9 @@ namespace Assets.IoC
             }
         }
 
-        public void Register<T>(T instance, bool @override = false)
+        public void Register(Type type, object instance, bool @override = false)
         {
-            var type = typeof(T);
-
+            Debug.Log("Registering " + type);
             bool contains;
 
             if ((contains = _instances.ContainsKey(type)) && !@override)
@@ -62,8 +56,13 @@ namespace Assets.IoC
                 _instances.Add(type, instance);
             }
 
+
+
             List<Action<object>> observers;
+
             if (!_observers.TryGetValue(type, out observers)) return;
+
+
 
             foreach (var observer in observers)
             {
@@ -71,23 +70,28 @@ namespace Assets.IoC
             }
         }
 
+        public void Register<T>(T instance, bool @override = false)
+        {
+            var type = typeof(T);
+            Register(type, instance, @override);
+        }
+
         /// <summary>
         /// Add new observer
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="type"></param>
         /// <param name="callback"></param>
-        private void AddObserver<T>(Action<T> callback)
+        private void AddObserver<T>(Type type, Action<T> callback)
         {
-            var type = typeof(T);
-
             List<Action<object>> actions;
 
             if (!_observers.TryGetValue(type, out actions))
             {
                 actions = new List<Action<object>>();
+
                 _observers.Add(type, actions);
             }
-
             _observers[type].Add(o => callback((T)o));
         }
 
@@ -131,7 +135,7 @@ namespace Assets.IoC
                         action(null);
                     }
                     //Todo: clear if singleton
-//                    _observers[type].Clear();
+                    //                    _observers[type].Clear();
                 }
                 _instances.Remove(type);
             }

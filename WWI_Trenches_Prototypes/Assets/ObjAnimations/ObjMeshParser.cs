@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -24,67 +25,86 @@ namespace Assets.ObjAnimations
 
                 var frameNumber = ExtractFrameNumber(file);
 
-                var lines = File.ReadAllText(file);
+                using (var fileStream = File.Open(file, FileMode.Open))
+                {
+                    using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
+                    {
+                        var bakedFrame = GetFrame(streamReader);
 
-                var bakedFrame = GetFrame(lines);
-
-                data.Add(frameNumber, bakedFrame);
+                        data.Add(frameNumber, bakedFrame);
+                    }
+                        
+                }
+                    
             }
 
             return data.OrderBy(x => x.Key).Select(x => x.Value);
         }
 
-
-        private static ObjAnimationBakedFrame GetFrame(string fileLines)
+        private static Vector3 ParseV3(string[] parts)
         {
-            var result = new List<Vector3>();
+
+            var xR = SanitizeFormat(parts[0]);
+            var yR = SanitizeFormat(parts[1]);
+            var zR = SanitizeFormat(parts[2]);
+
+            float x, y, z;
+
+            ParseCoord(xR, out x);
+            ParseCoord(yR, out y);
+            ParseCoord(zR, out z);
+
+            return new Vector3(x,y,z);
+        }
+        private static ObjAnimationBakedFrame GetFrame(StreamReader file)
+        {
+            var vectors = new List<Vector3>();
+            var normals = new List<Vector3>();
             var indices = new List<int>();
-
-            var regex = new Regex(@"(?<vertices>v (?<x>-?\d+\.?\d*) (?<y>-?\d+\.?\d*) (?<z>-?\d+\.?\d*))|(?<indices>((?<i>\d)\/\/\d\s?))");
-            var matches = regex.Matches(fileLines);
-
-
-            foreach (Match match in matches)
+            
+            //var regex = new Regex(@"(?<vertices>v (?<x>-?\d+\.?\d*) (?<y>-?\d+\.?\d*) (?<z>-?\d+\.?\d*))|(?<indices>((?<i>\d)\/\/\d\s?))");
+            //var matches = regex.Matches(fileLines);
+            string fileLine = null;
+            while ((fileLine = file.ReadLine()) != null)
             {
-                if (!match.Success)
-                    continue;
+                
+           
+                var parts = fileLine.Split(new[] {" "}, StringSplitOptions.RemoveEmptyEntries).Skip(1).ToArray();
 
-                if (match.Groups["indices"].Success)
+                if (fileLine.StartsWith("v "))
                 {
-                    var i = match.Groups["i"].Captures;
-                    foreach (Capture capture in i)
+                    if(parts.Length != 3)
+                        throw new FormatException(fileLine + " not vector line");
+                    vectors.Add(ParseV3(parts));
+                }
+                else if (fileLine.StartsWith("vn "))
+                {
+                    if (parts.Length != 3)
+                        throw new FormatException(fileLine + " not normal line");
+
+                    normals.Add(ParseV3(parts));
+                }
+                else if (fileLine.StartsWith("f "))
+                {
+
+                    foreach (var part in parts)
                     {
-                        var temp = 0;
-                        if (!int.TryParse(capture.Value, out temp))
-                        {
-                            throw new FormatException("Indice has bad format " + capture.Value);
-                        }
-                        indices.Add(temp);
+                        var facePoint = part.Split('/');
+
+                        if(facePoint.Length != 3)
+                            throw new ArgumentOutOfRangeException("Invalid face format " + part);
+
+                        indices.Add(int.Parse(facePoint[0]));
                     }
                 }
-
-                if (match.Groups["vertices"].Success)
-                {
-                    var xR = SanitizeFormat(match.Groups["x"].Value);
-                    var yR = SanitizeFormat(match.Groups["y"].Value);
-                    var zR = SanitizeFormat(match.Groups["z"].Value);
-
-                    float x, y, z;
-
-                    ParseCoord(xR, out x);
-                    ParseCoord(yR, out y);
-                    ParseCoord(zR, out z);
-
-
-                    result.Add(new Vector3(x, y, z));
-                }
-
-
             }
 
+            if(vectors.Count != normals.Count)
+                throw new ArgumentOutOfRangeException(vectors.Count + "!=" + normals.Count );
             return new ObjAnimationBakedFrame
             {
-                Vertices = result.ToArray(),
+                Vertices = vectors.ToArray(),
+                Normals = normals.ToArray(),
                 Indices = indices.ToArray()
             };
         }
@@ -109,13 +129,13 @@ namespace Assets.ObjAnimations
             var split = filename.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
 
 
-            if (split.Length != 2)
+            if (split.Length < 2)
                 throw new ArgumentException("Invalid filename " + file);
 
             var number = 0;
 
-            if (!int.TryParse(split[1], out number))
-                throw new FormatException("Filename has invalid format " + split[1] + " " + file);
+            if (!int.TryParse(split[split.Length - 1], out number))
+                throw new FormatException("Filename has invalid format " + split[split.Length-1] + " " + file);
             return number;
         }
 

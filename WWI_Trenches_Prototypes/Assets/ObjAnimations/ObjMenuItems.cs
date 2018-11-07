@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,13 +16,25 @@ namespace Assets.ObjAnimations
 
             var anim = CreateInstance<ObjAnimationSo>();
 
-            anim.FrameMeshes = parsedValues.Select(x => new Mesh
-            {
-                vertices = x.Vertices,
-                triangles = x.Indices
-            }).ToArray();
+            var objAnimationBakedFrames = parsedValues as ObjAnimationBakedFrame[] ?? parsedValues.ToArray();
+
+            anim.Vertices = objAnimationBakedFrames.SelectMany(x=> x.Vertices.Select(y => (float3)y)).ToArray();
+
+            anim.Indices = objAnimationBakedFrames.SelectMany(x=>x.Indices.Select(y => y - 1)).ToArray();
+
+            anim.Normals = objAnimationBakedFrames.SelectMany(x=>x.Vertices.Select(y => (float3) y)).ToArray();
+
+            anim.VerticesPerMesh = objAnimationBakedFrames[0].Vertices.Length;
+
+            anim.IndicesPerMesh = objAnimationBakedFrames[0].Indices.Length;
+
+            anim.SubMeshCount = objAnimationBakedFrames.Length;
+
+            
 
             anim.CreateAsset(path, "New Obj Animation");
         }
+
+
     }
 }
