@@ -13,7 +13,7 @@ namespace Assets.ObjAnimations
 
             var parsedValues = ObjMeshParser.GetAnimationFrames(path);
 
-            var anim = CreateInstance<ObjAnimationSO>();
+            var anim = CreateInstance<ObjAnimationSo>();
 
             anim.FrameMeshes = parsedValues.Select(x => new Mesh
             {

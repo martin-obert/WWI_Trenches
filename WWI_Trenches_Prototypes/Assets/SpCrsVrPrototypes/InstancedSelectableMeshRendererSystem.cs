@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Assets.IoC;
 using Assets.JobTests;
-using Assets.SpellCrossPrototypes.ComponentDatas;
+using Assets.SpCrsVrPrototypes.ComponentDatas;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -8,11 +9,22 @@ using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Assets.SpellCrossPrototypes
+namespace Assets.SpCrsVrPrototypes
 {
     public class InstancedSelectableMeshRendererSystem : ComponentSystem
     {
         private List<InstancedSelectableMeshRenderer> _instancedRenderers = new List<InstancedSelectableMeshRenderer>(10);
+
+        private readonly Matrix4x4[] _matrices = new Matrix4x4[1023];
+
+        private MaterialPropertyBlock _materialPropertyBlock;
+
+        private string BlockPropertyName;
+
+        private ComponentGroup _groupSelected;
+
+        private ComponentGroup _groupUnselected;
+
 
         // This is the ugly bit, necessary until Graphics.DrawMeshInstanced supports NativeArrays pulling the data in from a job.
         private static unsafe void CopyMatrices(ComponentDataArray<LocalToWorld> transforms, int beginIndex, int length, Matrix4x4[] outMatrices)
@@ -34,31 +46,21 @@ namespace Assets.SpellCrossPrototypes
 
         }
 
-        //private ComponentGroup _group;
-        private ComponentGroup _groupSelected;
-        private ComponentGroup _groupUnselected;
-
         protected override void OnCreateManager()
         {
-            //_group = GetComponentGroup(typeof(UnitRenderer), typeof(LocalToWorld));
+            _groupSelected = GetComponentGroup(typeof(InstancedSelectableMeshRenderer), typeof(LocalToWorld), typeof(Selected));
 
-            _groupSelected = GetComponentGroup(typeof(InstancedSelectableMeshRenderer), typeof(Transform), typeof(Selected));
-
-            _groupUnselected = GetComponentGroup(typeof(InstancedSelectableMeshRenderer), typeof(Transform), ComponentType.Subtractive<Selected>());
+            _groupUnselected = GetComponentGroup(typeof(InstancedSelectableMeshRenderer), typeof(LocalToWorld), ComponentType.Subtractive<Selected>());
 
             _materialPropertyBlock = new MaterialPropertyBlock();
-        }
-        private readonly Matrix4x4[] _matrices = new Matrix4x4[1023];
 
-        private MaterialPropertyBlock _materialPropertyBlock;
+            Injection.Instance.Get<Bootstrapper>(bootstrapper => BlockPropertyName = bootstrapper.SelectionColorName);
+        }
+
 
         protected override void OnUpdate()
         {
             EntityManager.GetAllUniqueSharedComponentData(_instancedRenderers);
-
-
-
-
 
             for (var i = 0; i < _instancedRenderers.Count; i++)
             {
@@ -69,7 +71,7 @@ namespace Assets.SpellCrossPrototypes
 
                 _groupSelected.SetFilter(instancedRenderer);
 
-                _materialPropertyBlock.SetFloat("_Selection_Color", 1);
+                _materialPropertyBlock.SetFloat(BlockPropertyName, 1);
 
                 var matricesA = _groupSelected.GetComponentDataArray<LocalToWorld>();
 
@@ -85,7 +87,7 @@ namespace Assets.SpellCrossPrototypes
 
                 _groupUnselected.SetFilter(instancedRenderer);
 
-                _materialPropertyBlock.SetFloat("_Selection_Color", 0);
+                _materialPropertyBlock.SetFloat(BlockPropertyName, 0);
 
                 var matricesB = _groupUnselected.GetComponentDataArray<LocalToWorld>();
 

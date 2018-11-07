@@ -7,7 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-namespace Assets.SpellCrossPrototypes
+namespace Assets.SpCrsVrPrototypes
 {
     public class UnitTemplate : MonoBehaviour
     {
@@ -23,6 +23,7 @@ namespace Assets.SpellCrossPrototypes
         [SerializeField] public ObjAnimationSo[] Animation;
 
         public IReadOnlyDictionary<int, ObjAnimationSo> ObjAnimations { get; private set; }
+        public string SelectionColorName;
 
         public void GetBasicUnitArchetypeAsync(EntityManager manager, Action<EntityArchetype> callback)
         {

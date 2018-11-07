@@ -2,7 +2,7 @@
 using Assets.IoC;
 using Assets.JobTests;
 using Assets.ObjAnimations;
-using Assets.SpellCrossPrototypes.ComponentDatas;
+using Assets.SpCrsVrPrototypes.ComponentDatas;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.Jobs;
 using UnityEngine.Rendering;
 
-namespace Assets.SpellCrossPrototypes
+namespace Assets.SpCrsVrPrototypes
 {
     public class AnimatedMeshRendererSystem : ComponentSystem
     {
@@ -19,6 +19,7 @@ namespace Assets.SpellCrossPrototypes
             public ComponentDataArray<AnimatedMeshRenderer> AnimatedRenderers;
 
             [ReadOnly] public TransformAccessArray Transforms;
+
             [ReadOnly] public EntityArray Entities;
 
             public readonly int Length;
@@ -59,8 +60,6 @@ namespace Assets.SpellCrossPrototypes
 
             Injection.Instance.Get<Bootstrapper>(bootstrapper => animations = bootstrapper.ObjAnimations);
         }
-
-        
 
         protected override void OnUpdate()
         {

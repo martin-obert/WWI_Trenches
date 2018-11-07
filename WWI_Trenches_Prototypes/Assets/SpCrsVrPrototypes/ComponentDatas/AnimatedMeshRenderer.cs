@@ -3,7 +3,7 @@ using Unity.Entities;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Assets.SpellCrossPrototypes.ComponentDatas
+namespace Assets.SpCrsVrPrototypes.ComponentDatas
 {
     [Serializable]
     public struct AnimatedMeshRenderer : IComponentData

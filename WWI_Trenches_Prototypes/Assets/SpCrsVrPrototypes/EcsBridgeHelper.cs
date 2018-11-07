@@ -1,7 +1,7 @@
 ﻿using Unity.Transforms;
 using UnityEngine;
 
-namespace Assets.SpellCrossPrototypes
+namespace Assets.SpCrsVrPrototypes
 {
     public static class EcsBridgeHelper
     {

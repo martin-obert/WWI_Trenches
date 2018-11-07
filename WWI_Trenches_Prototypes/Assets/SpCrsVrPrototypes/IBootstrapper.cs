@@ -2,7 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace Assets.SpellCrossPrototypes
+namespace Assets.SpCrsVrPrototypes
 {
     public interface IBootstrapper
     {
