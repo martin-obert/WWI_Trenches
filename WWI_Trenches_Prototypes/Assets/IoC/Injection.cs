@@ -117,5 +117,24 @@ namespace Assets.IoC
                 }
             _observers.Clear();
         }
+
+        public void Unregister<T>(T dep)
+        {
+            var type = typeof(T);
+            if (_instances.ContainsKey(type))
+            {
+                List<Action<object>> actions;
+                if (_observers.TryGetValue(type, out actions))
+                {
+                    foreach (var action in actions)
+                    {
+                        action(null);
+                    }
+                    //Todo: clear if singleton
+//                    _observers[type].Clear();
+                }
+                _instances.Remove(type);
+            }
+        }
     }
 }

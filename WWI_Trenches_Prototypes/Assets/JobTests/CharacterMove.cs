@@ -138,22 +138,10 @@
 //    }
 
 using System;
-using System.Collections.Generic;
-using UnityEngine;
+using System.Numerics;
 
-public class ObjAnimationBakedFrame
-{
-    public List<Vector3> Vertices { get; set; }
-    public List<int> Indices { get; set; }
-}
 
-[Serializable]
-public class BakedAnimation
-{
-    public int TotalFrames;
-    public Dictionary<int, Vec3Seri[]> FrameData;
-    public int VerticesPerFrame { get; set; }
-}
+
 
 [Serializable]
 public class Vec3Seri

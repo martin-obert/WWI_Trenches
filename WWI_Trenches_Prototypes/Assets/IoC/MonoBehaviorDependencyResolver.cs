@@ -14,6 +14,7 @@ namespace Assets.IoC
 
         void Awake()
         {
+            Injection.Instance.Register(this);
             OnAwakeHandle();
         }
 
@@ -76,6 +77,8 @@ namespace Assets.IoC
         /// </summary>
         public virtual void Dispose()
         {
+            Injection.Instance.Unregister(this);
+
             _registerActions.Clear();
         }
 
