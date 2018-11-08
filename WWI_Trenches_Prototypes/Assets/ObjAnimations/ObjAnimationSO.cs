@@ -6,7 +6,11 @@ using UnityEngine;
 
 namespace Assets.ObjAnimations
 {
-
+    public enum AnimationType
+    {
+        None = 0,
+        Idle = 1
+    }
     [Serializable]
     [CreateAssetMenu(menuName = "Obj Anim", fileName = "Obj Animation")]
     public class ObjAnimationSo : ScriptableObject
@@ -22,8 +26,14 @@ namespace Assets.ObjAnimations
         public int SubMeshCount { get; set; }
 
         public float3[] Normals { get; set; }
+
         public int IndicesPerMesh { get; set; }
+
         public int VerticesPerMesh { get; set; }
+
+        public int FrameRate;
+
+        public AnimationType Type;
     }
 
     public static class ObjAnimationSoHelper

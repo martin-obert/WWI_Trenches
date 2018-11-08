@@ -2,6 +2,7 @@
 using Assets.IoC;
 using Assets.JobTests;
 using Assets.SpCrsVrPrototypes.ComponentDatas;
+using Assets.SpCrsVrPrototypes.Singletons;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,7 +10,7 @@ using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Assets.SpCrsVrPrototypes
+namespace Assets.SpCrsVrPrototypes.Systems
 {
     public class InstancedSelectableMeshRendererSystem : ComponentSystem
     {

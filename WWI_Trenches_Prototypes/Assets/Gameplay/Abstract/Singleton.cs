@@ -1,9 +1,10 @@
-﻿using Assets.IoC;
+﻿using System;
+using Assets.IoC;
 using UnityEngine;
 
 namespace Assets.Gameplay.Abstract
 {
-    public abstract class Singleton<T> : MonoBehaviorDependencyResolver where T : MonoBehaviour
+    public abstract class Singleton<T> : MonoBehaviorDependencyResolver where T : MonoBehaviour, IDisposable
     {
         public static T Instance { get; protected set; }
 

@@ -3,26 +3,25 @@ using Assets.IoC;
 using Assets.JobTests;
 using Assets.ObjAnimations;
 using Assets.SpCrsVrPrototypes.ComponentDatas;
+using Assets.SpCrsVrPrototypes.Singletons;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.Jobs;
-using UnityEngine.Rendering;
 
-namespace Assets.SpCrsVrPrototypes
+namespace Assets.SpCrsVrPrototypes.Systems
 {
     public class AnimatedMeshRendererSystem : ComponentSystem
     {
         struct Data
         {
-            public ComponentDataArray<AnimatedMeshRenderer> AnimatedRenderers;
+            public ComponentDataArray<AnimatedMeshSequence> AnimatedRenderers;
+            
 
             [ReadOnly] public ComponentDataArray<Position> Positions;
             [ReadOnly] public ComponentDataArray<Rotation> Rotations;
             [ReadOnly] public ComponentDataArray<Scale> Scales;
-
             [ReadOnly] public EntityArray Entities;
 
             public readonly int Length;
@@ -30,13 +29,14 @@ namespace Assets.SpCrsVrPrototypes
 
         struct AnimationSyncJob : IJobParallelFor
         {
-            public NativeArray<AnimatedMeshRenderer> AnimatedMeshRenderers;
+            public NativeArray<AnimatedMeshSequence> AnimatedMeshRenderers;
 
             public float DeltaTime;
 
             public void Execute(int index)
             {
                 var renderer = AnimatedMeshRenderers[index];
+
 
                 renderer.DeltaTime += DeltaTime;
 
@@ -61,25 +61,18 @@ namespace Assets.SpCrsVrPrototypes
         //Todo: set properties
         private MaterialPropertyBlock _materialPropertyBlock;
 
-        private IReadOnlyDictionary<int, Mesh[]> _animations;
+        private IEntitiesDataProvider _entitiesDataProvider;
+
         protected override void OnCreateManager()
         {
             _materialPropertyBlock = new MaterialPropertyBlock();
 
-            Injection.Instance.Get<Bootstrapper>(bootstrapper =>
-            {
-                _animations = bootstrapper.ObjAnimations;
-                _tempMaterial = bootstrapper.TempMaterial;
-                _tempMesh = bootstrapper.TempMash;
-            });
+            Injection.Instance.Get<CachedEntitiesDataProvider>(cachedEntitiesDataProvider => _entitiesDataProvider = cachedEntitiesDataProvider);
         }
-
-        private Material _tempMaterial;
-        private Mesh _tempMesh;
 
         protected override void OnUpdate()
         {
-            if (_animations == null)
+            if (_entitiesDataProvider == null)
                 return;
 
             _jobHandle.Complete();
@@ -102,9 +95,15 @@ namespace Assets.SpCrsVrPrototypes
                 var animationComponent = _data.AnimatedRenderers[i];
 
                 var position = _data.Positions[i];
+
                 var rotations = _data.Rotations[i];
 
-                var mesh = _animations[0];
+                var renderData = _entitiesDataProvider.GetMeshAnimationSet(animationComponent.UnitId);
+
+                var meshes = renderData.Animations[(AnimationType) animationComponent.AnimationType].Meshes;
+
+                var material = renderData.Material;
+
 
                 //Todo: select property change
                 if (EntityManager.HasComponent(_data.Entities[i], typeof(Selected)))
@@ -112,7 +111,7 @@ namespace Assets.SpCrsVrPrototypes
                     //_materialPropertyBlock.Set
                 }
 
-                Graphics.DrawMesh(mesh[animationComponent.FrameIndex], position.Value, rotations.Value, _tempMaterial, 0, null, 0);
+                Graphics.DrawMesh(meshes[animationComponent.FrameIndex], position.Value, rotations.Value, material, 0, null, 0);
             }
 
         }

@@ -6,10 +6,12 @@ using Unity.Transforms;
 
 namespace Assets.IoC
 {
-    public abstract class DependentComponentSystem : ComponentSystem
+    public abstract class DependentComponentSystem : ComponentSystem, IDisposable
     {
         private int _dependencies;
+
         private List<Action> Dependencies;
+
         protected void Depenecy<T>(Action<T> callback)
         {
             _dependencies++;
@@ -81,5 +83,7 @@ namespace Assets.IoC
         {
 
         }
+
+        public abstract void Dispose();
     }
 }

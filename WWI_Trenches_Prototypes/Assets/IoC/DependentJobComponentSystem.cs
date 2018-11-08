@@ -4,7 +4,7 @@ using Unity.Entities;
 
 namespace Assets.IoC
 {
-    public abstract class DependentJobComponentSystem : JobComponentSystem
+    public abstract class DependentJobComponentSystem : JobComponentSystem, IDisposable
     {
         private int _dependencies;
         private List<Action> Dependencies;
@@ -73,5 +73,7 @@ namespace Assets.IoC
         {
 
         }
+
+        public abstract void Dispose();
     }
 }

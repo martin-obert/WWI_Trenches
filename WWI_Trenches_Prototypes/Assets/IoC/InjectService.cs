@@ -45,13 +45,13 @@ namespace Assets.IoC
     //        }
     //    }
 
-    //    public void Register<T>(T instance, Instancing instancing = Instancing.Singleton) where T : UnityEngine.Object
+    //    public void RegisterScriptableObject<T>(T instance, Instancing instancing = Instancing.Singleton) where T : UnityEngine.Object
     //    {
     //        if (instancing == Instancing.Singleton && Container.Singletons.ContainsKey(typeof(T)))
     //            return;
 
     //        if (instance)
-    //            Container.Register<T>(instance);
+    //            Container.RegisterScriptableObject<T>(instance);
 
     //        List<Action<Object>> list;
     //        if (_callbackDictionary.TryGetValue(typeof(T), out list))

@@ -4,15 +4,17 @@ using Unity.Entities;
 namespace Assets.SpCrsVrPrototypes.ComponentDatas
 {
     [Serializable]
-    public struct AnimatedMeshRenderer : IComponentData
+    public struct AnimatedMeshSequence : IComponentData
     {
+        public int AnimationType;
+
         public float DeltaTime;
 
         public int FrameIndex;
 
         public int RepeatCount;
 
-        public int AnimationId;
+        public int UnitId;
 
         public int FrameCount;
 

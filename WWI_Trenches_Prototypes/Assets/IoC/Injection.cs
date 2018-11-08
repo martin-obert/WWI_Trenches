@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Assets.SpCrsVrPrototypes.Patterns;
 using UnityEngine;
 
 namespace Assets.IoC
@@ -37,6 +38,17 @@ namespace Assets.IoC
             }
         }
 
+        public void RegisterScriptableObject<T>() where T : ScriptableObjectDependencyResolver
+        {
+            var instance = ScriptableObject.CreateInstance<T>();
+            Register(typeof(T), instance, false);
+        }
+
+        public void Register<TSingleton>() where TSingleton : SingletonDisposable<TSingleton>, new()
+        {
+            Register(typeof(TSingleton), new TSingleton());
+        }
+
         public void Register(Type type, object instance, bool @override = false)
         {
             Debug.Log("Registering " + type);
@@ -70,7 +82,7 @@ namespace Assets.IoC
             }
         }
 
-        public void Register<T>(T instance, bool @override = false)
+        public void Register<T>(T instance, bool @override = false) where T : IDisposable
         {
             var type = typeof(T);
             Register(type, instance, @override);

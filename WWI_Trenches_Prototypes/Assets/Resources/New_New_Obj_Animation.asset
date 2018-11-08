@@ -11,5 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: New_New_Obj_Animation
   m_EditorClassIdentifier: Assembly-CSharp:Assets.ObjAnimations:ObjAnimationSo
-  Name: 
+  Name: Run
   IsRepeatable: 0
+  FrameRate: 24
+  Type: 1

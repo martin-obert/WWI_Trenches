@@ -9,10 +9,12 @@ namespace Assets.IoC
         void Awake()
         {
             OnAwakeHandle();
+            ResolveDependencies();
         }
 
         void OnDestroy()
         {
+            Injection.Instance.Unregister(GetType());
             OnDestroyHandle();
             Dispose();
         }

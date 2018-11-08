@@ -30,8 +30,6 @@ namespace Assets.ObjAnimations
 
             anim.SubMeshCount = objAnimationBakedFrames.Length;
 
-            
-
             anim.CreateAsset(path, "New Obj Animation");
         }
 
