@@ -8,7 +8,7 @@ namespace Assets.Gameplay.Factories
     {
         private Bootstrapper _bootstrapper;
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             Dependency<Bootstrapper>(x => _bootstrapper = x);
             CreateSingleton(this);

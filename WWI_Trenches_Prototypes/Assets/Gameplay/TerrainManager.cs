@@ -20,7 +20,7 @@ namespace Assets.Gameplay
             }
         }
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             CreateSingleton(this);
         }

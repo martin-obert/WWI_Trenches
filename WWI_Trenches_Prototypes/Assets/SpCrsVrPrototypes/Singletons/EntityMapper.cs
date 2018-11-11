@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Assets.IoC;
 using Assets.SpCrsVrPrototypes.Patterns;
 
 namespace Assets.SpCrsVrPrototypes.Singletons

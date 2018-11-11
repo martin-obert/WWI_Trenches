@@ -12,9 +12,9 @@ namespace Assets.IoC
 
         public bool AreDependenciesResolved { get; private set; }
 
-        void Awake()
+        void OnEnable()
         {
-            OnAwakeHandle();
+            OnEnableHandle();
             Injection.Instance.Register(GetType(), this, false);
         }
 
@@ -58,7 +58,7 @@ namespace Assets.IoC
         /// </summary>
         /// <typeparam name="TDependency"></typeparam>
         /// <param name="function"></param>
-        protected void Dependency<TDependency>(Action<TDependency> function) where TDependency : UnityEngine.Object
+        protected void Dependency<TDependency>(Action<TDependency> function)
         {
             _dependencies++;
             _registerActions.Push(() =>
@@ -88,7 +88,7 @@ namespace Assets.IoC
         /// Handle for mono behavior method Awake
         /// <see cref="Awake"/>
         /// </summary>
-        protected abstract void OnAwakeHandle();
+        protected abstract void OnEnableHandle();
 
         /// <summary>
         /// Handle for mono behavior method OnDestroy

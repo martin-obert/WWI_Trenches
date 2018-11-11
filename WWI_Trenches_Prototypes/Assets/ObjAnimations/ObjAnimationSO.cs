@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace Assets.ObjAnimations
@@ -11,36 +9,41 @@ namespace Assets.ObjAnimations
         None = 0,
         Idle = 1
     }
+
     [Serializable]
     [CreateAssetMenu(menuName = "Obj Anim", fileName = "Obj Animation")]
-    public class ObjAnimationSo : ScriptableObject
+    public class ObjAnimationSO : ScriptableObject
     {
-        public string Name;
-
-        public bool IsRepeatable;
-
-        public float3[] Vertices { get; set; }
-
-        public int[] Indices { get; set; }
-
-        public int SubMeshCount { get; set; }
-
-        public float3[] Normals { get; set; }
-
-        public int IndicesPerMesh { get; set; }
-
-        public int VerticesPerMesh { get; set; }
-
+        [SerializeField]
         public int FrameRate;
 
+        [SerializeField]
         public AnimationType Type;
+
+        [SerializeField]
+        public string Name;
+
+        [SerializeField]
+        public bool IsRepeatable;
+
+        [SerializeField, HideInInspector] public Vector3[] Vertices;
+
+        [SerializeField, HideInInspector] public int[] Indices;
+
+        [SerializeField] public int SubMeshCount;
+
+        [SerializeField, HideInInspector] public Vector3[] Normals;
+
+        [SerializeField] public int IndicesPerMesh;
+
+        [SerializeField] public int VerticesPerMesh;
     }
 
     public static class ObjAnimationSoHelper
     {
-        public static Mesh[] ToMesh(this ObjAnimationSo so)
+        public static Mesh[] ToMesh(this ObjAnimationSO so)
         {
-            Debug.Log("Transfroming obj anim so " + so.Vertices.Length);
+            Debug.Log("Transfroming obj anim so " + so);
             Debug.Log("Transfroming obj anim so " + so.Indices.Length);
             var result = new Mesh[so.SubMeshCount];
             for (int i = 0; i < so.SubMeshCount; i++)

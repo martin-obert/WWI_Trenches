@@ -10,7 +10,7 @@ namespace Assets.Gameplay.Mechanics
 
         public MechanicsResolver MechanicsResolver => _mechanicsResolver;
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             CreateSingleton(this);
         }

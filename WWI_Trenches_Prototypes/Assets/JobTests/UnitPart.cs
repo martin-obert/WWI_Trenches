@@ -31,13 +31,13 @@ namespace Assets.JobTests
     }
 
     /// <summary>
-    /// Tag component
-    /// </summary>
-    [Serializable]
-    public struct Selected : IComponentData
-    {
+    ///// Tag component
+    ///// </summary>
+    //[Serializable]
+    //public struct Selected : IComponentData
+    //{
 
-    }
+    //}
 
 
     // Converted from UnityScript to C# at http://www.M2H.nl/files/js_to_c.php - by Mike Hergaarden

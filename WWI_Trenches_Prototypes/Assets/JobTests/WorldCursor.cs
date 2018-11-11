@@ -19,7 +19,7 @@ namespace Assets.JobTests
 
      
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             CreateSingleton(this);
         }

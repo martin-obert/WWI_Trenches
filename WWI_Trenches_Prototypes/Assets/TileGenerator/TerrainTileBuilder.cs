@@ -209,7 +209,7 @@ namespace Assets.TileGenerator
             TerrainProgress?.Invoke(this, args);
         }
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             CreateSingleton(this);
         }

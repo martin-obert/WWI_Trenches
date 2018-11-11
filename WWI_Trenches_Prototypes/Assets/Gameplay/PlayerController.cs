@@ -8,7 +8,7 @@ namespace Assets.Gameplay
     {
         public ICharacterProxy<BasicCharacter> Character;
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             CreateSingleton(this);
 

@@ -22,8 +22,11 @@ namespace Assets.ObjAnimations
             AssetDatabase.CreateAsset(asset, assetPathAndName);
 
             AssetDatabase.SaveAssets();
+
             AssetDatabase.Refresh();
+
             EditorUtility.FocusProjectWindow();
+
             Selection.activeObject = asset;
 
         }

@@ -83,7 +83,7 @@ namespace Assets.Gameplay.Tutorials
             _uiGroup.alpha = 0;
         }
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             CreateSingleton(this);
         }

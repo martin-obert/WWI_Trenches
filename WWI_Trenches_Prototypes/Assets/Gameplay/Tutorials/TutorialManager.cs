@@ -15,7 +15,7 @@ namespace Assets.Gameplay.Tutorials
             _tutorialParts.Add(part.Id, part);
         }
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             Dependency<TutorialPlayer>(player =>
             {

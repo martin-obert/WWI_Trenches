@@ -14,15 +14,15 @@ namespace Assets.ObjAnimations
 
             var parsedValues = ObjMeshParser.GetAnimationFrames(path);
 
-            var anim = CreateInstance<ObjAnimationSo>();
+            var anim = CreateInstance<ObjAnimationSO>();
 
             var objAnimationBakedFrames = parsedValues as ObjAnimationBakedFrame[] ?? parsedValues.ToArray();
 
-            anim.Vertices = objAnimationBakedFrames.SelectMany(x=> x.Vertices.Select(y => (float3)y)).ToArray();
+            anim.Vertices = objAnimationBakedFrames.SelectMany(x=> x.Vertices.Select(y => (Vector3)y)).ToArray();
 
             anim.Indices = objAnimationBakedFrames.SelectMany(x=>x.Indices.Select(y => y - 1)).ToArray();
 
-            anim.Normals = objAnimationBakedFrames.SelectMany(x=>x.Vertices.Select(y => (float3) y)).ToArray();
+            anim.Normals = objAnimationBakedFrames.SelectMany(x=>x.Vertices.Select(y => (Vector3) y)).ToArray();
 
             anim.VerticesPerMesh = objAnimationBakedFrames[0].Vertices.Length;
 

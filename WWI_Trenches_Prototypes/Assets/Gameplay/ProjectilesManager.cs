@@ -11,7 +11,7 @@ namespace Assets.Gameplay
     {
         private ProjectileLogic _projectileLogic = new ProjectileLogic();
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             CreateSingleton(this);
         }

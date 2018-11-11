@@ -31,7 +31,7 @@ namespace Assets.Gameplay
 
         private CharacterFactory _characterFactory;
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             Dependency<Bootstrapper>(bootstrapper => { _bootstrapper = bootstrapper; });
             Dependency<TerrainTileBuilder>(RegisterTerrainBuilder);

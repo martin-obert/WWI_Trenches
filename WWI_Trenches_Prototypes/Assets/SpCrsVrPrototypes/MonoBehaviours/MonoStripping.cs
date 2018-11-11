@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Assets.ObjAnimations;
 using Assets.SpCrsVrPrototypes.ComponentDatas;
+using Assets.SpCrsVrPrototypes.Singletons;
 using Assets.XnaLegacy;
 using Unity.Entities;
 using Unity.Transforms;
@@ -16,19 +17,33 @@ namespace Assets.SpCrsVrPrototypes.MonoBehaviours
         [SerializeField] private bool _stripBoundingVolume;
         [SerializeField] private string _uniqueName;
         [SerializeField] private bool _hasAnimations;
+        [SerializeField] private RayCastLayer _rayCastLayer;
+        [SerializeField] private bool _IsSelectable;
+        [SerializeField] private float _StoppingRadius;
+        [SerializeField] private float _TurningSpeed;
+        [SerializeField] private float _InitialVelocity;
+        [SerializeField] private float _MoveSpeed;
 
         public string UniqueName => _uniqueName;
-        public ObjAnimationSo IdleAnimation;
 
-        public EntityArchetype StripEntityArchetype(EntityManager manager)
+        public ObjAnimationSO IdleAnimation;
+
+
+        public EntityData DefaultUnitData { get; private set; }
+
+        public void StripEntityArchetype(EntityManager manager)
         {
             var components = new List<ComponentType>();
+
+            DefaultUnitData = new EntityData();
 
             if (_stripBoundingVolume)
             {
                 if (GetComponent<SphereCollider>())
                 {
                     components.Add(typeof(XnaBoundingSphere));
+                    DefaultUnitData.SphereRadius = GetComponent<SphereCollider>().radius;
+                    DefaultUnitData.SphereOffset = GetComponent<SphereCollider>().center;
                 }
                 else if (GetComponent<BoxCollider>())
                 {
@@ -45,15 +60,19 @@ namespace Assets.SpCrsVrPrototypes.MonoBehaviours
                 if (GetComponent<SkinnedMeshRenderer>() || _hasAnimations)
                 {
                     components.Add(typeof(AnimatedMeshSequence));
+                    DefaultUnitData.Material =   GetComponent<MeshRenderer>().sharedMaterial;
                 }
                 else if (GetComponent<MeshRenderer>())
                 {
                     components.Add(typeof(InstancedSelectableMeshRenderer));
+                    DefaultUnitData.Material = GetComponent<MeshRenderer>().sharedMaterial;
                 }
                 else
                 {
                     Debug.LogWarning("Cannot strip mesh. None was found or compatible!");
                 }
+
+
             }
 
             if (_stripTransforms)
@@ -61,21 +80,40 @@ namespace Assets.SpCrsVrPrototypes.MonoBehaviours
                 if (GetComponent<Transform>())
                 {
                     components.AddRange(new ComponentType[] { typeof(Position), typeof(Rotation), typeof(Scale) });
+                    DefaultUnitData.Position = transform.position;
+                    DefaultUnitData.Rotation = transform.rotation;
+                    DefaultUnitData.Scale = transform.lossyScale;
                 }
             }
+
+            if (_IsSelectable)
+            {
+                components.Add(typeof(RayCastData));
+            }
+
+            components.Add(typeof(Navigation));
 
             foreach (var componentType in components)
             {
                 print(componentType);
             }
 
-            return manager.CreateArchetype(components.ToArray());
-        }
+            DefaultUnitData.TurningSpeed = _TurningSpeed;
+            DefaultUnitData.InitialVelocity = _InitialVelocity;
+            DefaultUnitData.StoppingRadius = _StoppingRadius;
+            DefaultUnitData.MoveSpeed = _MoveSpeed;
 
-        public Material GetMaterial()
-        {
-            return
-                GetComponent<MeshRenderer>()?.sharedMaterial ?? GetComponent<SkinnedMeshRenderer>()?.sharedMaterial;
+
+            DefaultUnitData.Archetype = manager.CreateArchetype(components.ToArray());
+
+            DefaultUnitData.Animations = new Dictionary<AnimationType, ObjAnimationSoCache>
+            {
+                {AnimationType.Idle,new ObjAnimationSoCache
+                {
+                    Meshes = IdleAnimation.ToMesh(),
+                    FrameRate = IdleAnimation. FrameRate,FrameCount = IdleAnimation.SubMeshCount
+                }}
+            };
         }
     }
 }

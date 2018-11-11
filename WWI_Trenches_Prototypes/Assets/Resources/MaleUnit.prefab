@@ -37,7 +37,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1305329367131404}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -17.013319, y: -3.5507706e-16, z: 15.991249}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -58,7 +58,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: 01c7d48d42f5f614f9c861f316c81b63, type: 3}
+  - {fileID: 2100000, guid: dc0005079fbe5e34a92dc281ffa87ea9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -102,6 +102,12 @@ MonoBehaviour:
   _stripBoundingVolume: 1
   _uniqueName: Test Subject
   _hasAnimations: 1
+  _rayCastLayer: 0
+  _IsSelectable: 1
+  _StoppingRadius: 2
+  _TurningSpeed: 0
+  _InitialVelocity: 0
+  _MoveSpeed: 1
   IdleAnimation: {fileID: 11400000, guid: 097c086fac94a7747aaed97cd039e18b, type: 2}
 --- !u!135 &135863862791353548
 SphereCollider:
@@ -113,5 +119,5 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.91034645
-  m_Center: {x: 0.019461513, y: 1.0944475, z: 0.022933483}
+  m_Radius: 0.5114641
+  m_Center: {x: 0.019461513, y: 1.2773355, z: 0.07744503}

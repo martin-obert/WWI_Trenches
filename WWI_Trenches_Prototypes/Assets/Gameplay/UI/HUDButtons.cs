@@ -22,7 +22,7 @@ public class HUDButtons : MonoBehaviorDependencyResolver
         _gameManager.CurrentPlayer.Shoot();
     }
 
-    protected override void OnAwakeHandle()
+    protected override void OnEnableHandle()
     {
         Dependency<GameManager>(manager => _gameManager = manager);
         ResolveDependencies();

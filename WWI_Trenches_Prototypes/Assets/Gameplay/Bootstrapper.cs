@@ -28,7 +28,7 @@ namespace Assets.Gameplay
         public RangedWeapon PlayerMainWeapon;
 
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             CreateSingleton(this);
         }

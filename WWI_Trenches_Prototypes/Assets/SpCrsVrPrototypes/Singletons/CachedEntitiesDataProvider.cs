@@ -1,13 +1,10 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Assets.IoC;
 using Assets.ObjAnimations;
-using Assets.SpCrsVrPrototypes.ComponentDatas;
 using Assets.SpCrsVrPrototypes.MonoBehaviours;
 using Assets.SpCrsVrPrototypes.Patterns;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Transforms;
+using UnityEngine;
 
 namespace Assets.SpCrsVrPrototypes.Singletons
 {
@@ -16,13 +13,13 @@ namespace Assets.SpCrsVrPrototypes.Singletons
 
         private IEntityMapper _entityMapper;
 
-        private readonly IDictionary<int, EntityData> _monoStrippings;
+        private readonly IDictionary<int, EntityData> _entityDatas;
 
         private readonly EntityManager _entityManager;
 
         public CachedEntitiesDataProvider()
         {
-            _monoStrippings = new ConcurrentDictionary<int, EntityData>();
+            _entityDatas = new ConcurrentDictionary<int, EntityData>();
 
             _entityManager = World.Active.GetOrCreateManager<EntityManager>();
 
@@ -37,89 +34,37 @@ namespace Assets.SpCrsVrPrototypes.Singletons
 
         public EntityArchetype GetEntityArchetype(int unitId)
         {
-            return _monoStrippings[unitId].Archetype;
+            return _entityDatas[unitId].Archetype;
         }
 
-        public Entity CreateEntity(string unitName, float3? position = null, quaternion? rotation = null, float3? scale = null)
-        {
-            var id = _entityMapper.NameToId(unitName);
 
-            return CreateEntity(id, position, rotation, scale);
-        }
 
-        //Todo: bulk create to native array 
-        public Entity CreateEntity(int unitId, float3? position = null, quaternion? rotation = null, float3? scale = null)
-        {
-            var renderData = _monoStrippings[unitId];
 
-            var archeType = renderData.Archetype;
-
-            var entity = _entityManager.CreateEntity(archeType);
-
-            if (position.HasValue)
-                _entityManager.SetComponentData(entity, new Position { Value = position.Value });
-
-            if(rotation.HasValue)
-                _entityManager.SetComponentData(entity, new Rotation { Value = rotation.Value });
-
-            if (scale.HasValue)
-                _entityManager.SetComponentData(entity, new Scale { Value = scale.Value });
-
-            if (_entityManager.HasComponent(entity, typeof(AnimatedMeshSequence)))
-            {
-                var defaultAnimation = renderData.Animations[AnimationType.Idle];
-
-                _entityManager.SetComponentData(entity, new AnimatedMeshSequence
-                {
-                    AnimationType = (int)AnimationType.Idle,
-                    FrameCount = defaultAnimation.FrameCount,
-                    FrameRate = defaultAnimation.FrameRate,
-                    UnitId = unitId
-                });
-            }
-
-            return entity;
-        }
-
-       
         public override void Dispose()
         {
-            _monoStrippings.Clear();
+            _entityDatas.Clear();
         }
 
         public void RegisterEntity(MonoStripping monoStripping)
         {
             var unitId = _entityMapper.NameToId(monoStripping.UniqueName);
 
-            var animationData = new ConcurrentDictionary<AnimationType, ObjAnimationSoCache>();
+            monoStripping.StripEntityArchetype(_entityManager);
 
-            _monoStrippings.Add(unitId, new EntityData
-            {
-                Stripping = monoStripping,
-                Archetype = monoStripping.StripEntityArchetype(_entityManager),
-                Material = monoStripping.GetMaterial(),
-                Animations = animationData
-            });
+            var defaultValues = monoStripping.DefaultUnitData;
 
-            if (monoStripping.IdleAnimation)
-            {
-                RegisterAnimation(monoStripping.IdleAnimation, animationData);
-            }
+            _entityDatas.Add(unitId, defaultValues);
+        }
+        public EntityData GetEntityData(int unitId)
+        {
+            return _entityDatas[unitId];
         }
 
-        private void RegisterAnimation(ObjAnimationSo objAnimation, IDictionary<AnimationType, ObjAnimationSoCache> cached)
+        public EntityData GetEntityData(string unitName)
         {
-            cached.Add(objAnimation.Type, new ObjAnimationSoCache
-            {
-                Meshes = objAnimation.ToMesh(),
-                FrameCount = objAnimation.SubMeshCount,
-                FrameRate = objAnimation.FrameRate
-            });
-        }
+            var id = _entityMapper.NameToId(unitName);
 
-        public EntityData GetMeshAnimationSet(int unitId)
-        {
-            return _monoStrippings[unitId];
+            return GetEntityData(id);
         }
     }
 }

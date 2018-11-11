@@ -21,7 +21,7 @@ namespace Assets.Gameplay
         private TerrainManager _terrainManager;
 
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             Dependency<PlayerController>(player => _player = player);
             Dependency<TerrainManager>(terrainManager => _terrainManager = terrainManager);

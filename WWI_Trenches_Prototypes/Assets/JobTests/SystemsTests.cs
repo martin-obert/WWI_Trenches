@@ -639,7 +639,7 @@ using UnityEngine.Experimental.UIElements;
 //    }
 
 //    [UpdateAfter(typeof(UnSelectionSystem))]
-//    public class SelectionSystem : JobComponentSystem
+//    public class RayCastSystem : JobComponentSystem
 //    {
 //        struct Data
 //        {
@@ -806,7 +806,7 @@ using UnityEngine.Experimental.UIElements;
 //        }
 //    }
 
-//    [UpdateAfter(typeof(SelectionSystem))]
+//    [UpdateAfter(typeof(RayCastSystem))]
 //    public class NavigationSystem : ComponentSystem
 //    {
 //        struct Data

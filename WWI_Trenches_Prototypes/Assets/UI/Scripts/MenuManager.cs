@@ -34,7 +34,7 @@ namespace Assets.UI.Scripts
             }
         }
 
-        protected override void OnAwakeHandle()
+        protected override void OnEnableHandle()
         {
             CreateSingleton(this);
             foreach (var menuController in _menuControllers)

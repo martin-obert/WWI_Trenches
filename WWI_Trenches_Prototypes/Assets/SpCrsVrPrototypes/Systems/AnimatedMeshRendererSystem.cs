@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Assets.IoC;
-using Assets.JobTests;
+﻿using Assets.IoC;
 using Assets.ObjAnimations;
 using Assets.SpCrsVrPrototypes.ComponentDatas;
 using Assets.SpCrsVrPrototypes.Singletons;
@@ -17,7 +15,7 @@ namespace Assets.SpCrsVrPrototypes.Systems
         struct Data
         {
             public ComponentDataArray<AnimatedMeshSequence> AnimatedRenderers;
-            
+
 
             [ReadOnly] public ComponentDataArray<Position> Positions;
             [ReadOnly] public ComponentDataArray<Rotation> Rotations;
@@ -98,20 +96,17 @@ namespace Assets.SpCrsVrPrototypes.Systems
 
                 var rotations = _data.Rotations[i];
 
-                var renderData = _entitiesDataProvider.GetMeshAnimationSet(animationComponent.UnitId);
+                var renderData = _entitiesDataProvider.GetEntityData(animationComponent.UnitId);
 
-                var meshes = renderData.Animations[(AnimationType) animationComponent.AnimationType].Meshes;
+                var meshes = renderData.Animations[(AnimationType)animationComponent.AnimationType].Meshes;
 
                 var material = renderData.Material;
 
 
-                //Todo: select property change
-                if (EntityManager.HasComponent(_data.Entities[i], typeof(Selected)))
-                {
-                    //_materialPropertyBlock.Set
-                }
+                _materialPropertyBlock.SetFloat("_Selection_Color", EntityManager.HasComponent<Selected>(_data.Entities[i]) ? 1 : 0);
 
-                Graphics.DrawMesh(meshes[animationComponent.FrameIndex], position.Value, rotations.Value, material, 0, null, 0);
+                
+                Graphics.DrawMesh(meshes[animationComponent.FrameIndex], position.Value, rotations.Value, material, 0, null, 0, _materialPropertyBlock);
             }
 
         }

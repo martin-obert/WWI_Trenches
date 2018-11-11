@@ -19,38 +19,62 @@ namespace Assets.SpCrsVrPrototypes.Singletons
 
         [SerializeField] private MonoStripping[] Units;
 
-        protected override void OnAwakeHandle()
+        private IEntitiesDataProvider _dataProvider;
+        private IEntityFactory _entityFactory;
+
+        protected override void OnEnableHandle()
         {
 
             Injection.Instance.Register<EntityMapper>();
 
             Injection.Instance.Register<CachedEntitiesDataProvider>();
 
+            Injection.Instance.Register<EntityFactory>();
 
-            Injection.Instance.Get<CachedEntitiesDataProvider>(provider =>
-            {
-                foreach (var monoStripping in Units)
-                {
-                    provider.RegisterEntity(monoStripping);
-                }
+            Dependency<CachedEntitiesDataProvider>(provider => _dataProvider = provider);
 
-                foreach (var monoStripping in Units)
-                {
-                    for (int i = 0; i < TestCount; i++)
-                    {
-                        print("Spawn ");
-                        provider.CreateEntity(monoStripping.UniqueName, new float3(0,0,i), quaternion.identity, new float3(1,1,1));
-                    }
-                }
-            });
-            
+            Dependency<EntityFactory>(factory => _entityFactory = factory);
+
+
+            ResolveDependencies();
         }
 
-        public int TestCount = 100;
+        protected override void OnDependeciesResolved()
+        {
+            foreach (var monoStripping in Units)
+            {
+                _dataProvider.RegisterEntity(monoStripping);
+            }
+
+            foreach (var monoStripping in Units)
+            {
+                for (int i = 0; i < TestCount; i++)
+                {
+                    print("Spawn ");
+                    var data = _dataProvider.GetEntityData(monoStripping.UniqueName);
+                    _entityFactory.CreateBasicUnit(monoStripping.UniqueName, new EntityData
+                    {
+                        Archetype = data.Archetype,
+                        Position = new float3(0, 0, i + i * data.SphereRadius),
+                        Rotation = quaternion.identity,
+                        Scale = new float3(1, 1, 1),
+                        Material = data.Material,
+                        Animations = data.Animations,
+                        SphereRadius = data.SphereRadius,
+                    });
+                }
+            }
+        }
 
         protected override void OnDestroyHandle()
         {
 
         }
+
+        public int TestCount = 100;
+
+
     }
+
+
 }
