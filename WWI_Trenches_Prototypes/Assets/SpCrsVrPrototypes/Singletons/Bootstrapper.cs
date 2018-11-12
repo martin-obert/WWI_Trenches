@@ -61,6 +61,11 @@ namespace Assets.SpCrsVrPrototypes.Singletons
                         Material = data.Material,
                         Animations = data.Animations,
                         SphereRadius = data.SphereRadius,
+                        MoveSpeed = data.MoveSpeed,
+                        TurningSpeed = data.TurningSpeed,
+                        InitialVelocity = data.InitialVelocity,
+                        SphereOffset = data.SphereOffset,
+                        StoppingRadius = data.StoppingRadius
                     });
                 }
             }

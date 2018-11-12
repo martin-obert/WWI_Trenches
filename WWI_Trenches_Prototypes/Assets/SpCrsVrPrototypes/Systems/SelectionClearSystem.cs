@@ -7,6 +7,7 @@ using UnityEngine.Experimental.UIElements;
 
 namespace Assets.SpCrsVrPrototypes.Systems
 {
+    //Todo: beter move to mono behav? Or use input up/down
     [UpdateBefore(typeof(RayCastSystem))]
     public class SelectionClearSystem : JobComponentSystem
     {

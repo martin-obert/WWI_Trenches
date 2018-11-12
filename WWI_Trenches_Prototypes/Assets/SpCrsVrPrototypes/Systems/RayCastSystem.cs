@@ -1,4 +1,5 @@
 ﻿using Assets.SpCrsVrPrototypes.ComponentDatas;
+using Assets.SpCrsVrPrototypes.Enums;
 using Assets.XnaLegacy;
 using Unity.Collections;
 using Unity.Entities;
@@ -10,15 +11,8 @@ using UnityEngine.Experimental.UIElements;
 
 namespace Assets.SpCrsVrPrototypes.Systems
 {
-    public enum SelectionType
-    {
-        Single = 0,
-        Multiple = 1
-    }
-
     public class RayCastSystem : JobComponentSystem
     {
-
         struct Data
         {
             [ReadOnly] public ComponentDataArray<RayCastData> RayCastObjects;
@@ -100,16 +94,10 @@ namespace Assets.SpCrsVrPrototypes.Systems
 
         [Inject] private EndFrameBarrier _endFrameBarrier;
 
-        protected override void OnCreateManager()
-        {
-        }
-
         private JobHandle _handle;
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-
-
             if (Input.GetMouseButtonDown((int)MouseButton.RightMouse))
             {
                 var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -121,7 +109,7 @@ namespace Assets.SpCrsVrPrototypes.Systems
                 var rayCastHandle = new RayCastJob
                 {
                     Ray = new XnaRay { Position = ray.origin, Direction = ray.direction },
-                    RayLayer = (int)RayCastLayer.UI,
+                    RayLayer = (int)RayCastFlag.Unit,
                     RayCastData = _data.RayCastObjects,
                     Spheres = _data.Spheres,
                 }.ScheduleAppend(indices, _data.Length, 64, inputDeps);

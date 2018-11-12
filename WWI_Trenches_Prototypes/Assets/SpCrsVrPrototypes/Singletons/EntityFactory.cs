@@ -1,5 +1,6 @@
 ﻿using Assets.ObjAnimations;
 using Assets.SpCrsVrPrototypes.ComponentDatas;
+using Assets.SpCrsVrPrototypes.Enums;
 using Assets.SpCrsVrPrototypes.Patterns;
 using Assets.XnaLegacy;
 using Unity.Entities;
@@ -45,7 +46,7 @@ namespace Assets.SpCrsVrPrototypes.Singletons
             {
                 _entityManager.SetComponentData(entity, new RayCastData
                 {
-                    SelectLayer = (int)RayCastLayer.UI
+                    SelectLayer = (int)RayCastFlag.Unit
                 });
             }
 
@@ -65,6 +66,7 @@ namespace Assets.SpCrsVrPrototypes.Singletons
                 Velocity = data.InitialVelocity
             });
 
+            Debug.Log(data.MoveSpeed);
             if (_entityManager.HasComponent(entity, typeof(AnimatedMeshSequence)))
             {
                 _entityManager.SetComponentData(entity, new AnimatedMeshSequence

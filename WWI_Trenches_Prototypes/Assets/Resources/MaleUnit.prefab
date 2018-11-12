@@ -105,7 +105,7 @@ MonoBehaviour:
   _rayCastLayer: 0
   _IsSelectable: 1
   _StoppingRadius: 2
-  _TurningSpeed: 0
+  _TurningSpeed: 15
   _InitialVelocity: 0
   _MoveSpeed: 1
   IdleAnimation: {fileID: 11400000, guid: 097c086fac94a7747aaed97cd039e18b, type: 2}

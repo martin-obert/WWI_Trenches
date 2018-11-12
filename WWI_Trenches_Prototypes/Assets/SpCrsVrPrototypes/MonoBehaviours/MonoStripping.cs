@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Assets.ObjAnimations;
 using Assets.SpCrsVrPrototypes.ComponentDatas;
+using Assets.SpCrsVrPrototypes.Enums;
 using Assets.SpCrsVrPrototypes.Singletons;
 using Assets.XnaLegacy;
 using Unity.Entities;
@@ -17,7 +18,7 @@ namespace Assets.SpCrsVrPrototypes.MonoBehaviours
         [SerializeField] private bool _stripBoundingVolume;
         [SerializeField] private string _uniqueName;
         [SerializeField] private bool _hasAnimations;
-        [SerializeField] private RayCastLayer _rayCastLayer;
+        [SerializeField] private RayCastFlag _rayCastFlag;
         [SerializeField] private bool _IsSelectable;
         [SerializeField] private float _StoppingRadius;
         [SerializeField] private float _TurningSpeed;
