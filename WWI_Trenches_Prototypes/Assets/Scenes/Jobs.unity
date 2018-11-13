@@ -261,7 +261,11 @@ MonoBehaviour:
   SelectionColorName: 
   Units:
   - {fileID: 114087985362498316, guid: 1d127b3169e506542813f612bb6b71f1, type: 2}
-  TestCount: 6
+  HealthBarMaterialGreen: {fileID: 2100000, guid: 7bfb614c1ca929e48adc97949bb72012,
+    type: 2}
+  HealthBarMaterialRed: {fileID: 2100000, guid: b95917ecdc35d0c49819b6df86afa5ce,
+    type: 2}
+  TestCount: 5
 --- !u!4 &534380454
 Transform:
   m_ObjectHideFlags: 0

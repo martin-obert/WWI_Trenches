@@ -22,5 +22,6 @@ namespace Assets.SpCrsVrPrototypes.Singletons
         public float StoppingRadius { get; set; }
         public float MoveSpeed { get; set; }
         public float InitialVelocity { get; set; }
+        public float Health { get; set; }
     }
 }

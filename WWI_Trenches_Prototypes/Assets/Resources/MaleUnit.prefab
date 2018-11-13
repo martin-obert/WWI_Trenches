@@ -102,12 +102,13 @@ MonoBehaviour:
   _stripBoundingVolume: 1
   _uniqueName: Test Subject
   _hasAnimations: 1
-  _rayCastLayer: 0
+  _rayCastFlag: 0
   _IsSelectable: 1
   _StoppingRadius: 2
   _TurningSpeed: 15
   _InitialVelocity: 0
-  _MoveSpeed: 1
+  _MoveSpeed: 5
+  _Health: 100
   IdleAnimation: {fileID: 11400000, guid: 097c086fac94a7747aaed97cd039e18b, type: 2}
 --- !u!135 &135863862791353548
 SphereCollider:

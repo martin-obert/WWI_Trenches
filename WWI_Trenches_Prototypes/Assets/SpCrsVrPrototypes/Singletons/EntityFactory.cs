@@ -66,7 +66,9 @@ namespace Assets.SpCrsVrPrototypes.Singletons
                 Velocity = data.InitialVelocity
             });
 
-            Debug.Log(data.MoveSpeed);
+            if (_entityManager.HasComponent(entity, typeof(Health)))
+                _entityManager.SetComponentData(entity, new Health { Value = 100, Max = 100, Min = 100 });
+
             if (_entityManager.HasComponent(entity, typeof(AnimatedMeshSequence)))
             {
                 _entityManager.SetComponentData(entity, new AnimatedMeshSequence

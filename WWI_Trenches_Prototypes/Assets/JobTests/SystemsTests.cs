@@ -38,8 +38,8 @@ using UnityEngine.Experimental.UIElements;
 //        {
 //            _manager = World.Active.GetOrCreateManager<EntityManager>();
 
-//            HealthDrawSystem.BarMeshMaterial = barMaterial;
-//            HealthDrawSystem.BarMeshMaterial2 = barMaterial2;
+//            HealthDrawSystem.AvailibleHealthMaterial = barMaterial;
+//            HealthDrawSystem.UnAvailibleHealthMaterial = barMaterial2;
 //            NavigationSystem.AudioClip = Clip;
 //            NavigationSystem.Audio = AudioSource;
 
@@ -200,7 +200,7 @@ using UnityEngine.Experimental.UIElements;
 //        private Matrix4x4 _worldToScreen;
 //        private Mesh _barMesh;
 //        private ComponentGroup _group;
-//        public static Material BarMeshMaterial2;
+//        public static Material UnAvailibleHealthMaterial;
 
 //        protected override void OnCreateManager()
 //        {
@@ -220,7 +220,7 @@ using UnityEngine.Experimental.UIElements;
 //            };
 //            _group = GetComponentGroup(typeof(Selected), typeof(Position), typeof(Health));
 //        }
-//        public static Material BarMeshMaterial;
+//        public static Material AvailibleHealthMaterial;
 
 //        private float3 Size = new float3(15, 1, 0);
 
@@ -254,8 +254,8 @@ using UnityEngine.Experimental.UIElements;
 //                unavailibleHealth[i] = CreateHealtMatrix(position.Value - Size / 2, -healthUnAvailibleClamped, 5, Size.x);
 //            }
 
-//            Graphics.DrawMeshInstanced(_barMesh, 0, BarMeshMaterial, availibleHealth);
-//            Graphics.DrawMeshInstanced(_barMesh, 0, BarMeshMaterial2, unavailibleHealth);
+//            Graphics.DrawMeshInstanced(_barMesh, 0, AvailibleHealthMaterial, availibleHealth);
+//            Graphics.DrawMeshInstanced(_barMesh, 0, UnAvailibleHealthMaterial, unavailibleHealth);
 
 //        }
 

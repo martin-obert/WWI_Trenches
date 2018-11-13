@@ -24,6 +24,7 @@ namespace Assets.SpCrsVrPrototypes.MonoBehaviours
         [SerializeField] private float _TurningSpeed;
         [SerializeField] private float _InitialVelocity;
         [SerializeField] private float _MoveSpeed;
+        [SerializeField] private float _Health;
 
         public string UniqueName => _uniqueName;
 
@@ -93,6 +94,12 @@ namespace Assets.SpCrsVrPrototypes.MonoBehaviours
             }
 
             components.Add(typeof(Navigation));
+
+            if (_Health > 0)
+            {
+                DefaultUnitData.Health = _Health;
+                components.Add(typeof(Health));
+            }
 
             foreach (var componentType in components)
             {

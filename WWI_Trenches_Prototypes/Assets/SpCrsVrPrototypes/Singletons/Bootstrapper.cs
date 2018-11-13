@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Assets.IoC;
-using Assets.ObjAnimations;
-using Assets.SpCrsVrPrototypes.ComponentDatas;
+﻿using Assets.IoC;
 using Assets.SpCrsVrPrototypes.MonoBehaviours;
-using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.Rendering;
-using Random = UnityEngine.Random;
 
 namespace Assets.SpCrsVrPrototypes.Singletons
 {
@@ -21,6 +13,8 @@ namespace Assets.SpCrsVrPrototypes.Singletons
 
         private IEntitiesDataProvider _dataProvider;
         private IEntityFactory _entityFactory;
+        public Material HealthBarMaterialGreen;
+        public Material HealthBarMaterialRed;
 
         protected override void OnEnableHandle()
         {
@@ -50,7 +44,6 @@ namespace Assets.SpCrsVrPrototypes.Singletons
             {
                 for (int i = 0; i < TestCount; i++)
                 {
-                    print("Spawn ");
                     var data = _dataProvider.GetEntityData(monoStripping.UniqueName);
                     _entityFactory.CreateBasicUnit(monoStripping.UniqueName, new EntityData
                     {
@@ -65,7 +58,8 @@ namespace Assets.SpCrsVrPrototypes.Singletons
                         TurningSpeed = data.TurningSpeed,
                         InitialVelocity = data.InitialVelocity,
                         SphereOffset = data.SphereOffset,
-                        StoppingRadius = data.StoppingRadius
+                        StoppingRadius = data.StoppingRadius,
+                        Health = data.Health
                     });
                 }
             }
